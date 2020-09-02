@@ -1,0 +1,41 @@
+          <md-menu md-position-mode="target-right target" >
+            <a class=""  ng-click="$mdOpenMenu()">
+         <i class="fa fa-ellipsis-v"></i>
+       </a>
+       <md-menu-content class="sidax my0 py0" width="2">
+                        <md-menu-item>
+                <md-button ng-click="sItem('bookmark')">
+                <i class="fa fa-bookmark"></i> &nbsp; Bookmark [{{item.id}}]
+                </md-button>
+              </md-menu-item>
+            <md-menu-divider></md-menu-divider>
+              <md-menu-item>
+                <md-button ng-click="sItem('thank-poster')">
+             <i class="fa fa-thumbs-up"></i> &nbsp; Thank Poster
+                </md-button>
+              </md-menu-item>
+            <md-menu-divider></md-menu-divider>
+              <md-menu-item>
+                <md-button ng-disabled="true" ng-click="sItem('upvote')">
+             <i class="fa fa-heart"></i> &nbsp; Upvote
+                </md-button>
+              </md-menu-item>
+            <md-menu-divider></md-menu-divider>
+              <md-menu-item>
+                <md-button ng-click="sItem('downvote')">
+             <i class="fa red fa-arrow-down"></i> &nbsp; Downvote
+                </md-button>
+              </md-menu-item>
+              <md-menu-divider></md-menu-divider>
+              <md-menu-item>
+                <md-button ng-click="sItem('report-post')">
+             <i class="fa fa-flag"></i> &nbsp; Report Post
+                </md-button>
+              </md-menu-item>
+
+
+              </md-menu-content>
+            
+          </md-menu>
+
+        

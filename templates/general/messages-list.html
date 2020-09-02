@@ -1,0 +1,42 @@
+
+<div class="sticky py10 px10 bg-white border-bottom" layout="row" layout-align="start center">
+<span class="bolder" flex><i class="fas fa-envelope"></i>&nbsp; MESSAGES</span>
+
+
+<span>
+<md-button ng-click="launchNew()" class="md-primary md-raised px15 mx0 my0"> <i class="fas fa-plus"></i>&nbsp;
+      New <span class="sm-hide"> Message</span></md-button>
+</span>
+</div><!--sticky-header-->
+
+
+
+
+<md-list class="border-top">
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+ <div class="list-item-cover shadow-md"
+             ng-repeat="item in messages | filter: search.messages"  ng-init="item.index = $index">
+<md-list-item class="md-2-line" ng-href="{{module}}/messages/read/{{item.chat_dir}}">
+
+	<md-icon class="md-icon-avatar has-awesome">
+           <span class="fas fa-envelope"></span>   </md-icon>
+
+<div class="md-list-item-text">
+<h3 class="boldest main-font">{{item.subject}}</h3>
+<p><span>{{item.other_party}}</span></p>
+</div>
+<span class="md-secondary px10 txt-sm"> <i class="fas fa-clock"></i> {{item.sdate*1000 |  getTime}}</span>
+</md-list-item>
+
+</div>
+</md-list>
+        
+       
+
+<div class="text-center txt-center py10" ng-show="messages.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore()" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>
+ 

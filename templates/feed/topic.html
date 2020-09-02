@@ -1,0 +1,22 @@
+<sticky-header goback="true" icon="fa-comments" title="Topic Feed"></sticky-header>
+
+<div class="pl20 py10">
+<h2 class="mx0 my0 pl10" ng-bind-html="topic[0].title"></h2>
+</div>
+
+<md-list class="">
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<div class="list-item-cover shadow-md"
+             ng-repeat="item in topic"  ng-init="item.index = $index">
+<feed-item item="item" location="topic"></feed-item>
+</div><!--ng-repeat-->
+</md-list>
+        
+       
+<div class="txt-center py10"  ng-show="topic.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore()" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>
+        
