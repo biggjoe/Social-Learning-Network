@@ -33,13 +33,15 @@ zapp.run([
   '$window',
   'run',
   'modal',
+  'fileUpload',
   function( 
   $rootScope,
   $timeout,
   $http,
   $window,
   run,
-  modal){
+  modal,
+  fileUpload){
 
 $rootScope.$on('$stateChangeSuccess',
   function (event, toState, toParams, fromState, fromParams) {
@@ -60,6 +62,37 @@ $rootScope.start_add_article = false;
 $rootScope.toggAdd = function(){
 $rootScope.start_add_article = !$rootScope.start_add_article;
 }
+
+
+$rootScope.launchPic = function(){
+let options = {};
+options.page = 'templates/dialogs/profile_pic_edit.html';
+options.data = {};
+options.data.avatar = $rootScope.userData.avatar;
+modal.show(options,$rootScope);
+}
+
+
+$rootScope.uploadFile = function(file){
+$rootScope.isLoading = true;
+var fd = new FormData();
+fd.append('file', file);
+fd.append('action', 'updateProfilePic');
+var uppLink = 'modules/account/accountApp.php';
+fileUpload.uploadFileToUrl(fd, uppLink).then(function (res) {
+  console.log(res)
+$rootScope.isLoading = false;
+var state  = res.data.state;
+var avatar  = res.data.avatar;
+if(state == '1'){
+$rootScope.userData.avatar = avatar;
+  modal.close();
+}
+
+})
+/**/
+};
+
 
 }]);//run
 

@@ -1,0 +1,42 @@
+<md-dialog class="responsive"> 
+
+  <md-toolbar class="responsiver" ng-hide="ngDialogData.hideTitle">
+      <div class="md-toolbar-tools" style="color: #fff !important;">
+      	<span class="fas fa-camera"></span> 
+        	<span>&nbsp; Update Profile Picture</span>
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+          <md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+ <md-dialog-content>
+
+
+<div layout="row" layout-align="center center">
+
+<div class="profiler px30 py10">
+<span class="profile-large" style="background-image: url({{avatar || userData.avatar}});">
+</span>
+</div>
+
+<div class="pr20" flex layout="row"> 
+
+<div class="grouper" flex>
+<span class="fas fa-camera middle"></span> 
+<input title="Select Picture" type="file" class="flp" filepreview="avatar" fileinput="myFile"/>
+</div><!--grouper-->
+
+<div > 
+<button ng-disabled="avatar == ''" title="Click to Upload File" 
+class="grouper-btn" ng-click="uploadFile(myFile)"> <i class="fas {{isLoading ? 'fa-spin fa-circle-notch':'fa-send'}}"></i> </button> 
+</div>
+
+
+</div><!--col-->
+
+</div><!--row-->
+
+</md-dialog-content>
+</md-dialog>

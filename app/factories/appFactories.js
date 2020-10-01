@@ -4,12 +4,21 @@ var self = {};
 var resloveReq = (res)=>{return res;} 
 var rejectReq = (error,index)=>{return {error:error,index:index};}  
 self.send = function (index,data) {
-                return $http.post('modules/general/vinApp.php',
+                return $http.post('modules/general/generalApp.php',
                   data).then(resloveReq,rejectReq(index));
             }
 
 return self;
     }]);
+zapp.service('fileUpload', ['$http', function ($http) {          
+return { 
+uploadFileToUrl: function(fd, uploadUrl){
+return $http.post(uploadUrl, fd, 
+{transformRequest: angular.identity,headers: {'Content-Type': undefined}
+});
+}
+}
+}]);
 zapp.service('run', ['$rootScope', '$http',
 	function ($rootScope,$http) {          
 var self = {};

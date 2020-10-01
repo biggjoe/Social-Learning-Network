@@ -27,8 +27,10 @@ include 'header.php';
 
   <ul class="naviga">
   <div class="px10 py10 mb10 border-bottom" layout="row" layout-align="start center">
-<div class="profiler">
-  <span class="profile-avatar" style="background: url({{userData.avatar}});"></span>
+<div class="profiler relative">
+  <span class="profile-small" style="background: url({{userData.avatar}});">
+    <a href ng-click="launchPic()" class="fas fa-camera abs-center txt-md"></a>
+  </span>
 </div>
 
 <div flex class="pl5 bold">
