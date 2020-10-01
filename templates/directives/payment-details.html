@@ -1,0 +1,84 @@
+<form name="loginForm">
+<div class="px0 py0">	
+	
+
+<div class=" bg-white px10" flex>
+
+<div ng-if="vinItem.paymode === 'bank'">
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Bank</span> 
+<span class="float-right">{{(vinItem.payvendor) || '-'}}</span>
+</div>
+<md-divider></md-divider>
+</div>
+
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Amount</span> 
+<span class="float-right">{{(vinItem.amount | currency:'N') || '-'}}</span>
+</div>
+<md-divider></md-divider>
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Date</span> 
+<span class="float-right">{{(vinItem.date*1000 | date) || '-'}}</span>
+</div>
+<md-divider></md-divider>
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Reference</span>
+<span class="float-right">{{vinItem.ref || '-'}}</span>
+</div>
+
+<md-divider></md-divider>
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Depositor Phone</span>
+<span class="float-right" ng-bind-html="vinItem.depositor_phone"></span>
+</div>
+<md-divider></md-divider>
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Status</span>
+<span class="float-right" ng-bind-html="(vinItem.status | getStatus) || '-'"></span>
+</div>
+<md-divider></md-divider>
+
+
+
+
+<div layout="row" class=" py10">
+    <span flex class="bolder"></span>
+    <span>
+    <button ng-show="vinItem.status == 0 
+    && vinItem.paymode == 'card'" 
+    ng-disabled="vinItem.isLoading"
+    ng-click="doTranx({action:'requeryTranx',id:vinItem.id})" 
+    class="btn btn-primary btn-sm"> 
+    <i ng-if="vinItem.isLoading" class="fas fa-spin fa-circle-notch"></i>
+    &nbsp;ReQuery </button>
+</span>
+ 
+ <span ng-if="vinItem.paymode == 'bank' && vinItem.status == '0' && userData.user_mode === 'admin'">
+        
+      <button ng-disabled="vinItem.isLoading"
+ng-click="doTranx({action:'approvePay', id:vinItem.id})"
+      class="btn btn-primary btn-sm"> <i class="fas {{vinItem.isLoading ? 'fa-circle-notch fa-spin':'fa-check-circle'}}"></i> &nbsp;Approve </button>
+        
+      <button ng-disabled="vinItem.isLoading" 
+ng-click="doTranx({action:'cancelPay', id:vinItem.id})"
+      class="btn btn-warning btn-sm"> <i class="fas {{vinItem.isLoading ? 'fa-circle-notch fa-spin':'fa-ban'}}"></i> &nbsp;Reject & Cancel </button>
+
+      </span> 
+
+    </div>
+
+
+
+</div><!--flex-->
+
+
+
+
+</div>
+</form>

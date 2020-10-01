@@ -1,0 +1,27 @@
+
+<md-list class="">
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<div class="list-item-cover shadow-md">
+
+	<md-subheader>
+	<div layout="row" layout-align="start center">
+	<span  class="" flex><i class="fas fa-bank"></i>&nbsp; <span class="boldest">DEPARTMENTS</span> <span class="txt-sm">({{user_departments.length | number}})</span></span>
+	<span class="txt-sm"> 
+		<a href class="btn btn-sm my0 btn-rounded btn-outline-primary txt-sm" ng-click="lprn('departments')"> <i class="fas fa-plus"></i> ADD NEW</a> </span>
+</div>
+</md-subheader>
+
+
+<div class="" ng-repeat="item in user_departments"  ng-init="item.index = $index">
+<department-item item="item" mode="logged_profile"></department-item>
+</div><!--row-->
+
+</div><!--ng-repeat-->
+</md-list>      
+       
+<div class="txt-center py10"  ng-show="user_departments.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore()" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>

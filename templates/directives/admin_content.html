@@ -1,0 +1,46 @@
+
+<div class="">
+<div class="text-center" ng-if="modaldata.do_this_act">
+	<h3>Are you sure you want to <span ng-bind-html="modaldata.do_this_act"></span></h3>
+<div class=" grp-btn-flex text-center" >
+<button 
+ng-click="modaldata.action = modaldata.act ; sendData(modaldata)"
+class="md-primary md-raised px20 mx0 my0 md-button py5 btn-block">
+	Yes
+</button> 
+
+<button 
+ng-click="closeThisDialog()"
+class="md-warn md-raised px20 mx0 my0 md-button py5 btn-block ">
+No
+</button>	
+ 
+</div><!--pay-buttons-->
+
+</div><!--do_this_act-->
+
+<div class="" 
+ng-if="
+modaldata.act == 'edit_answer' ||
+modaldata.act == 'edit_question' || 
+modaldata.act == 'edit_comment'
+">
+<div ng-if="modaldata.act == 'edit_answer'" flex class="form-group mb10" ng-init="modaldata.newComment = modaldata.comment">
+<ng-wig ng-model="modaldata.newComment"></ng-wig>
+</div>
+<div ng-if="modaldata.act == 'edit_question'" flex class="form-group mb10" ng-init="modaldata.newTitle = modaldata.title">
+<textarea class="form-control" rows="1" ng-model="modaldata.newTitle"></textarea>
+</div>
+
+<div class="" layout="row">
+<button 
+ng-click="modaldata.action = modaldata.act ; sendData(modaldata)"
+class="md-primary md-raised px20 mx0 my0 md-button py5 btn-block">
+	Save
+</button> 	
+<span flex></span>
+ 
+</div><!--pay-buttons-->
+
+</div><!--act='edit_answer'-->
+</div>

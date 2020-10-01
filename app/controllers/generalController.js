@@ -208,10 +208,7 @@ sound.play();
 
 $scope.movx = function scrollSmoothTo(elementId) {
   var element = document.getElementById(elementId);
-  element.scrollIntoView({
-    block: 'start',
-    behavior: 'smooth'
-  });
+  element.scrollIntoView({block: 'start',behavior: 'smooth'});
 }
 
 $scope.isPushing = false;
@@ -307,6 +304,7 @@ $scope.sendNew = function(data){
 $scope.isSending = true;
 $scope.isPushing = true;
 $scope.isPushed = false;
+//data.sender = $rootScope.userData.email;
 data.socketId = $scope.socketId;
 console.log(data)
 $http.post(app_url,data).then(function(res){

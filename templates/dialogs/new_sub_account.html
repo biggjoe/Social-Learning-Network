@@ -1,0 +1,99 @@
+<md-dialog class="responsive"> 
+
+  <md-toolbar class="responsiver" ng-hide="ngDialogData.hideTitle">
+      <div class="md-toolbar-tools" style="color: #fff !important;">
+      	<span class="fas fa-user-plus"></span> 
+        	<span>&nbsp; New  Account</span>
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+          <md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+ <md-dialog-content>
+
+
+<div ng-cloak  class="px0 py20 md-dialog-content"> 
+ 
+
+
+<form name="lgForm" class="md-content md-padding">
+<md-progress-linear ng-show="isLoading" md-mode="indeterminate"></md-progress-linear>
+
+<div class="" ng-bind-html="reg_notice"></div>
+
+<div ng-hide="isFinishedRegister">
+
+  
+<div class="md-block" layout="row">
+<md-input-container class="md-block" flex>
+<input type="text" ng-model="ldata.firstname" placeholder="First Name" required>
+</md-input-container>
+
+
+<md-input-container class="md-block" flex>
+<input type="text" ng-model="ldata.surname" placeholder="Surname" required>
+</md-input-container>
+</div>
+
+
+
+<div class="md-block" layout="row">
+
+<md-input-container class="md-block" flex>
+<md-select ng-model="ldata.user_type" placeholder="Account Type">
+  <md-option ng-value="'mentor'">Mentor</md-option>
+  <md-option ng-value="'user'" >Regular User</md-option>
+</md-select>
+</md-input-container>
+
+</div>
+
+
+<div class="md-block" layout="row">
+<md-input-container class="md-block" flex>
+<input type="email" name="email" ng-model="ldata.email" placeholder="Email Address" required>
+</md-input-container>
+
+<md-input-container class="md-block" flex>
+<input type="tel" name="phone" ng-model="ldata.phone" placeholder="Contact Phone Number" required>
+</md-input-container>
+</div>
+
+<!---->
+
+<div class="md-block" layout="row">
+<md-input-container class="md-block" flex>
+<input type="password" name="password" ng-model="ldata.password" placeholder=" Password" required>
+</md-input-container>
+
+<md-input-container class="md-block" flex>
+<input type="password" name="password2" ng-model="ldata.password2" placeholder="Confirm Password" required>
+</md-input-container>
+</div>
+
+
+
+
+
+<div class="md-block home-login">
+<md-button  
+ ng-model="ldata.action"
+ng-disabled="lgForm.$error.required.length>0" ng-click="createSubAccount(ldata)" class="md-primary md-raised button-full"> &nbsp; &nbsp; CREATE ACCOUNT &nbsp; &nbsp;  </md-button>
+</div>
+
+</div><!--ng-hide-->
+
+
+
+
+</form><!--ng-hide-->
+
+
+
+
+</div><!--dialog-content-->
+
+</md-dialog-content>
+</md-dialog>

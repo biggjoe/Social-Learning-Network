@@ -1,0 +1,138 @@
+
+<section class="shadow-md  border-radius-8 boxme" ng-init="banner = []" ng-hide="banner.length > 0">
+<div class="relative h150" layout="row">
+
+
+<label class="input-hidder md-primary md-button block" flex>
+<div class="abs-center">
+<div class="hidden-field-label"> 
+<p><i class="fa fa-paperclip"></i> DROP FILES HERE </p>
+<span>(.xls, .xlsx, .doc, .docx, .pdf, .jpeg, .png)</span> 
+</div>
+<input class="hidden-field" type="file" name="banner[]" class="imgx" file-md="banner" required="" multiple="multiple" value="Upload Files"  />
+</div>
+</label>
+
+
+</div>
+</section>
+
+<section class="shadow-md py10 px10 border-radius-8 boxme" ng-show="banner.length > 0">
+
+<a ng-click="banner = []" class="btn btn-block btn-primary btn-md"> <i class="fas fa-redo"></i>&nbsp; RESET &nbsp; </a>
+
+  </section>
+
+<md-card class="shadow-md bg-white border-radius-8 mb30-mxl boxme" ng-show="banner.length > 0 && !hideUpload">
+<table class="table  mb0">
+  <thead class="thead-light">
+        <tr>
+    <th width="40" class=" py10 px10 border-bottom text-center align-middle"> <i class="fas fa-cog"></i> </th>  
+    <th width="50%" class="border-bottom text-left align-middle">Filename</th>
+      <th class="border-bottom text-right align-right">Size </th>
+      <th width="44" class="border-bottom text-center align-middle"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr  ng-repeat="itm in banner">
+    <td width="40" class="border-bottom text-center py10 px10 align-middle"><md-icon  class="md-avatar-icon has-awesome"  ng-bind-html="itm.name | getMime"> </md-icon></td>  
+    <td class="border-bottom  align-middle" ng-init="itm.tag = itm.name">
+    <span><span ng-bind-html="itm.tag" ng-hide="isedit[$index]"></span></span>
+    <div class="inline-block" ng-show="isedit[$index]">
+      <span contenteditable="{{isedit[$index]}}" class="editable-input" ng-model="itm.tag"></span></div> <sup  ng-hide="itm.isLoading || itm.status"> <a ng-click="isedit[$index] = !isedit[$index]" class="fas {{isedit[$index] ? 'fa-save':'fa-edit'}}"></a> </sup> </td>
+      <td class="border-bottom text-right align-right">{{itm.size | showSize}} </td>
+      <td class="border-bottom text-center align-middle"> 
+        <button ng-hide="itm.isLoading || itm.status" class="btn btn-sm shadow-none btn-no-outline-primary"  ng-click="removeIndex(itm,banner)" title="Remove File">
+          <i class="fas fa-trash"></i> </button> 
+          <i ng-show="itm.isLoading" class="fas fa-spin fa-circle-notch"></i>
+          <i ng-show="itm.status" class="fas fa-check-circle color-primary"></i>
+        </td>
+    </tr>
+  </tbody>
+</table>
+<form name="arForm" ng-hide="clientData.isLoading || clientData.isDone">
+ <div class="py10 px20">
+ <span class="bolder"><i class="fas fa-cog"></i> &nbsp; Article Details:</span>	
+ </div>
+
+
+
+<div class="form-group py10 px20 border-bottom">
+<input  required class="form-control" placeholder="Title" type="text" ng-model="clientData.article_title">
+</div>
+
+<input ng-init="clientData.mode = 'academic'" type="hidden" ng-model="clientData.mode" >
+
+
+<div class="form-group px20 py10 border-bottom">
+<ng-wig ng-model="clientData.content"  required ng-init="clientData.content = ''" 
+ source-mode-allowed placeholder="Content Description"></ng-wig> 
+</div>
+
+
+<div class="form-group px20 py10 border-bottom">
+<div class="bolder">Is this Article for Sale ?</div>
+<div class="py5" layout="row" ng-init="clientData.for_sale == 0">
+<label flex><input required type="radio" ng-value="1" ng-model="clientData.for_sale"> Yes, For Sale</label>
+<label flex><input required type="radio" ng-value="0" ng-model="clientData.for_sale"> No, It's free</label>
+</div>
+</div>
+
+
+<div class="px20">
+<div class="form-group  input-group relative" ng-if="clientData.for_sale == 1">
+
+<span class="input-group-prepend"> 
+<button class="btn input-group-text"> &nbsp; ₦ &nbsp;</button> 
+</span>
+
+<input style="padding-left: 55px !important;" class="form-control" type="number" ng-model="clientData.price" placeholder="Article Price" required >
+</div>
+</div>
+
+
+
+
+<div class="py10 px20">
+<button ng-disabled="arForm.$error.required" class="btn btn-md btn-primary " ng-click="sendFile(clientData,banner)"> <i class="fas {{isLoading ? 'fa-circle-notch fa-spin':'fa-cloud-upload-alt'}}"></i> &nbsp; {{isLoading ? 'UPLOADING...':'START UPLOAD'}}</button>
+</div>
+
+
+</form>
+</md-card>
+
+
+
+<section class="shadow-md bg-white border-radius mb20" ng-show="itr.length > 0">
+<div class="">
+
+
+ <div class="table-responsive  " >
+    <table class="table table-hover py0 my0">
+    <thead class="thead-light">
+      
+      <tr>
+        <th colspan="2" class=" lh-1-5 align-middle">
+          <div class="bolder"> Selected Articles </div>
+      </th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr ng-repeat="log in itr = (modalData.responses)">
+        <td class=" lh-1-5 align-middle">
+          <div class="bolder">{{log.name}}</div>
+        <div class="txt-xsm">{{log.imessage}}</div></td>
+        <td class="text-right txt-right align-middle">  
+            <i class="fas  {{log.status ? 'fa-check':'fa-circle-notch fa-spin'}}  {{log.status ? 'status-active':'status-pending'}}"></i>
+        </td>
+      </tr>
+    </tbody>
+    </table>
+  </div>
+
+</div>
+
+</section>
+

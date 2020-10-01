@@ -1,0 +1,29 @@
+<md-dialog class="responsive dialer"> 
+
+  <md-toolbar  class="responsiver bg-purple">
+      <div class="md-toolbar-tools" style="color: #fff !important;">
+        <span class="fas {{modalData.pageIcon || 'fa-columns'}}"></span> 
+          <span>&nbsp; {{modalData.pageTitle || 'Dialog'}}</span>
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+          <md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+
+
+ <md-dialog-content>
+<div ng-cloak  class="md-dialog-content"> 
+
+<show-query ng-if="modalData.ctrl == 'queryCtrl'" modaldata="modalData"></show-query>
+
+<show-payment ng-if="modalData.ctrl == 'paymentCtrl'" modaldata="modalData"></show-payment>
+
+<show-sub-account ng-if="modalData.ctrl == 'subAccountCtrl'" modaldata="modalData"></show-sub-account>
+
+</div>
+</md-dialog-content>
+
+
+</md-dialog>

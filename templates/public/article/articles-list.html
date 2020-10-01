@@ -1,0 +1,42 @@
+<section id="testimonials">
+	
+<div class="container">
+
+
+<div class="news-columns cta-testimonial">
+
+<div class="column-box" ng-repeat="item in page_articles">
+<div href="articles/" class="news-column">
+<span class="testimonial-quote">
+<p layout="row" layout-align="start center">
+<span> <i class="fas {{item.mode == 'blog' ? 'fa-rss':'fa-user-graduate'}}"></i> </span>
+</p>
+<div class="bolder mb5">
+<a href="article/{{item.url}}">{{item.title}}</a></div>
+<div ng-bind-html="((item.content | trusted) | strip_tags) | limitTo:'180'"></div>
+</span>
+<div class="testimonial-meta txt-sm" layout="row" 
+layout-align="start center">
+<span flex> <i class="fas fa-clock"></i>&nbsp; {{item.create_date*1000 | getTime}} </span>
+<span></span>
+</div>
+<p class="testimonial-author" style="font-size: 15px;">
+- <a href="{{item.author_url}}">{{item.firstname +' '+item.surname}}</a>
+</p>
+</div>
+</div><!--column-box-->
+
+
+<div class="text-center txt-center py10" ng-show="page_articles.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore()" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>
+
+
+
+
+</div><!--body-container-->
+
+</section>

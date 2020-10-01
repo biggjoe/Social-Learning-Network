@@ -7,44 +7,48 @@ Options -Indexes
 #index
 
 #account setup
-RewriteRule ^account/?$ account.php 
-RewriteRule ^account/(.*)/?$ account.php?page=$1
+RewriteRule ^account/?$ templates/base/account.php 
+RewriteRule ^account/(.*)/?$ templates/base/account.php?page=$1
 #
-RewriteRule ^mentor/?$ mentor.php 
-RewriteRule ^mentor/(.*)/?$ mentor.php?page=$1
+RewriteRule ^mentor/?$ templates/base/mentor.php 
+RewriteRule ^mentor/(.*)/?$ templates/base/mentor.php?page=$1
 #
-RewriteRule ^profile/?$ profile.php 
-RewriteRule ^profile/(.*)/?$ profile.php?page=$1
+RewriteRule ^profile/?$ templates/base/profile.php 
+RewriteRule ^profile/(.*)/?$ templates/base/profile.php?page=$1
 #
-RewriteRule ^admin/?$ admin.php 
-RewriteRule ^admin/(.*)/?$ admin.php?page=$1
+RewriteRule ^admin/?$ templates/base/admin.php 
+RewriteRule ^admin/(.*)/?$ templates/base/admin.php?page=$1
 #
-RewriteRule ^feed/?$ feed.php 
-RewriteRule ^feed/(.*)/?$ feed.php?page=$1
+RewriteRule ^feed/?$ templates/base/feed.php 
+RewriteRule ^feed/(.*)/?$ templates/base/feed.php?page=$1
 #
-RewriteRule ^login/?$ login.php 
-RewriteRule ^sign-up/?$ register.php 
-RewriteRule ^register/?$ register.php 
-RewriteRule ^forgot-password/?$ forgot-password.php 
-RewriteRule ^get-started/?$ login.php 
-RewriteRule ^logout/?$ logout.php
+RewriteRule ^topic/?$ templates/base/topic.php 
+RewriteRule ^topic/(.*)/?$ templates/base/topic.php?page=$1
+
+#article
+RewriteRule ^article/?$ templates/base/article.php 
+RewriteRule ^articles/?$ templates/base/article.php 
+RewriteRule ^article/(.*)/?$ templates/base/article.php?url=$1
+
+
+RewriteRule ^login/?$ templates/base/login.php 
+RewriteRule ^admin-login/?$ templates/base/admin-login.php 
+RewriteRule ^sign-up/?$ templates/base/register.php 
+RewriteRule ^register/?$ templates/base/register.php 
+RewriteRule ^forgot-password/?$ templates/base/forgot-password.php 
+RewriteRule ^get-started/?$ templates/base/login.php 
+RewriteRule ^logout/?$ templates/base/logout.php
 
 
 #pages
-RewriteRule ^page/?$ page.php
-RewriteRule ^terms/?$ page.php?url=terms
-RewriteRule ^how-it-works/?$ page.php?url=how-it-works
-RewriteRule ^privacy-policy/?$ page.php?url=privacy-policy
-RewriteRule ^faq/?$ page.php?url=faq
-RewriteRule ^contact-us/?$ page.php?url=contact-us
+RewriteRule ^page/?$ templates/base/page.php
+RewriteRule ^terms/?$ templates/base/page.php?url=terms
+RewriteRule ^how-it-works/?$ templates/base/page.php?url=how-it-works
+RewriteRule ^privacy-policy/?$ templates/base/page.php?url=privacy-policy
+RewriteRule ^faq/?$ templates/base/page.php?url=faq
+RewriteRule ^contact-us/?$ templates/base/page.php?url=contact-us
 
 #
-
-RewriteRule ^query/api/?$ query/api.php
-RewriteRule ^report/api/?$ report/api.php
-RewriteRule ^plate-check/api/?$ plate-check/api.php
-RewriteRule ^balance/api/?$ balance/api.php
-
 
 AddDefaultCharset UTF-8
 <IfModule mod_php5.c>

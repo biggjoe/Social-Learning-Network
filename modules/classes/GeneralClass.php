@@ -7,8 +7,8 @@ class GeneralClass
 {
 public static $baseUrl;
 
-public $users_cols_public = ["id","email","username","phone","firstname","surname","bio","avatar","user_type","reg_time"];
-public $users_cols = ["id","email","username","phone","firstname","surname","bio","avatar","user_type","reg_time"];
+public $users_cols_public = ["id","email","username","phone","firstname","surname","bio","gender","avatar","user_type","reg_time"];
+public $users_cols = ["id","email","username","phone","firstname","surname","bio","gender","avatar","user_type","reg_time"];
 public $valid_formats = array(
   "jpg", "JPG", "JPEG",  "PJPEG", "pdf", "xlsx", "xls",  "ppt", "pptx", "txt", "csv", "php", "ini", "html", "htacess",  
  "png", "gif", "bmp","jpeg","pjpeg","docx","doc");
@@ -77,9 +77,12 @@ $dbconn = new DbConn();
 $ip = $_SERVER['REMOTE_ADDR'];
 #
 if(isset($_SESSION['senseiUser']) || isset($_SESSION['senseiMentor'])){
-  if(isset($_SESSION['senseiUser'])){$session = $_SESSION['senseiUser'];}
+
+if(isset($_SESSION['senseiUser'])){$session = $_SESSION['senseiUser'];}
 if(isset($_SESSION['senseiMentor'])){$session = $_SESSION['senseiMentor'];};
-}elseif(!isset($_SESSION['senseiUser']) && !isset($_SESSION['senseiMentor'])){
+}elseif(isset($_SESSION['senseiAdmin'])){
+$session = $_SESSION['senseiAdmin'];  
+}else{
 $usr = array('email'=>null,'user_mode'=>'guest','isLogged'=>false);
 return $usr;
 }
@@ -92,13 +95,12 @@ $rl = $dbconn->getRow("SELECT w.balance, b.id AS uid, $sdy
 FROM users b 
 JOIN wallet w ON b.email = w.user
 WHERE b.email = ?",["$session"]);
-
-
 if($rl['code'] == 200 && $rl['data']!==false){
 $row = $rl['data'];
 $row['user_mode'] = 'auth';
 $row['isLogged'] = true;
 $row['balance'] = floatval($row['balance']);
+$row['bio'] = stripslashes(html_entity_decode($row['bio'])) ;
 #
 $rls = $dbconn->getRows("SELECT id AS notifNum FROM notifications WHERE user = ? AND status = ? ",["$session","0"]);
 if($rls['code']==200){
@@ -140,6 +142,7 @@ WHERE u.email = ?",["$session"]);
 
 if($rl['code'] ==200 && $rl['data']!=false){
 $row = $rl['data'];
+$row['bio'] = stripslashes(html_entity_decode($row['bio'])) ;
 return $row;
 }else{
 return false;
@@ -148,6 +151,37 @@ return false;
 }//getUserFromEmail
 
 public  function getUserFromUsername($session){ 
+$dbConn = new DbConn();
+$socialClass = new SocialClass();
+if(isset($_SESSION['senseiMentor']) 
+  || isset($_SESSION['senseiUser'])  
+  || isset($_SESSION['senseiAdmin'])){
+$ucols = $this->users_cols;
+$isfl = true;
+$uxr = $this->getUser();
+}else{
+$ucols = $this->users_cols_public;
+$isfl = false;
+}
+
+$sdy = $this->sqlPart($ucols,'b');  
+$rl = $dbConn->getRow("SELECT b.id, b.id AS uid, $sdy FROM users b 
+WHERE b.username = ?",["$session"]);
+$row = $rl['data'];
+if(count($row) > 0){
+$row['bio'] = stripslashes(html_entity_decode($row['bio'])) ;
+$row['is_logged'] = $isfl;
+$row['other_email'] = $row['email'];
+$row['is_followed'] = ($isfl) ? $socialClass->isUserFollowed($row['email'],$uxr['email']) : false;
+return $row;
+}else{
+return false;
+}
+
+}//getUserFromUsername
+
+
+public  function getUserFromText($session){ 
 $dbConn = new DbConn();
 if(isset($_SESSION['senseiMentor']) 
   || isset($_SESSION['senseiUser'])  
@@ -158,16 +192,23 @@ $ucols = $this->users_cols_public;
 }
 
 $sdy = $this->sqlPart($ucols,'b');  
-$rl = $dbConn->getRow("SELECT b.id, b.id AS uid, $sdy FROM users b 
-WHERE b.username = ?",["$session"]);
+
+$sql = " SELECT b.id, b.id AS uid, $sdy FROM 
+users b WHERE b.email LIKE ? OR  username LIKE ?";
+$txt =  "%".$session."%";
+$atr = [$txt,$txt];
+$rl = $dbConn->getRows($sql,$atr);
 $row = $rl['data'];
 if(count($row) > 0){
-return $row;
+$rx = $dbConn->getRow($sql,$atr);
+$rw = $rx['data'];
+$rw['bio'] = stripslashes(html_entity_decode($rw['bio'])) ;
+return $rw;
 }else{
 return false;
 }
 
-}//getUserFromUsername
+}//getUserFromText
 
 
 
@@ -176,6 +217,8 @@ $dbConn = new DbConn();
 $genClass = new GeneralClass();
 $usr = $this->getUserFromUsername($username);
 $feedClass = new FeedClass();
+$qaClass  = new QaClass();
+$socialClass  = new SocialClass();
 $articlesClass = new ArticlesClass();
 switch ($act) {
     case 'get_user_public_details':
@@ -183,41 +226,33 @@ $res = $usr;
 return $res;
         break;//get_user_public_details
     case 'get_user_public_questions':
-$res = $feedClass->getUserQuestions($usr['email'],$limit=false,$offset=false);
+$res = $qaClass->getUserQuestions($usr['email'],$limit=false,$offset=false);
 return $res;
         break;//get_user_public_details
     case 'get_user_public_answers':
-$res = $feedClass->getUserAnswers($usr['email'],$limit=false,$offset=false);
+$res = $qaClass->getUserAnswers($usr['email'],$limit=false,$offset=false);
 return $res;
         break;//get_user_public_answers
     case 'get_user_public_articles':
 $res = $articlesClass->getPublicArticles($username,$usr['user_type'],$offset=false,$limit=false);
 return $res;
         break;//get_user_public_articles
+    case 'get_user_public_education':
+$res = $socialClass->getUserPublicEducation($username,$offset=false,$limit=false);
+return $res;
+        break;//get_user_public_articles
     case 'get_user_public_followers':
-
-
-
-
+$res = $socialClass->getUserPublicFollowers($username,$offset=false,$limit=false);
+return $res;
         break;//get_user_public_followers
     case 'get_user_public_following':
-
-
-
-
+$res = $socialClass->getUserPublicFollowing($username,$offset=false,$limit=false);
+return $res;
         break;//get_user_public_followers
-    case 'get_user_public_following':
-
-
-
-
-        break;//get_user_public_followers
-    case 'get_user_public_feed':
-
-
-
-
-        break;//get_user_public_feed
+    case 'get_user_public_departments':
+$res = $socialClass->listUserPublicDepartments($username,$offset=false,$limit=false);
+return $res;
+break;//get_user_public_feed
 }
 
 }//getUserPublic
@@ -335,10 +370,11 @@ public  function getUserFromId($id){
 $dbConn = new DbConn(); 
 $ucols = $this->users_cols;
 $sdy = $this->sqlPart($ucols,'b');  
-$rl = $dbConn->getRow("SELECT b.id, b.email,  b.firstname, b.username, b.avatar, b.surname, b.id as uid, b.user_type FROM users b 
+$rl = $dbConn->getRow("SELECT b.id, b.email,  b.firstname, b.username, b.avatar, b.surname, b.bio, b.id as uid, b.user_type FROM users b 
 WHERE b.id = ?",["$id"]);
 $row = $rl['data'];
 if(count($row) > 0){
+$row['bio'] = stripslashes(html_entity_decode($row['bio'])) ;
 return $row;
 }else{
 return false;
@@ -447,6 +483,7 @@ $q = $dbConn->getRow($sqA,["$thisuser"]);
 
 if($q['code'] == 200 && $q['data']!==false){
 $row = $q['data'];
+$row['bio'] = stripslashes(html_entity_decode($row['bio'])) ;
 }else{
 $row = array('email' => null, 'username' => null);
 }

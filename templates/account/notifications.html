@@ -1,0 +1,41 @@
+<sticky-header icon="fa-bell" title="Notifications"></sticky-header>
+
+
+
+
+
+<md-list class="border-top">
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+
+ <div class="list-item-cover shadow-md">
+
+ 	<md-subheader>
+	<div layout="row" layout-align="start center">
+	<span  class="boldest" flex><i class="fas fa-bell"></i>&nbsp;{{userData.notifNum}} Unread </span>
+	<span class="txt-sm"></span>
+</div>
+</md-subheader>
+
+ <div ng-repeat="item in notifications | filter: search.notifications"  ng-init="item.index = $index" class="{{last ? '':'border-bottom'}}">
+<md-list-item class="md-2-line" ng-click="launchPreview(item)">
+<span class="md-icon-avatar has-awesome"><i class="fas {{item.status == 1 ? 'fa-bell-slash':'fa-bell'}}"></i>  </span>
+
+<div class="md-list-item-text">
+<h3 class="{{item.status == 1 ? 'bold':'boldest'}} main-font" ng-bind-html="((item.detail | trusted) | limitTo:'10')"></h3>
+<p><span>{{item.ndate*1000 |  getTime}}</span></p>
+</div>
+
+</md-list-item>
+</div>
+</div>
+</md-list>
+        
+       
+
+<div class="text-center txt-center py10" ng-show="messages.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore()" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>
+ 

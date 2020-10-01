@@ -1,0 +1,105 @@
+
+
+
+
+
+
+
+<div  layout-xs="column" layout-gt-xs="row" layout-gt-md="row" layout-gt-sm="row">
+
+<div class="d100 px20 py20"  style="min-height:100px;" flex>
+
+<div class="list-item-cover shadow-md">
+
+<md-subheader>
+
+<span  class="boldest" flex><i class="fas fa-user-circle"></i>&nbsp; PERSONAL DETAILS</span>
+</md-subheader>
+
+<md-list-item class="md-2-line">
+<md-icon class="has-awesome md-icon-avatar"> <i class="fas fa-user"></i> </md-icon>
+<div class="md-list-item-text" layout="column">
+<p>Firstname</p>
+<h3 class="boldest">{{userData.firstname || '---'}}</h3>
+</div>
+<span class="md-secondary">-</span>
+<md-divider></md-divider>
+</md-list-item>
+
+<md-list-item class="md-2-line">
+<md-icon class="has-awesome md-icon-avatar"> <i class="fas fa-user"></i> </md-icon>
+<div class="md-list-item-text" layout="column">
+<p>Surname</p>
+<h3 class="boldest">{{userData.surname || '---'}}</h3>
+</div>
+<span class="md-secondary">-</span>
+<md-divider></md-divider>
+</md-list-item>
+
+<md-list-item class="md-2-line">
+<md-icon class="has-awesome md-icon-avatar"> <i class="fas fa-phone"></i> </md-icon>
+<div class="md-list-item-text" layout="column">
+<p>Phone</p>
+<h3 class="boldest">{{userData.phone || '---'}}</h3>
+</div>
+<span class="md-secondary">-</span>
+<md-divider></md-divider>
+</md-list-item>
+
+<md-list-item class="md-2-line">
+<md-icon class="has-awesome md-icon-avatar"> <i class="fas fa-user"></i> </md-icon>
+<div class="md-list-item-text" layout="column">
+<p>Company Name</p>
+<h3 class="boldest">{{userData.company || '---'}}</h3>
+</div>
+<span class="md-secondary">-</span>
+<md-divider></md-divider>
+</md-list-item>
+
+</div><!--bg-white-->
+
+
+ <div class="list-item-cover shadow-md">
+
+<md-subheader>
+	<div layout="row" layout-align="start center">
+	<span  class="boldest" flex><i class="fas fa-user-graduate"></i>&nbsp; EDUCATION</span>
+	<span class="txt-sm"> <a ng-click=""> <i class="fas fa-plus"></i> ADD NEW</a> </span>
+</div>
+</md-subheader>
+
+<md-list-item class="md-2-line">
+<md-icon class="has-awesome md-icon-avatar"> <i class="fas fa-cog"></i> </md-icon>
+<div class="md-list-item-text" layout="column">
+<p>Public Key</p>
+<h3 class="boldest">{{userData.public_key}}</h3>
+</div>
+<span class="md-secondary"> <a ng-click="resetKey('public')"><i class="fas fa-sync-alt"></i> RESET</a>  </span>
+<md-divider></md-divider>
+</md-list-item>
+
+<md-list-item class="md-2-line">
+<md-icon class="has-awesome md-icon-avatar"> <i class="fas fa-cog"></i> </md-icon>
+<div class="md-list-item-text" layout="column">
+<p>Secret Key</p>
+<h3 class="boldest">{{userData.match_key}}</h3>
+</div>
+<span class="md-secondary">
+<a ng-click="resetKey('secret')"><i class="fas fa-sync-alt"></i> RESET </a></span>
+
+<md-divider></md-divider>
+</md-list-item>
+
+</div><!--white-bb-->
+
+
+
+</div><!--d70-->
+
+
+
+
+
+</div><!--row-->
+
+

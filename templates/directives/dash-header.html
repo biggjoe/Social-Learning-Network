@@ -1,0 +1,13 @@
+<div class="main-header bg-dash-header" ng-class="sticky ? 'sticky':''" layout="row" layout-align="center center"> 
+<h3 class="subTitle pad-hor-10 uppercase"> <span class="fa {{icon}}"></span>&nbsp;{{pagetitle}}  </h3>
+    
+<span flex></span>
+    
+<ul><li ng-if="usD.notifNum > 0"> 
+<a href="{{usD.type === 'admin' ? 'admin':'account'}}/notifications"><i class="fas fa-bell"></i><sup class="badge-counter">{{usD.notifNum}}</sup></a></li><li ng-if="cart.selected.length > 0"> 
+<a href="account/checkout"><i class="fas fa-shopping-cart"></i><sup class="badge-counter">{{cart.selected.length}}</sup></a> </li><li><span class="inline-block" ng-include="'templates/options/user_options.html'"></span></li>
+</ul>
+    
+</div>
+
+ 

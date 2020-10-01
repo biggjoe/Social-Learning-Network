@@ -1,0 +1,141 @@
+<sticky-header icon="fa-users" title="Users"></sticky-header>
+
+
+<div class="sticky bg-white border-bottom px10 py10 border-top" layout="row" layout-align="center center"> 
+<span flex layout="row" layout-align="start center">
+<input class="block form-control input-sm" type="search" ng-model="search.users" placeholder="Search Users">
+<button ng-click="doSearch(search.users)" class="btn btn-nm btn-primary mx5" ng-disabled="search.users === ''"> <i class="fas fa-search"></i> </button>
+
+<span class="px10">
+<button ng-show="search_started" 
+ng-click="search_started = !search_started ; search.users = ''" class="btn btn-sm btn-warning mx5"> <i class="fas </span>fa-times"></i> Exit Search</button>
+</span>
+
+</span>
+
+<span flex class="text-right">
+ <button ng-click="launchSubber()" class="btn btn-outline-primary btn-sm"> <i class="fas fa-plus"></i>&nbsp; ADD NEW </button>
+</span>
+</div> 
+    
+<md-divider></md-divider> 
+<div class="py5 px10" layout="row" layout-align="start center">
+<div></div>
+<span flex></span>
+
+<div layout="row" layout-align="start center">
+
+<span>
+
+</span>
+
+</div>
+
+</div>
+
+  <md-divider></md-divider>
+
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+
+
+
+<div class="table-responsive" ng-hide="search_started">
+<table class="table table-striped table-condensed">
+<thead>
+  <tr>
+<th class="text-center px10 py15">SN</th>
+<th class="txt-left">User</th>
+<th class="txt-center">Phone</th>
+<th class="txt-center">Status</th>
+<th class="txt-center">Balance</th>
+<th class="txt-right">Acc.Type</a>
+</th>
+
+</tr>
+</thead> 
+<tbody>
+<tr ng-repeat="item in ax = (users)"
+  ng-init="item.base_user == 0 ? uSub = 'Main' : uSub = 'Sub'"
+ >
+<td class="text-center px10 py15 bolder">{{$index+1}}</td>
+<td>
+<div>
+	<a href="profile/{{item.username}}">
+<span class="boldest" ng-bind-html="item.firstname+' '+item.surname"></span>
+</a>
+<span class="inline-block" ng-include src="'templates/admin/options/user-options.php'"><!--md-menu-->
+</span>
+</div>
+<span class="italic" ng-bind-html="item.email"></span> 
+</td>
+
+<td class="txt-center"><span ng-bind-html="item.phone"></span></td>
+<td class="txt-center"><span ng-bind-html="item.status == 1 ? 'Active' : 'Blocked'"></span></td>
+<td class="txt-center">
+<span ng-bind-html="item.balance | currency:'₦'"></span>
+</td>
+<td class="txt-right"><span>{{uSub}}</span></td>
+
+</tr> 
+</tbody>
+</table>
+
+</div><!--!is_searching-->
+
+
+<div class="table-responsive" ng-show="search_started">
+
+<div class="py10 px20 txt-md" layout="row" layout-align="start center">
+<span flex>Looking up: <u>{{search.users}}</u></span>
+<span flex><md-progress-linear  md-mode="indeterminate" ng-show="is_searching"></md-progress-linear></span>
+</div>
+
+<table class="table table-striped table-condensed">
+<thead>
+  <tr>
+<th class="text-center px10 py15">SN</th>
+<th class="txt-left">User</th>
+<th class="txt-center">Phone</th>
+<th class="txt-center">Status</th>
+<th class="txt-center">Balance</th>
+<th class="txt-right">Acc.Type</a>
+</th>
+
+</tr>
+</thead> 
+<tbody>
+<tr ng-repeat="item in ax = (searched_users)"
+  ng-init="item.base_user == 0 ? uSub = 'Main' : uSub = 'Sub'"
+ >
+<td class="text-center px10 py15 bolder">{{$index+1}}</td>
+<td>
+<div>
+	<a href="profile/{{item.username}}">
+<span class="boldest" ng-bind-html="item.firstname+' '+item.surname"></span>
+</a>
+<span class="inline-block" ng-include src="'templates/admin/options/user-options.php'"><!--md-menu-->
+</span>
+</div>
+<span class="italic" ng-bind-html="item.email"></span> 
+</td>
+
+<td class="txt-center"><span ng-bind-html="item.phone"></span></td>
+<td class="txt-center"><span ng-bind-html="item.status == 1 ? 'Active' : 'Blocked'"></span></td>
+<td class="txt-center">
+<span ng-bind-html="item.balance | currency:'₦'"></span>
+</td>
+<td class="txt-right"><span>{{uSub}}</span></td>
+
+</tr> 
+</tbody>
+</table>
+</div><!--is_searching-->
+
+
+<div class="text-center txt-center py10" ng-show="users.length > 0 && !search_started">
+<span class="inline-block">
+<button ng-click="loadMore()" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+
+

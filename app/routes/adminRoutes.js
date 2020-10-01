@@ -39,39 +39,90 @@ $stateProvider
  }
  })
 
-.state('test3',{
- url: '/test3',
+.state('articles',{
+ url: '/admin/articles',
  views: {
   'menuContent':{
-    templateUrl: 'test3.html',
-    controller: 'pageCtrl'
+    templateUrl: 'templates/admin/articles.html',
+    controller: 'articlesCtrl'
   },
   params:{pageTitle:'Dashboard'}
  }
  })
 
-.state('checkout',{
- url: '/admin/checkout',
+.state('answers',{
+ url: '/admin/answers',
  views: {
   'menuContent':{
-    templateUrl: 'templates/admin/checkout.html',
-    controller: 'checkoutCtrl'
+    templateUrl: 'templates/admin/answers.html',
+    controller: 'answersCtrl'
   },
-  params:{pageTitle:'Checkout Page'}
+  params:{pageTitle:'Answers'}
  }
  })
 
-.state('reports',{
- url: '/admin/reports',
+.state('questions',{
+ url: '/admin/questions',
  views: {
   'menuContent':{
-    templateUrl: 'templates/admin/reports.html',
-    controller: 'reportCtrl'
+    templateUrl: 'templates/admin/questions.html',
+    controller: 'questionsCtrl'
   },
-  params:{pageTitle:'VIN Reports'}
+  params:{pageTitle:'Questions'}
  }
  })
 
+
+
+ .state('comments', {
+  url: '/admin/comments',
+      views: {
+      'menuContent': {
+      templateUrl: 'templates/admin/comments.html',
+      controller: 'commentsCtrl'
+    }
+  }
+})
+
+
+
+.state('a2a',{
+ url: '/admin/a2a',
+ views: {
+  'menuContent':{
+    templateUrl: 'templates/admin/a2a.html',
+    controller: 'a2aCtrl'
+  },
+  params:{pageTitle:'A2A'}
+ }
+ })
+
+
+
+
+.state('institutions',{
+ url: '/admin/institutions',
+ views: {
+  'menuContent':{
+    templateUrl: 'templates/admin/institutions.html',
+    controller: 'institutionsCtrl'
+  },
+  params:{pageTitle:'A2A'}
+ }
+ })
+
+
+
+.state('transactions',{
+ url: '/admin/transactions',
+ views: {
+  'menuContent':{
+    templateUrl: 'templates/admin/transactions.html',
+    controller: 'transactionsCtrl'
+  },
+  params:{pageTitle:'Dashboard'}
+ }
+ })
 .state('notifications',{
  url: '/admin/notifications',
  views: {
@@ -84,55 +135,6 @@ $stateProvider
  })
 
 
- .state('report-details', {
-  url: '/admin/report-details/:url',
-      views: {
-      'menuContent': {
-      templateUrl: 'templates/general/report-details.html',
-      controller: 'reportDetailsCtrl'
-    }
-  }
-})
- .state('error-reports', {
-  url: '/admin/error-reports',
-      views: {
-      'menuContent': {
-      templateUrl: 'templates/admin/error-reports.html',
-      controller: 'errorreportsCtrl'
-    }
-  }
-})
- .state('error-details', {
-  url: '/admin/error-details/:url',
-      views: {
-      'menuContent': {
-      templateUrl: 'templates/admin/error-report-details.html',
-      controller: 'errorreportsCtrl'
-    }
-  }
-})
-
-.state('queries',{
- url: '/admin/queries',
- views: {
-  'menuContent':{
-    templateUrl: 'templates/admin/queries.html',
-    controller: 'queriesCtrl'
-  },
-  params:{pageTitle:'VIN Queries'}
- }
- })
-
-.state('api',{
- url: '/admin/settings',
- views: {
-  'menuContent':{
-    templateUrl: 'templates/admin/settings.html',
-    controller: 'settingsCtrl'
-  },
-  params:{pageTitle:'Site Settings'}
- }
- })
 
  .state('payments',{
   url: '/admin/payments',
@@ -190,6 +192,19 @@ $stateProvider
     controller: 'messagesThreadCtrl'
   },
   params:{pageTitle:'Upload Articles'}
+ }
+ })
+
+
+
+.state('settings',{
+ url: '/admin/settings',
+ views: {
+  'menuContent':{
+    templateUrl: 'templates/admin/settings.html',
+    controller: 'settingsCtrl'
+  },
+  params:{pageTitle:'Site Settings'}
  }
  })
 

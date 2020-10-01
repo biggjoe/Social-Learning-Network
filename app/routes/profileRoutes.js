@@ -1,12 +1,17 @@
 var zapp = angular.module('profile.router', []);
 
-zapp.config( ['$stateProvider', '$locationProvider', '$urlRouterProvider',
-  function($stateProvider, $locationProvider, $urlRouterProvider) {
+zapp.config( ['$stateProvider', 
+  '$locationProvider', 
+  '$urlRouterProvider',
+  function(
+    $stateProvider, 
+    $locationProvider, 
+    $urlRouterProvider) {
 //$locationProvider.html5Mode(true);
 $locationProvider.html5Mode({ enabled: true, requireBase: false, rewriteLinks: false });
 //$urlRouterProvider.when('/', '/profile/details');
 $urlRouterProvider.when('/profile/messages', '/profile/messages/list');
-$urlRouterProvider.when('/profile/account-settings', '/profile/account-settings/edit-profile');
+$urlRouterProvider.when('/profile/:username', '/profile/:username/details');
 $stateProvider
 .state('dash',{
  url: '/dash',
@@ -18,23 +23,37 @@ $stateProvider
  })
 
 
-.state('details',{
+.state('profile',{
  url: '/profile/:username',
  views: {
   'menuContent':{
-    templateUrl: 'templates/general/profile/details.html',
-    controller: 'detailsCtrl'
+    templateUrl: 'templates/public/profile.html'
   },
   params:{pageTitle:'Dashboard'}
  }
  })
 
-.state('articles',{
- url: '/profile/articles',
+
+
+.state('profile.details',{
+ url: '/details',
  views: {
-  'menuContent':{
-    templateUrl: 'templates/profile/profile/articles.html',
-    controller: 'profileArticlesCtrl'
+  'idasher':{
+    templateUrl: 'templates/public/profile/details.html',
+    controller: 'detailsCtrl'
+  },
+  params:{pageTitle:'Details Page'}
+ }
+ })
+
+
+
+.state('profile.articles',{
+ url: '/articles',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/public/profile/articles.html',
+    controller: 'articlesCtrl'
   },
   params:{pageTitle:'Articles Page'}
  }
@@ -42,89 +61,68 @@ $stateProvider
 
 
 
-.state('notifications',{
- url: '/profile/notifications',
- views: {
-  'menuContent':{
-    templateUrl: 'templates/profile/profile/notifications.html',
-    controller: 'notificationsCtrl'
-  },
-  params:{pageTitle:'VIN notifications'}
- }
- })
 
-.state('questions',{
- url: '/profile/questions',
+.state('profile.questions',{
+ url: '/questions',
  views: {
-  'menuContent':{
-    templateUrl: 'templates/general/profile/questions.html',
-    controller: 'profileQuestionsCtrl'
+  'idasher':{
+    templateUrl: 'templates/public/profile/questions.html',
+    controller: 'questionsCtrl'
   },
   params:{pageTitle:'User Questions'}
  }
  })
 
 
-.state('answers',{
- url: '/profile/answers',
+.state('profile.answers',{
+ url: '/answers',
  views: {
-  'menuContent':{
-    templateUrl: 'templates/general/profile/answers.html',
-    controller: 'profileAnswersCtrl'
+  'idasher':{
+    templateUrl: 'templates/public/profile/answers.html',
+    controller: 'answersCtrl'
   },
   params:{pageTitle:'User Answers'}
  }
  })
 
-
-
-
-.state('account-settings',{
- url: '/profile/account-settings',
- views: {
-  'menuContent':{
-    templateUrl: 'templates/general/profile/account-settings.html'
-  },
-  params:{pageTitle:'Messages'}
- }
- })
-
-
-.state('account-settings.edit-profile',{
- url: '/edit-profile',
+.state('profile.departments',{
+ url: '/departments',
  views: {
   'idasher':{
-    templateUrl: 'templates/general/profile/profile-edit.html',
-    controller: 'accountCtrl'
+    templateUrl: 'templates/public/profile/departments.html',
+    controller: 'departmentsCtrl'
   },
-  params:{pageTitle:'Edit Profile'}
+  params:{pageTitle:'Stats Page'}
  }
  })
 
-.state('account-settings.edit-notifications',{
- url: '/notifications-settings',
+
+.state('profile.followers',{
+ url: '/followers',
  views: {
   'idasher':{
-    templateUrl: 'templates/general/notifications-settings.html',
-    controller: 'accountCtrl'
+    templateUrl: 'templates/public/profile/followers.html',
+    controller: 'followersCtrl'
   },
-  params:{pageTitle:'Edit Profile'}
+  params:{pageTitle:'Followers Page'}
  }
  })
 
-.state('account-settings.password',{
- url: '/edit-password',
+
+.state('profile.following',{
+ url: '/following',
  views: {
   'idasher':{
-    templateUrl: 'templates/general/password-edit.html',
-    controller: 'accountCtrl'
+    templateUrl: 'templates/public/profile/following.html',
+    controller: 'followingCtrl'
   },
-  params:{pageTitle:'Password Edit'}
+  params:{pageTitle:'Following Page'}
  }
  })
 
+//let newUrl = '/profile/'+$rootScope.username;
+let newUrl = '/profile';
 
-
-$urlRouterProvider.otherwise('/profile');
+$urlRouterProvider.otherwise(newUrl);
 
 }]);

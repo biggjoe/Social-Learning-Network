@@ -1,0 +1,22 @@
+<div class="list-item-cover shadow-md">
+
+<md-subheader>
+	<div layout="row" layout-align="start center">
+	<span  class="boldest" flex><i class="fas fa-market"></i>&nbsp; Article Sales ({{user_wallet_sales.length}})</span>
+	<span class="txt-sm"> </span>
+</div>
+</md-subheader>
+
+<md-list-item class="md-2-line" ng-repeat="item in user_wallet_sales">
+<span class="has-awesome md-icon-avatar"> <i class="fas fa-file-pdf"></i> </span>
+<div class="md-list-item-text" layout="column">
+<h3 class="boldest">{{item.title}}</h3>
+<p>{{item.sale_date*1000 | getTime}}</p>
+</div>
+<span class="md-secondary txt-sm pl20">
+{{item.sale_cost | currency:'N'}}
+</span>
+<md-divider></md-divider>
+</md-list-item>
+
+</div><!--white-bb-->

@@ -1,0 +1,125 @@
+
+<md-dialog class="responsive dialer" aria-label="Payment Modal"> 
+<md-toolbar class="responsiver">
+<div class="md-toolbar-tools">
+<span style="color: #fff !important;">  <span class="fas fa-info-circle"></span> &nbsp;{{modalItem.page_title}}  </span>
+<span flex></span>
+<md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+<md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+</md-button>
+</div>
+</md-toolbar>
+<md-dialog-content>
+<div class="md-dialog-content px0 py0">
+
+<div class="boxme">
+<div ng-hide="modalItem.hide_summary || modalItem.isPaying">
+
+
+<md-list-item class="md-1-line">
+<div class="list-item-text txt-md bolder py10">{{modalItem.transactionName}}</div>
+<md-divider></md-divider>
+</md-list-item>
+
+
+<md-list-item class="md-1-line">
+<div class="list-item-text bolder" layout="column">Cost</div>
+<span class="md-secondary">{{modalItem.service_cost | currency:'₦'}}</span>
+<md-divider></md-divider>
+</md-list-item>
+
+<md-list-item class="md-1-line" ng-show="modalItem.service_charge > 0">
+<div class="md-list-item-text bolder" layout="column">Service Charge</div>
+<span class="md-secondary">{{modalItem.service_charge | currency:'₦'}}</span>
+<md-divider></md-divider>
+</md-list-item>
+
+
+
+<md-list-item class="md-1-line" ng-show="modalItem.service_discount > 0">
+<div class="md-list-item-text bolder" layout="column">Discount</div>
+<span class="md-secondary">{{modalItem.service_discount+'%'}}</span>
+<md-divider></md-divider>
+</md-list-item>
+
+
+<md-list-item class="md-1-line">
+<div class="md-list-item-text bolder" layout="column">Amount Payable</div>
+<span class="md-secondary">{{modalItem.dueAmount | currency:'₦'}}</span>
+<md-divider></md-divider>
+</md-list-item>
+
+
+
+<md-list-item class="md-1-line">
+<div class="md-list-item-text bolder" layout="column">Txn Ref.:</div>
+<div class="md-secondary">
+<span ng-if="!isGenning">{{modalItem.reference}}</span>
+<span ng-if="isGenning">
+<i class="fas fa-circle-notch fa-spin  fas-spin"></i> Loading Txn. Reference</span>
+</div>
+<md-divider></md-divider>
+</md-list-item>
+
+
+<!--pay-buttons-->
+<div class="txt-em px20 py10">Complete Payment with: </div>
+<div class="px10 pb10">
+ <div class=" grp-btn-flex text-center" >
+<pay-bank 
+payload="modalItem"
+btn_class="md-primary md-raised px20 mx0 my0 md-button py7 btn-block "
+callback="payBankFn"
+></pay-bank>
+
+
+
+<paystack-pay-button
+payload="modalItem"
+callback="payCallback"
+btnclass="md-warn md-raised px20 mx0 my0 md-button py7 btn-block "
+text="DEBIT CARD "
+></paystack-pay-button>	
+</div>
+ 
+</div><!--pay-buttons-->
+
+
+</div><!--!hide_summary-->
+
+
+
+<div layout="row" layout-align="start center" ng-show="modalItem.isPaying && !modalItem.hide_summary" class="bordered border-radius-16 boxme px20 py20 my20 mx10">
+
+<div class="text-center txt-h5" flex class="padding md-body-2"
+ng-bind-html="modalItem.message"></div>
+
+<div class="text-center my20" ng-if="modalItem.shouldClose">
+<button class=" btn btn-sm btn-bordered btn-danger shadow-none" 
+  ng-click="closeThisDialog()"> <i class="fas fa-close"></i> &nbsp; CLOSE  &nbsp; </button>
+</div>
+
+
+</div><!--isPaying-->
+
+
+<div class="pxy20 my20 text-center boxme" ng-show="modalItem.hide_summary">
+
+<p ng-bind-html="modalItem.pay_error"></p>
+
+<button class="md-warn md-raised px20 py10 mx0 my0 md-button md-ink-ripple" ng-click="modalItem.hide_summary = false ; modalItem.isPaying = false"> <i class="fas fa-redo"></i>&nbsp; Try Again</button>
+
+</div></div><!--hide_summary-->
+
+
+</div><!--boxme-->
+
+</div><!--md-dialog-content-->
+</md-dialog-content>
+<!--
+<md-dialog-actions class="px10 border-top" layout="row" layout-align="start center">
+<span flex></span>
+ <md-button ng-click="vm.closeThisDialog()" class="md-primary md-raised py5 px10"> <i class="fas fa-thumbs-up"></i> &nbsp;OK,Got It </md-button>
+ </md-dialog-actions> 
+-->
+</md-dialog>

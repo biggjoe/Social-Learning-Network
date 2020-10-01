@@ -1,0 +1,112 @@
+<div class="sticky bg-white border-bottom">
+<div layout="row" layout-align="start center" class=" py10 px10 plain-bg-pattern">
+<span class="bolder" flex><i class="fas fa-envelope"></i>&nbsp; Messages</span>
+
+
+<span>
+<md-button ng-click="st_mess = !st_mess" class="md-primary md-raised px15 mx0 my0"> <i class="fas fa-plus"></i>&nbsp;
+      New <span class="sm-hide"> Message</span></md-button>
+</span>
+
+</div><!--row-->
+
+
+
+<div class="article_pad down_slider border-top" ng-show="st_mess">
+<div class="px10 py10" ng-init="a.pid = 0 ; a.action = 'newMessage' ;  a.userValid = false">
+
+
+
+<div class="relative">
+<div class="form-group input-group relative">
+
+<input style="padding-left: 55px; padding-right: 55px;" 
+ng-model="a.receiver" 
+ng-model-options='{ debounce: 1000 }'
+ng-change="searchRec(a.receiver) ; userValidated = false" ng-class="{'has-error':!a.userValid && userValidated}" required ng-disabled="a.userValid" class="form-control" placeholder="Enter email or username of receiver" type="text">
+
+
+<span class="input-group-prepend">
+
+<!---->
+<button ng-show="a.userValid === true"  class="btn input-group-text">&nbsp;<i ng-show="a.userValid" class="color-primary fas fa-user-check"></i><i ng-show="!a.userValid" class="fas fa-user-circle"></i>&nbsp;</button> 
+
+</span>
+
+<span class="input-group-append" ng-show="a.userValid"> 
+<button class="btn btn-danger bolder" ng-show="a.userValid && a.receiver.length > 0" ng-click="a.userValid = false ; a.receiver = null; userValidated = false"> &nbsp; <i class="fas fa-redo"></i> &nbsp; </button>
+</span>
+
+
+</div><!--relative-->
+
+<div class="search-list" ng-show="is_searching">
+<div class="px10 py10" layout="row" layout-align="start center"> 
+<span flex ng-bind-html="not_text"></span>
+<span> <i ng-if="is_fetching" class="fas fa-spin fa-circle-notch"></i> </span>
+</div>
+
+<div class="result-pane">
+<a ng-repeat="item in res_list"
+ng-click="setRece(item.username)"> 
+<span class="block bolder" ng-bind-html="item.firstname +' '+item.surname"></span>
+<span class="block txt-xsm txt-gray" ng-bind-html="item.user_type"></span>
+</a>
+</div><!--res-->
+
+
+</div><!--search-list-->
+</div>
+
+
+
+<div class="" ng-show="a.userValid">
+<div class="form-group">
+<input  required class="form-control" placeholder="Subject" type="text" ng-model="a.subject">
+</div>
+
+<input type="hidden" required ng-model="a.pid">
+
+<ng-wig ng-model="a.message"  placeholder="Write Your Message here..."></ng-wig>
+
+<div class="pt5">
+<md-button  ng-disabled="a.message === '' ||  !a.message || isLoading" class="py5 mx0 px15 txt-xsm md-primary md-raised"
+ng-click="sendAction(a)"> 
+  Send Message</md-button>
+</div>
+
+</div>
+</div>
+</div>
+</div><!--sticky-header-->
+
+
+
+
+
+<md-list class="border-top">
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+ <div class="list-item-cover shadow-md">
+ <div ng-repeat="item in messages | filter: search.messages"  ng-init="item.index = $index" class="{{last ? '':'border-bottom'}}">
+<md-list-item class="md-2-line" ng-href="{{module}}/messages/read/{{item.chat_dir}}">
+<span class="md-icon-avatar has-awesome"><i class="fas fa-envelope"></i>  </span>
+
+<div class="md-list-item-text">
+<h3 class="boldest main-font">{{item.subject}}</h3>
+<p><span>{{'@'+item.other_party}}</span></p>
+</div>
+<span class="md-secondary px10 txt-sm"> <i class="fas fa-clock"></i> {{item.sdate*1000 |  getTime}}</span>
+</md-list-item>
+</div>
+</div>
+</md-list>
+        
+       
+
+<div class="text-center txt-center py10" ng-show="messages.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore()" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>
+ 

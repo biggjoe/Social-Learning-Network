@@ -1,0 +1,53 @@
+<md-dialog class="responsive"> 
+
+  <md-toolbar class="responsiver" ng-hide="ngDialogData.hideTitle">
+      <div class="md-toolbar-tools" style="color: #fff !important;">
+      	<span class="fas fa-credit-card"></span> 
+        	<span>&nbsp; Account Transaction</span>
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+          <md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+ <md-dialog-content>
+
+
+<div ng-cloak  class="px20 py20 md-dialog-content"> 
+
+<div ng-bind-html="notify"></div>
+<div ng-hide="hideForm">
+<form name="yearForm">
+<div class="" flex>
+  <md-input-container class="md-block" flex>
+<label>Amount to {{ldata.type}}</label>
+<input type="number" ng-model="ldata.amount" class="form-control input-sm" placeholder="Enter Amount to {{ldata.type}}" required="">
+</md-input-container>
+</div>
+
+
+<div class="" layout="row">
+<span flex></span>
+<div class="">
+<md-button ng-hide="hideForm" ng-disabled="yearForm.$error.required.length > 0" ng-click="doAct(ldata)" class="md-raised md-primary mx0 my0 px20 py5"> {{ldata.type}} User </md-button>
+
+</div>
+
+</div>
+
+
+
+</form>
+
+
+</div>
+
+
+
+
+
+</div><!--dialog-content-->
+
+</md-dialog-content>
+</md-dialog>

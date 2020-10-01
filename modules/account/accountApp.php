@@ -1,20 +1,37 @@
 <?php
+if (!isset($_SESSION)) {session_start();}
 header('Access-Control-Allow-Origin: *');
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-if (!isset($_SESSION)) {session_start();}
 ob_start();
 
 require_once('../masterClass.php');
+require '../../vendor/autoload.php';
+$app_id = '808189';
+$app_key = '94b15ec0f11a47b7d711';
+$app_secret = '6a44c8eb0be078fb1627';
+$app_cluster = 'eu';
+$pusher = new Pusher\Pusher( $app_key, $app_secret, $app_id, 
+  array( 'cluster' => $app_cluster, 'useTLS' => true ) );
 #
-$dbConn = new DbConn();
-$genClass = new GeneralClass;;
+$genClass = new GeneralClass;
+$articlesClass = new ArticlesClass;
 $accountClass = new AccountClass;
+$payClass = new PaymentClass;
+$socialClass = new SocialClass;
+$dashClass = new DashClass;
 #
 $postdata = file_get_contents("php://input");
 $request = json_decode($postdata,true);
+
+if(is_array($request) && array_key_exists('action',$request)) { 
 $action = $request['action'];
+}else{
+$action = false;
+$request = array('action'=>false);
+}
+
 
 
 if(isset($_REQUEST['data'])){
@@ -31,6 +48,13 @@ if($request['action']  ==   'getUser'){
     exit();
     }
 
+if($request['action']  ==   'edit_user'){
+    $rsp=$accountClass->editUser($request);
+    header('content-type: application/json');
+    echo json_encode($rsp);
+    exit();
+    }
+
     
     
     if($request['action']  ==   'userLogin'){
@@ -41,7 +65,6 @@ if($request['action']  ==   'getUser'){
     }    
     if($request['action']  ==   'adminLogin'){
     $rsp=$accountClass->adminLogin($request);
-    
     header('content-type: application/json');
     echo json_encode($rsp);
     exit();
@@ -55,6 +78,16 @@ echo json_encode($rsp);
 exit();
 }
 
+
+if($request['action']  ==   'list_departments'){
+$rsp=$socialClass->listDepartments();
+header('content-type: application/json');
+echo json_encode($rsp);
+exit();
+}
+
+
+
 if($request['action']  ==   'save_username'){
 $rsp=$accountClass->saveUsername($request);
 header('content-type: application/json');
@@ -63,13 +96,54 @@ exit();
 }
 
 if($request['action']  ==   'getUserData'){
-$mode = $request['mode'];
-$userData = $accountClass->getUserData($mode);
+$userData = $accountClass->getUserData();
 
 header('content-type: application/json');
 echo json_encode($userData);
 exit();
 }
+
+if($request['action']  ==   'add_education'){
+$rsp = $accountClass->addEducation($request);
+header('content-type: application/json');
+echo json_encode($rsp);
+exit();
+}//delete_education
+
+if($request['action']  ==   'edit_education'){
+$rsp = $accountClass->editEducation($request);
+header('content-type: application/json');
+echo json_encode($rsp);
+exit();
+}//delete_education
+
+if($request['action']  ==   'delete_education'){
+$rsp = $accountClass->deleteEducation($request);
+header('content-type: application/json');
+echo json_encode($rsp);
+exit();
+}//delete_education
+
+
+if(
+$action == 'get_user_details' || 
+$action == 'get_user_questions' || 
+$action == 'get_user_answers' || 
+$action == 'get_user_articles' || 
+$action == 'get_user_followers' || 
+$action == 'get_user_followings' ||
+$action == 'get_user_departments' || 
+$action == 'get_user_education' || 
+$action == 'get_user_stats'){
+$act = $request['action'];
+$rs_name = substr($action, 4);
+$rsp = $accountClass->getUserState($act);
+$r  = array($rs_name => $rsp);
+header('content-type: application/json');
+echo json_encode($r);
+exit();
+
+}//getPublicDetails
 
 
 
@@ -267,5 +341,23 @@ exit();
 
 
 }
+
+
+
+    if($request['action']  ==   'get_articles'){
+$offset = $request['offset'];
+$limit = $request['limit'];  
+$type = $request['type'];    
+$rsp = $articlesClass->getArticles($type,$offset,$limit);
+        
+        
+        $ars = array($type.'_articles'=>$rsp);
+        header('content-type: application/json');
+        echo json_encode($ars);
+        exit();
+        
+        } 
+
+
 
 ?>

@@ -1,0 +1,98 @@
+
+<div class="sticky bg-white border-bottom">
+	<div class=" py10 px10 plain-bg-pattern" layout="row" layout-align="start center">
+<span class="bolder" flex><i class="fas fa-file-pdf"></i>&nbsp; ARTICLES</span>
+
+
+<span>
+	<button ng-click="toggAdd()" class="{{start_add_article ? 'md-warn':'md-primary'}} md-raised px15 mx0 my0 md-button md-ink-ripple"><i class="fas {{start_add_article ? 'fa-times':'fa-plus'}}"></i>&nbsp; {{start_add_article ? 'CLOSE':'ADD NEW'}}</button>
+</span>
+</div>
+
+
+<div class="article_pad bg-white down_slider" ng-show="start_add_article">
+
+<md-tabs md-border-bottom md-dynamic-height class="md-default">
+<md-tab md-on-select="clientData.mode = 'blog'">
+<md-tab-label>
+<span><i class="fas fa-rss"></i> &nbsp; BLOG </span>
+</md-tab-label>
+<md-tab-body>
+<div ng-include="'templates/includes/upload-blog.html'"></div>
+</md-tab-body>
+
+</md-tab>
+
+<md-tab md-on-select="clientData.mode = 'academic'">
+<md-tab-label>
+<span><i class="fas fa-graduation-cap"></i> &nbsp; ACADEMIC </span>
+</md-tab-label>
+<md-tab-body>
+<div ng-include="'templates/includes/upload-academic.html'"></div>
+</md-tab-body>
+
+</md-tab>
+
+</md-tabs>
+
+</div><!--articles-upload-->
+
+
+</div><!--sticky-header-->
+
+
+<md-tabs md-border-bottom md-dynamic-height class="md-default">
+<md-tab md-on-select="loadMore('created',0,12)">
+<md-tab-label>
+<span><i class="fas fa-edit"></i> &nbsp; Created </span>
+</md-tab-label>
+<md-tab-body>
+	
+
+<md-list class="">
+          <md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<div class="list-item-cover shadow-md"
+             ng-repeat="item in created_articles"  ng-init="item.index = $index">
+<feed-item item="item" location="dashboard-articles"></feed-item>
+</div><!--ng-repeat-->
+
+
+<div class="txt-center py10"  ng-show="created_articles.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore('created',feed_offset,feed_rows)" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>
+</md-list>
+</md-tab-body>
+</md-tab>
+
+<md-tab md-on-select="loadMore('purchased',0,12)">
+<md-tab-label>
+<span><i class="fas fa-shopping-cart"></i> &nbsp; Purchased </span>
+</md-tab-label>
+<md-tab-body>
+
+
+
+<md-list class="">
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<div class="list-item-cover shadow-md"
+             ng-repeat="item in purchased_articles"  ng-init="item.index = $index">
+<feed-item item="item" location="dashboard-articles"></feed-item>
+</div><!--ng-repeat-->
+
+
+<div class="txt-center py10"  ng-show="purchased_articles.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore('purchased',feed_offset,feed_rows)" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>
+</md-list>
+
+</md-tab-body>
+</md-tab>
+</md-tabs>
+        
+       

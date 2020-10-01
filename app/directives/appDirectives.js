@@ -22,13 +22,38 @@ $scope.isToHide = (value !== undefined) ? value:null;
 };
 });
 
+zapp.directive('homeAccounts', function () {
+return {
+restrict: 'EA',
+replace: true,
+templateUrl: `templates/directives/home-accounts.html`
+};
+});
+
+
+zapp.directive('itemAvatar', ["$http", function ($http) {
+return {
+restrict: 'EA',
+replace: true,
+template: `
+<span class="profiler">
+<span class="profile-{{size}}" style="background: url({{img}});"></span>
+</span>`,
+scope:{img:'=', size:'@'},
+controller:['$scope', function($scope){
+$scope.size = ($scope.size) ? $scope.size:'avatar';
+}]//controller
+}//return
+
+}]);//itemHeader
+
 
 zapp.directive('stickyHeader', ["$http", function ($http) {
 return {
 restrict: 'EA',
 replace: true,
 template: `
-<div class="sticky border-bottom bg-white">
+<div class="sticky border-bottom bg-white plain-bg-pattern">
 <div class="py10 px10 z-higher" layout="row" layout-align="start center">
 <a ng-if="canGoBack == true" class="stik-back-btn" ng-click="goBack()"> <i class="fas fa-arrow-left"></i> </a>
 <span class="bolder" flex><i class="fas {{page_icon}}"></i>&nbsp; {{page_title}}</span>
@@ -41,25 +66,78 @@ class="{{start_add_article ? 'md-warn':'md-primary'}} md-raised px15 mx0 my0 md-
 </span>
 </div><!--sticky-header-->
 <div class="article_pad down_slider border-top" ng-show="start_add_article">
-{{q | json}}
-<textarea class="form-control px10 py10" rows="2" ng-model="q.question"></textarea>
-<div class="py5" layout="row" layout-align="start center">
+<div class="px10 py10" >
+
+
+<textarea class="form-control asker-input" 
+rows="1" ng-model="q.question" placeholder="Enter question here..."></textarea>
+
+<div layout="row" class="bordered border-radius-4 mt10">
+<md-input-container flex class="my0" 
+ng-show="(q.question && q.question !=='') || q.department_id">
+<md-select class="no-bottom-line" 
+ ng-model="q.department_id" 
+ ng-disabled="q.department_id && q.department_id != 0 && item.is_department_feed">
+<md-option ng-value="0" ng-selected="q.department_id == 0">Select Department</md-option>
+<md-option ng-repeat="itd in department_list" ng-value="itd.id">{{itd.name}}</md-option>
+</md-select>
+</md-input-container>
+</div>
+
+<div class="pt10" ng-show="q.department_id != 0 && q.question && q.question !==''" 
+layout="row" layout-align="start center">
 <span flex>
-<select class="form-control input-sm" ng-model="q.department_id">
-<option ng-repeat="itd in department_list"ng-value="itd.id">{{itd.name}}</option>
-</select>
-</span>
-<span ng-show="is_fetched">
 <button ng-click="askQ(q)" 
 class="md-primary md-raised px15 mx0 my0 md-button">
 <i class="fas fa-save"></i>&nbsp; SEND QUESTION</button>
 </span>
+
+<span>
+<label>
+<input type="checkbox"
+ ng-true-value="0" ng-false-value="1" ng-model="q.is_public">&nbsp;
+Make Private</label>
+</span>
+
 </div>
 </div>
+
+</div>
+
+<!--department-details-->
+<div class="border-top pxy5" ng-if="item.is_department_feed">
+<div class="pb0 article-meta txt-gray" layout="row" 
+layout-align="start center">
+<span flex>
+  <button class="md-raised btn btn-clear px10"> 
+  <i class="fas fa-edit"></i>&nbsp;<span class="bolder sm-hide">Topics&nbsp;</span>{{item.topics_num}}</button>
+
+ <button ng-click="sItem('follow_topic')" 
+  class=" md-raised btn btn-clear px10">
+  <span class="bolder"><i class="fas fa-rss"></i>&nbsp;Follow </span>{{item.department_follows}} </button> 
+
+</span>
+
+<div class="">
+<span><button 
+  class="btn {{topic_details.answer_num ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
+  <i class="fas fa-comment"></i> </button> {{topic_details.answer_num | number}}
+</span>
+<span><button 
+  class="btn {{topic_details.total_shares ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
+  <i class="fas fa-share-alt"></i> </button> {{topic_details.total_shares | number}}
+</span>
+</div>
+</div>
+</div><!--department-details-->
+
 </div><!--sticky-header-->`,
-scope:{title:'@', icon:'@', goback:'=',},
+scope:{title:'@', icon:'@', item:'=?bind', goback:'=',},
 controller:['$scope','toast', function($scope,toast){
-  var app_url = 'modules/feed/feedApp.php';
+$scope.item = ( angular.isDefined($scope.item) ) ? $scope.item:{department_id:0};
+$scope.q = {department_id:$scope.item.department_id,is_public:1};
+var app_url = 'modules/feed/feedApp.php';
+  var app_url2 = 'modules/general/generalApp.php';
 $scope.page_icon = ($scope.icon) ? $scope.icon : 'fa-list';
 $scope.page_title = ($scope.title) ? $scope.title : '-';
 $scope.canGoBack = ($scope.goback) ? $scope.goback : false;
@@ -74,7 +152,7 @@ $scope.is_fetching = $scope.is_fetched = false;
 $scope.fetch_departments = function(){
 $scope.is_fetching = true;
 $scope.is_fetched = false;
-$http.post(app_url,{action:'list_departments'}).then(function(res){
+$http.post(app_url2,{action:'list_user_departments'}).then(function(res){
 console.log(res)
 $scope.is_fetching = false;
 if(res.data.departments.length > 0){$scope.is_fetched = true;}
@@ -104,6 +182,233 @@ $scope.goBack = function() {
 };
 
 }]);//askPanel
+
+
+
+zapp.directive('articleMeta', ['$http', function ($http) {
+return {
+restrict: 'EA',
+replace: true,
+template: `
+<div>
+<div class="pb10 article-meta txt-gray" layout="row" 
+layout-align="start center">
+<span flex>
+<span ng-if="item.mode !== 'blog'">
+<start-buy-btn ng-if="item.for_sale == 1" item="item" 
+btn_class="md-primary md-button md-raised btn-outline-primary px20" 
+label="Buy This"></start-buy-btn> {{item.total_sales}}
+</span>
+</span>
+<span>
+<div class="px10 txt-sm">
+  <span><span ng-if="item.mode !== 'blog'"><button ng-disabled="item.files.length === 0"
+  class="btn {{item.files.length > 0 ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
+  <i class="fas fa-paperclip"></i><md-tooltip>Files</md-tooltip> </button> {{item.files.length}}</span> &nbsp;</span>
+  <span><button ng-click="sItem('rate_article')" ng-disabled="item.rated"
+  class="btn {{item.total_ratings > 0 ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
+  <i class="fas fa-star"></i> <md-tooltip>Rating</md-tooltip></button>  {{item.total_ratings}}</span> &nbsp;
+  <span><button ng-click="sItem('save_article')" ng-disabled="item.saved" 
+  class="btn {{item.total_saves > 0 ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
+  <i class="fas fa-save"></i> <md-tooltip>Saves</md-tooltip></button> {{item.total_saves}}</span> &nbsp;
+  <span><button ng-click="sItem('like_article')" ng-disabled="item.liked" 
+  class="btn {{item.total_likes > 0 ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
+  <i class="fas fa-heart"></i> <md-tooltip>Likes</md-tooltip></button> {{item.total_likes}}</span> &nbsp;
+  
+</div>
+</span>
+
+</div><!--meta-->
+
+</div>`,
+scope:{item:'='}
+};
+
+}]);//articleMeta
+
+
+
+
+zapp.directive('departmentItem', ["$http", function ($http) {
+return {
+restrict: 'EA',
+replace: true,
+template: `
+<div>
+<md-list-item  class="md-1-line">
+<span class="md-icon-avatar has-awesome"> <i class="fas fa-bank"></i> </span>
+<div class="md-list-item-text" layout="column" flex>
+<h3 style="margin: 0; line-height: 1.2;">{{item.name}}</h3>
+</div>
+<span class="md-secondary py10"> 
+<department-follow-btn item="item"></department-follow-btn>
+</span>
+<md-divider></md-divider>
+ </md-list-item>
+</div>`,
+scope:{item:'=', mode:'@'},
+controller:['$scope','$rootScope', '$filter', 
+function($scope, $rootScope, $filter){
+$scope.action_text = (angular.isDefined($scope.mode) && $scope.mode==='following') ? ' was followed ':
+(angular.isDefined($scope.mode) && $scope.mode==='followers') ? ' follows ':'';
+//console.log($scope.item)
+$scope.isLoaded = false;
+
+}]//controller
+}
+}]);//departmentItem
+
+
+
+
+
+
+zapp.directive('followItem', ["$http", function ($http) {
+return {
+restrict: 'EA',
+replace: true,
+template: `
+<div>
+<md-list-item  class="md-1-line align-start">
+<span class="md-avatar" style="background: url({{item.other_avatar}});"></span>
+<div class="md-list-item-text pt15 pb10 my0">
+
+<div style="margin: 0; line-height: 1.2;" class="">
+<a class="bolder" href="{{item.other_url}}">{{item.other_name}}</a> {{action_text}}
+</div>
+<span class="txt-sm" flex> <i class="fa fa-clock"></i>&nbsp;{{item.fdate*1000 |  getTime}}</span>
+</div>
+<span class="md-secondary"> 
+<user-follow-btn item="item"></user-follow-btn>
+</span>
+<md-divider></md-divider>
+ </md-list-item>
+</div>`,
+scope:{item:'=', mode:'@'},
+controller:['$scope','$rootScope', 'toast', 
+function($scope, $rootScope, toast){
+$scope.action_text = (angular.isDefined($scope.mode) && $scope.mode==='following') ? ' was followed ':
+(angular.isDefined($scope.mode) && $scope.mode==='followers') ? ' follows ':'';
+
+}]//controller
+}
+}]);//followItem
+
+
+
+zapp.directive('userFollowBtn', ["$http", function ($http) {
+return {
+restrict: 'EA',
+replace: true,
+template: `
+<button ng-click="sItem(item.is_followed)" 
+class="txt-sm {{item.is_followed ? 'btn-danger':'btn-primary'}} btn-raised btn-sm uppercase btn py7 px10 mx0 my0 btn">
+<i class="fas {{item.icon}}"></i>&nbsp; 
+{{item.is_followed ? 'Unfollow':'Follow'}}</button>
+`,
+scope:{item:'=', mode:'@'},
+controller:['$scope','$rootScope', 'toast', 
+function($scope, $rootScope, toast){
+$rootScope.$watch('userData.isLogged', function(value){
+$scope.item.is_logged = value;
+})
+$scope.item.is_loading = false;
+$scope.item.icon = ($scope.item.is_followed==true) ? 'fa-user-minus':
+($scope.item.is_followed==false) ? 'fa-rss':'';
+var cur_icon = $scope.item.icon;
+$scope.isLoaded = false;
+var app_url = 'modules/feed/feedApp.php';
+$scope.sItem = (type) => {
+if($scope.item.is_logged == false){return;}
+if(type===false){
+$scope.item.action = 'save_follow_user';
+}else if(type===true){
+$scope.item.action = 'save_unfollow_user';
+}
+$scope.item.is_loading = true;
+$scope.item.icon = 'fa-spin fa-circle-notch';
+$http.post(app_url,$scope.item).then((res)=>{
+$scope.item.is_loading = false;
+console.log(res);
+let rs = res.data;
+if(type === false && rs.status == '1' && rs['mode']=='follow'){
+$scope.item.is_followed = true;
+$scope.item.icon = 'fa-user-minus';
+}else if(type === true && rs.status == '1' && rs['mode']=='unfollow'){
+$scope.item.is_followed = false;
+$scope.item.icon = 'fa-rss';
+}else if(rs.status == '100'){
+$scope.item.icon = cur_icon; 
+toast.show({title:'Error',message:'You cannot follow yourself'}) 
+}
+},function(error){
+$scope.item.is_loading = false;  
+});
+}//saveCommAns
+
+
+}]//controller
+}
+}]);//userfollowBtn
+
+
+zapp.directive('departmentFollowBtn', ["$http", function ($http) {
+return {
+restrict: 'EA',
+replace: true,
+template: `
+<button ng-click="sItem(item.is_followed)" ng-show="item.can_follow"
+class="txt-sm {{item.is_followed ? 'btn-danger':'btn-primary'}} btn-raised btn-sm uppercase btn py7 px10 mx0 my0 btn">
+<i class="fas {{item.icon}}"></i>&nbsp; 
+{{item.is_followed ? 'Unfollow':'Follow'}}</button>
+`,
+scope:{item:'=', mode:'@'},
+controller:['$scope','$rootScope', 'toast', 
+function($scope, $rootScope, toast){
+$scope.item.can_follow = (angular.isDefined($scope.item.is_followed)) ? true:false;
+
+$scope.item.is_loading = false;
+$scope.item.icon = ($scope.item.is_followed==true) ? 'fa-user-minus':
+($scope.item.is_followed==false) ? 'fa-rss':'';
+var cur_icon = $scope.item.icon;
+$scope.isLoaded = false;
+var app_url = 'modules/feed/feedApp.php';
+$scope.sItem = (type) => {
+//console.log(type)
+let ivotes = ["upvote","downvote"];
+if(type===false){
+$scope.item.action = 'save_follow_department';
+}
+if(type===true){
+$scope.item.action = 'save_unfollow_department';
+}
+console.log($scope.item);
+$scope.item.is_loading = true;
+$scope.item.icon = 'fa-spin fa-circle-notch';
+$http.post(app_url,$scope.item).then((res)=>{
+$scope.item.is_loading = false;
+console.log(res);
+let rs = res.data;
+if(type === false && rs.status == '1' && rs['mode']=='follow'){
+$scope.item.is_followed = true;
+$scope.item.icon = 'fa-user-minus';
+}else if(type === true && rs.status == '1' && rs['mode']=='unfollow'){
+$scope.item.is_followed = false;
+$scope.item.icon = 'fa-rss';
+}else if(rs.status == '100'){
+$scope.item.icon = cur_icon; 
+toast.show({title:'Error',message:'You cannot follow yourself'}) 
+}
+},function(error){
+$scope.item.is_loading = false;  
+});
+}//saveCommAns
+
+
+}]//controller
+}
+}]);//departmentfollowBtn
+
 
 
 zapp.directive('showPayment', function () {
@@ -189,61 +494,73 @@ zapp.directive('contenteditableFirst', ['$sce', function($sce) {
 }])
 
 
-zapp.directive('startPayBtn', function () {
+
+zapp.directive('startBuyBtn', function () {
     return {
       restrict: 'EMA',
       template: `<button ng-if="isLoaded" 
-      ng-disabled="modalItem.isLoading" class="btn  {{btclass}}"
+      ng-disabled="modalItem.isLoading" class="{{btnClass}}"
       ng-click="doPayNow()"><i class="fas {{bticon}}"></i>&nbsp;
-      <span ng-bind-html="bttext"></span></button>`,
+      <span ng-bind-html="btnText"></span></button>`,
       scope: {
-        cdata : '=', 
-        btnclass : '@' 
+        item : '=', 
+        btn_class : '@',
+        icon : '@',
+        label : '@' 
       },
 controllerAs:'vm',
 controller: function ($scope, $rootScope, $http, $window, $mdDialog, 
  modal, doPay, $timeout, $mdDialog) {
 var self = this;
-console.log($scope)
-//$scope.cdata.action = ($scope.cdata!==undefined) ? 'payDetails':null;
+$scope.btnClass = 
+( angular.isDefined($scope.btn_class) && $scope.btn_class !=='') 
+? $scope.btn_class : `md-warn md-raised px20 mx0 my0 py10 md-button`;
 $scope.modalItem = 
 {isLoading:false, isPaying:false,
   callback:'payCallback'};
-$rootScope.$watch('userData.isLoaded',function(value){
-$scope.isLoaded = value;
-var item = $scope.cdata;
-$scope.canJoin = false;
-$scope.btnText = ($scope.label === '' || !$scope.label) ?  ' JOIN ':$scope.label;
+$rootScope.$watch('isFetched',function(value){
+if(value === true){
+$scope.isLoaded = true;
+$scope.canBuy = ($scope.item.has_bought) ? false:true;
+$scope.btnText = ($scope.label === '' || !$scope.label) ?  ' BUY ':$scope.label;
 $scope.canJoin = true;
-$scope.btclass = 'btn-primary md-raised btn-md';
-$scope.bticon = ' fa-shopping-cart ';
-$scope.bttext = 'PAY NOW';  
+$scope.bticon = ($scope.icon === '' && $scope.icon !='') ?  $scope.icon: ' fa-shopping-cart ';
+
 ;
-  
+}  
 });//watch
 
 
 $scope.doPayNow = function(){
 $scope.modalItem.isLoading = true;
 $scope.bticon = ' fa-spin fa-circle-notch ';  
-var actNow = ($scope.canJoin) ? showModal() : nullModal()
+var actNow = ($scope.canBuy) ? showModal() : nullModal()
 };
 
 
 $scope.closeThisDialog = ()=>{modal.close();}
 var nullModal = function(){
 $scope.modalItem.isLoading = true;
-alert('Already Joined!');
+alert('Already Bought!');
 $scope.bticon = 'fa-exclamation-triangle status-cancelled';  
 }
 var showModal = function () {
-$http.post('modules/payApp.php',
-  {action:'payDetails',cart_data:$scope.cdata})
-.then(function(res){
+$scope.item.transactionName = $scope.modalItem.transactionName = 'Article Purchase ['+$scope.item.title+']';
+$scope.modalItem.article_id = $scope.item.aid;
+let paramx = {action:'getPayDetails',
+article_data:{
+  article_id:$scope.item.aid,
+  price:$scope.item.price,
+  transactionName: $scope.item.transactionName,
+  title:$scope.item.title
+}
+};
+
+$http.post('modules/payment/paymentApp.php',paramx).then(function(res){
   console.log(res)
 $scope.modalItem.isLoading = false;
 $scope.modalItem.isPaying = false;
-$scope.modalItem.page_title = 'VIN Report Purchase';
+$scope.modalItem.page_title = 'Article Purchase';
 $scope.bticon = ' fa-shopping-cart ';
 var old = $scope.modalItem, newer = res.data;
 var iLoad = {...old,...newer};
@@ -257,40 +574,14 @@ page:'templates/dialogs/start_payment.html',
 $scope.is_sent = false;
 $scope.did_well = false;
 
-$scope.payCallback = function(response){
-  console.log('payCallback::::: res:: ',response,  'Scope:: ', $scope)
-doPay.setScope('modalItem',
-    {message:'Processing Payment...',
-    isLoading:true,isPaying:true},$scope);
-doPay.verifyDirectPaystack(response.trxref).then(function(res) {
-  console.log(res)
-doPay.setScope('modalItem',
-    {message:res.message,isLoading:false},$scope);
-if(res.status == '1'){
-doPay.fundWallet(response.trxref).then(function(res2){
-console.log('activate_subscription :: ',res2);
-doPay.setScope('modalItem',{message:res2.message,isLoading:false},$scope);
-var tx = {status:res2.status,reference:res2.reference};
-doPay.markTranx(tx).then(function(trx) {
-  console.log(trx)
-});
-}, function(){
-doPay.setScope('modalItem',{message:'Error Setting up subscription. Please Contact Admin.',isLoading:false},$scope);
- 
-});//creditWallet
-}//status ==1 so save order
-else{
-doPay.setScope('modalItem',
-  {message:res.message,isLoading:false},
-  $scope);
-}
 
-}, function(error){
-console.log(error);
-doPay.setScope('modalItem',{message:'Payment Verifiation Error.<br> Please Requery this Payment Transaction',isLoading:false},$scope);
-});//verifyPaystack
 
-}//cardPayCallback
+
+$scope.onCloseCallback = function(reference){
+dopay.nullifyPay(reference).then(function(reks){
+  console.log(reks)
+});//nulifyPay
+}//onCloseCallBack
 
 }//controller
 
@@ -303,23 +594,27 @@ zapp.directive('payBank',  [
 function ($http, $timeout, doPay) {
 return {
 restrict: `EMA`,
-template: `<a href class="btn btn-md {{payClass}}"
+template: `<a href class="text-center {{payClass}}"
 ng-click="startBank()"
 ng-disabled="pbnk_data.isLoading || pbnk_data.isPaying">
-<i class="fas fa-credit-card" ng-hide="pbnk_data.isLoading || modalItem.isPaying"></i> 
+<i class="fas fa-bank" ng-hide="pbnk_data.isLoading || modalItem.isPaying"></i> 
 <i class="fas  faa-flash animated fa-circle" 
-ng-if="pbnk_data.isLoading   || pbnk_data.isPaying"></i> &nbsp;BANK<span class="sm-hide"> DEPOSIT</span> </a>`,
+ng-if="pbnk_data.isLoading   || pbnk_data.isPaying"></i> &nbsp;BANK<span class="sm-hide">&nbsp;DEPOSIT</span> </a>`,
 replace: true,
 scope: {
 payload:'=',
-btnclass: '@',
+btn_class: '@',
 callback: '@',
 text: '@'
 },
 controller: function ($scope, $rootScope, modal, doPay,cartApp) {
+console.log($scope)
 $scope.pbnk_data = {};
 var par_scope = $scope.$parent.$parent;
-$scope.payClass = ($scope.btnclass) ?  $scope.btnclass : ' btn-primary ';
+$scope.payClass = 
+( angular.isDefined($scope.btn_class) && $scope.btn_class !=='') 
+? $scope.btn_class : `md-primary md-raised px20 mx0 my0 py10 md-button`;
+
 var errorIcon = '<i class="fas fa-exclamation-triangle status-cancelled"></i>&nbsp; ';
 var goodIcon = '<i class="fas fa-check-circle status-active"></i>&nbsp; ';
 $scope.startPay = function(){
@@ -492,3 +787,52 @@ obj.uid = 1007;
 }
 }]);
 
+zapp.directive('fileMd', ['$parse', function ($parse) {
+
+  return {
+
+      restrict: 'A'
+
+    , link: function (scope, element, attrs) {
+
+    var model = $parse(attrs.fileMd);
+
+    var modelSetter = model.assign;
+
+    var onChangeFunc = scope.$eval(attrs.customOnChange);
+
+    console.log(scope.isUploading);
+
+    element.bind('change', function () {
+
+      var files = [];
+
+        angular.forEach(element[0].files,function(file){
+
+               files.push(file);
+
+               //console.log(file)
+
+      })
+
+      scope.$apply(function () {
+
+          modelSetter(scope, files);
+
+         onChangeFunc;
+
+         scope.isUploading = false;
+
+         
+
+      
+
+       });
+
+      });
+
+    }
+
+  };
+
+  }])

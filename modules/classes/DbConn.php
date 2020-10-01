@@ -11,12 +11,12 @@
 class DbConn
 {
   
-    /*  
-  protected $db = 'senseing_sensei';
-  protected $user = 'senseing_user1';
-  protected $pass = 'Sensei2020';
-*/    
-
+  /*   
+  protected $db = 'cyprexco_sensei';
+  protected $user = 'cyprexco_user1';
+  protected $pass = '0364Martin@';
+    */
+ 
   protected $db = 'quora';
   protected $user = 'root';
   protected $pass = '';
@@ -57,8 +57,13 @@ private function get_connection() {
 
 
 public function loadVals($load) {
-
-$vals = $cols =  $format =  $icl = $joiner = $gluer=''; $bind = array();
+$vals = 
+$cols =  
+$format =  
+$icl = 
+$joiner = 
+$gluer=''; 
+$bind = array();
 $o = 0;
 foreach ($load as $key => $value) {
   $vals .= '"'.$value.'",';//'"'.$vr[0].'",';

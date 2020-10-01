@@ -4,9 +4,10 @@ zapp.config( ['$stateProvider', '$locationProvider', '$urlRouterProvider',
   function($stateProvider, $locationProvider, $urlRouterProvider) {
 //$locationProvider.html5Mode(true);
 $locationProvider.html5Mode({ enabled: true, requireBase: false, rewriteLinks: false });
-$urlRouterProvider.when('/', '/account/dashboard');
+$urlRouterProvider.when('/', '/account/feed');
 $urlRouterProvider.when('/account/messages', '/account/messages/list');
-$urlRouterProvider.when('/account/profile', '/account/profile/edit-profile');
+$urlRouterProvider.when('/account/wallet', '/account/wallet/summary');
+$urlRouterProvider.when('/account/account-settings', '/account/account-settings/profile');
 $stateProvider
 .state('dash',{
  url: '/dash',
@@ -27,23 +28,23 @@ $stateProvider
 
 
 
-.state('view-dashboard',{
- url: '/account/dashboard',
+.state('view-feed',{
+ url: '/account/feed',
  views: {
   'menuContent':{
-    templateUrl: 'templates/account/dashboard.html',
-    controller: 'dashboardCtrl'
+    templateUrl: 'templates/account/feed.html',
+    controller: 'feedCtrl'
   },
   params:{pageTitle:'Dashboard'}
  }
  })
 
-.state('checkout',{
- url: '/account/checkout',
+.state('articles',{
+ url: '/account/articles',
  views: {
   'menuContent':{
-    templateUrl: 'templates/account/checkout.html',
-    controller: 'checkoutCtrl'
+    templateUrl: 'templates/account/articles.html',
+    controller: 'articlesCtrl'
   },
   params:{pageTitle:'Checkout Page'}
  }
@@ -62,49 +63,30 @@ $stateProvider
  }
  })
 
-.state('reports',{
- url: '/account/reports',
+.state('user-questions',{
+ url: '/account/questions',
  views: {
   'menuContent':{
-    templateUrl: 'templates/account/reports.html',
-    controller: 'reportCtrl'
+    templateUrl: 'templates/account/user-questions.html',
+    controller: 'questionsCtrl'
   },
-  params:{pageTitle:'VIN Reports'}
+  params:{pageTitle:'User Questions'}
  }
  })
 
 
- .state('report-details', {
-  url: '/account/report-details/:url',
-      views: {
-      'menuContent': {
-      templateUrl: 'templates/general/report-details.html',
-      controller: 'reportDetailsCtrl'
-    }
-  }
-})
-
-.state('queries',{
- url: '/account/queries',
+.state('user-answers',{
+ url: '/account/answers',
  views: {
   'menuContent':{
-    templateUrl: 'templates/account/queries.html',
-    controller: 'queriesCtrl'
+    templateUrl: 'templates/account/user-answers.html',
+    controller: 'answersCtrl'
   },
-  params:{pageTitle:'VIN Queries'}
+  params:{pageTitle:'User Answers'}
  }
  })
 
-.state('api',{
- url: '/account/api',
- views: {
-  'menuContent':{
-    templateUrl: 'templates/account/api.html',
-    controller: 'apiCtrl'
-  },
-  params:{pageTitle:'API Settings'}
- }
- })
+
 
  .state('payments',{
   url: '/account/payments',
@@ -117,22 +99,11 @@ $stateProvider
   }
   })
 
-  .state('sub-accounts',{
-   url: '/account/sub-accounts',
-   views: {
-    'menuContent':{
-      templateUrl: 'templates/account/sub-accounts.html',
-      controller: 'accountsCtrl'
-    },
-    params:{pageTitle:'Sub Accounts'}
-   }
-   })
-
 .state('messages',{
  url: '/account/messages',
  views: {
   'menuContent':{
-    templateUrl: 'templates/general/messages.html'
+    templateUrl: 'templates/account/messages.html'
   },
   params:{pageTitle:'Messages'}
  }
@@ -143,7 +114,7 @@ $stateProvider
  url: '/list',
  views: {
   'idasher':{
-    templateUrl: 'templates/general/messages-list.html',
+    templateUrl: 'templates/account/messages-list.html',
     controller: 'messagesCtrl'
   },
   params:{pageTitle:'List Messages'}
@@ -154,7 +125,7 @@ $stateProvider
  url: '/read/:mId',
  views: {
   'idasher':{
-    templateUrl: 'templates/general/messages-read.html',
+    templateUrl: 'templates/account/messages-read.html',
     controller: 'messagesThreadCtrl'
   },
   params:{pageTitle:'Upload Articles'}
@@ -162,34 +133,151 @@ $stateProvider
  })
 
 
-
-.state('account-settings',{
- url: '/mentor/account-settings',
+.state('wallet',{
+ url: '/account/wallet',
  views: {
   'menuContent':{
-    templateUrl: 'templates/general/account-settings.html'
+    templateUrl: 'templates/account/wallet.html'
+  },
+  params:{pageTitle:'Wallet'}
+ }
+ })
+
+.state('wallet.summary',{
+ url: '/summary',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/account/wallet/summary.html',
+    controller: 'walletCtrl'
+  },
+  params:{pageTitle:'Summary'}
+ }
+ })
+
+.state('wallet.referral',{
+ url: '/referral',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/account/wallet/referral.html',
+    controller: 'walletCtrl'
+  },
+  params:{pageTitle:'referral'}
+ }
+ })
+
+.state('wallet.sales',{
+ url: '/sales',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/account/wallet/sales.html',
+    controller: 'walletCtrl'
+  },
+  params:{pageTitle:'Sales'}
+ }
+ })
+.state('wallet.purchases',{
+ url: '/purchases',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/account/wallet/purchases.html',
+    controller: 'walletCtrl'
+  },
+  params:{pageTitle:'Purchases'}
+ }
+ })
+.state('wallet.settlements',{
+ url: '/settlements',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/account/wallet/settlements.html',
+    controller: 'walletCtrl'
+  },
+  params:{pageTitle:'Purchases'}
+ }
+ })
+
+
+.state('account-settings',{
+ url: '/account/account-settings',
+ views: {
+  'menuContent':{
+    templateUrl: 'templates/account/account-settings.html'
   },
   params:{pageTitle:'Messages'}
  }
  })
 
 
-.state('account-settings.edit-profile',{
- url: '/edit-profile',
+.state('account-settings.profile',{
+ url: '/profile',
  views: {
   'idasher':{
-    templateUrl: 'templates/general/profile-edit.html',
+    templateUrl: 'templates/account/profile/profile-edit.html',
     controller: 'accountCtrl'
   },
   params:{pageTitle:'Edit Profile'}
  }
  })
 
-.state('account-settings.edit-notifications',{
- url: '/notifications-settings',
+.state('account-settings.education',{
+ url: '/education',
  views: {
   'idasher':{
-    templateUrl: 'templates/general/notifications-settings.html',
+    templateUrl: 'templates/account/profile/education-edit.html',
+    controller: 'accountCtrl'
+  },
+  params:{pageTitle:'Edit Profile'}
+ }
+ })
+
+.state('account-settings.departments',{
+ url: '/departments',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/account/profile/departments-edit.html',
+    controller: 'accountCtrl'
+  },
+  params:{pageTitle:'Edit Profile'}
+ }
+ })
+
+.state('account-settings.stats',{
+ url: '/stats',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/account/profile/stats-edit.html',
+    controller: 'accountCtrl'
+  },
+  params:{pageTitle:'Edit Profile'}
+ }
+ })
+
+.state('account-settings.followers',{
+ url: '/followers',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/account/profile/followers-edit.html',
+    controller: 'accountCtrl'
+  },
+  params:{pageTitle:'Edit Profile'}
+ }
+ })
+
+.state('account-settings.followings',{
+ url: '/followings',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/account/profile/followings-edit.html',
+    controller: 'accountCtrl'
+  },
+  params:{pageTitle:'Edit Profile'}
+ }
+ })
+.state('account-settings.notifications',{
+ url: '/notifications',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/account/profile/notifications-edit.html',
     controller: 'accountCtrl'
   },
   params:{pageTitle:'Edit Profile'}
@@ -197,10 +285,10 @@ $stateProvider
  })
 
 .state('account-settings.password',{
- url: '/edit-password',
+ url: '/password',
  views: {
   'idasher':{
-    templateUrl: 'templates/general/password-edit.html',
+    templateUrl: 'templates/account/profile/password-edit.html',
     controller: 'accountCtrl'
   },
   params:{pageTitle:'Password Edit'}
@@ -209,6 +297,6 @@ $stateProvider
 
 
 
-$urlRouterProvider.otherwise('/account/dashboard');
+$urlRouterProvider.otherwise('/account/feed');
 
 }]);

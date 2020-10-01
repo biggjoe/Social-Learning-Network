@@ -1,0 +1,22 @@
+
+<md-list class="">
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<div class="list-item-cover shadow-md">
+			<md-subheader>
+	<div layout="row" layout-align="start center">
+	<span  class="boldest" flex> <i class="fas fa-rss"></i> Following</span>
+	<span class="txt-sm">{{user_followings.length | number}} followed</span>
+</div>
+</md-subheader>
+<div ng-repeat="item in user_followings"  ng-init="item.index = $index">
+<follow-item item="item" mode="following"></follow-item>
+</div><!--ng-repeat-->
+</div><!--list-item-cover-->
+</md-list>      
+       
+<div class="txt-center py10"  ng-show="user_followings.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore()" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>

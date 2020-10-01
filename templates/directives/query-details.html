@@ -1,0 +1,80 @@
+<form name="loginForm">
+<div class="px0 py0">	
+	
+
+<div class=" bg-white curv px10" flex>
+<div ng-if="vinItem.shouldShow">
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>VIN</span> 
+<span class="float-right">{{vinItem.VIN || '-'}}</span>
+</div>
+
+<md-divider></md-divider>
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Make</span> 
+<span class="float-right">{{vinItem.Make || '-'}}</span>
+</div>
+
+<md-divider></md-divider>
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Model</span>
+<span class="float-right">{{vinItem.Model || '-'}} {{vinItem.attributes.Trim}}</span>
+</div>
+
+<md-divider></md-divider>
+
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Year</span>
+<span class="float-right">{{vinItem.Year || '-'}}</span>
+</div>
+
+<md-divider></md-divider>
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Style</span>
+<span class="float-right">{{vinItem.Style || '-'}}</span>
+</div>
+
+<md-divider></md-divider>
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Made In</span>
+<span class="float-right">{{vinItem['Made In'] || '-'}}</span>
+</div>
+
+<md-divider></md-divider>
+
+<div class="border-bottom py10" layout="row">
+	<span class="slabel strong" flex>Engine</span>
+<span class="float-right">{{vinItem.Engine || '-'}}</span>
+</div>
+
+
+<md-divider></md-divider>
+
+<div class="border-bottom py10" layout="row">
+<span class="slabel strong" flex>Type</span>
+<span class="float-right">{{vinItem.Type || '-'}}</span>
+</div> 
+
+</div><!--ifShouldShow-->
+
+<div ng-if="!vinItem.shouldShow">
+	
+
+<div class="text-center txt-md">Failed VIN Request</div>
+
+
+</div><!--!ifShouldShow-->
+
+</div><!--flex-->
+
+
+
+
+</div>
+</form>

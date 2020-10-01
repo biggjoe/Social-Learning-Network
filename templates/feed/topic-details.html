@@ -1,0 +1,65 @@
+<sticky-header goback="true" icon="fa-comments" title="Topic Feed"></sticky-header>
+
+
+<div class="pl10 py10">
+<h2 class="mx0 my0 pl10" ng-bind-html="topic_details.title"></h2>
+</div>
+
+<div class="pb0 px10 article-meta txt-gray" layout="row" 
+layout-align="start center">
+<span flex>
+  <button ng-click="togView('answer')" class="bolder md-raised btn btn-clear px10"> 
+  <i class="fas fa-edit"></i>&nbsp;Answer<span class="sm-hide">&nbsp;Question</span></button>
+
+  <a2a-btn qid="topic_details.question_id" iclass="bolder md-raised btn btn-clear px10"></a2a-btn>&nbsp;{{topic_details.a2as}}
+
+
+ <button ng-click="sItem('follow_topic')" 
+  class=" md-raised btn btn-clear px10">
+  <span class="bolder"><i class="fas fa-rss"></i>&nbsp;Follow </span>{{topic_details.follows}} </button> 
+
+</span>
+
+<div class="">
+<span><button 
+  class="btn {{topic_details.answer_num ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
+  <i class="fas fa-comment"></i> </button> {{topic_details.answer_num | number}}
+</span>
+<span><button 
+  class="btn {{topic_details.total_shares ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
+  <i class="fas fa-share-alt"></i> </button> {{topic_details.total_shares | number}}
+</span>
+</div>
+</div>
+
+<div class="px20 py20 mt20 bg-white down_slider" ng-show="ansCom">
+<div class="block">
+<ng-wig ng-model="topic_details.new_answer" class="mb5"></ng-wig>
+</div>
+
+<button class="md-raised px15 mx0 md-button md-primary"
+ng-disabled="topic_details.new_comment =='' || topic_details.isLoding"
+ng-click="sItem('answer')"> <i class="fas fa-comment"></i> Save</button>
+
+</div><!--cCom-->
+
+<md-list class="">
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<div class="list-item-cover shadow-md"
+             ng-repeat="item in topic"  ng-init="item.index = $index">
+<feed-item item="item" location="topic"></feed-item>
+</div><!--ng-repeat-->
+</md-list>
+        
+       
+<div class="txt-center py10"  ng-show="topic_details.answer_num.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore()" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>
+        
+<div class="list-item-cover shadow-md px20 py30 txt-md" 
+ng-if="topic_details.answer_num == 0">
+<i class="fas fa-exclamation-triangle"></i>&nbsp; No answers for now
+</div>

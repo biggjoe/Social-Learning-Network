@@ -1,0 +1,23 @@
+<md-dialog class="responsive"> 
+
+  <md-toolbar class="responsiver" ng-hide="ngDialogData.hideTitle">
+      <div class="md-toolbar-tools" style="color: #fff !important;">
+      	<span class="fas fa-info-circle"></span> 
+        	<span>&nbsp; {{ngDialogData.title}}</span>
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+          <md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+ <md-dialog-content>
+
+
+<div ng-cloak  class="px20 py20 md-dialog-content">  
+
+<div ng-bind-html="ngDialogData.message"></div>
+</div>
+
+</md-dialog-content>
+</md-dialog>

@@ -22,11 +22,12 @@ $sdy = $genClass->sqlPart($ucols,'y');
 
 
 
-$sql =   "SELECT  $sdy, q.*, q.id AS question_id,
-    (SELECT Count(*) FROM comments WHERE question_id = ? ) 
+$sql =   "SELECT  $sdy, q.*, d.name AS department_name, d.url AS department_url, q.id AS question_id,
+    (SELECT Count(*) FROM comments WHERE question_id = ? AND answer_id = 0) 
     as ans_num
     FROM questions q
     LEFT JOIN users y  ON q.author_id =   y.email
+    LEFT JOIN departments d  ON q.department_id =   d.id
     LEFT JOIN comments c  ON q.id =   c.question_id
     WHERE q.id = ? ";
 $cols =["$qId","$qId"];
@@ -42,8 +43,10 @@ $ursu = ($rw['user_type'] == 'mentor') ? 'mentor':'user';
 $rw['author_name'] = $rw['firstname'].' '.$rw['surname'];
 $rw['author_url'] = 'profile/'.$rw['username'];
 $rw['is_question'] = true;
+$rw['follows'] = $this->getQuestionFollows($qId);
 $rw['answer_list'] = array();
 $rw['fn_name'] = 'getQuestion';
+$rw['department_dir'] = 'feed/department/'.$rw['department_url'];
 }else{
 $rw = false;
 }
@@ -51,6 +54,18 @@ $rw = false;
 
 return $rw;
 }
+
+public function getQuestionFollows($qId){
+$dbConn = new DbConn();
+$sql = 'SELECT id FROM following_topic WHERE topic_id = ? ';
+$qt = $dbConn->getRows($sql,["$qId"]);
+if($qt['code']==200 && $qt['data']!==false){
+$fols = count($qt['data']);
+}    else{
+    $fols = 0;
+}
+return $fols;
+}//getQuestionFollows
 
 
 public function getAnswer($qId,$author=false,$deptId=false){
@@ -72,9 +87,10 @@ $sql =   "SELECT
 u.email, u.surname, u.firstname, u.username, u.avatar, u.user_type,
 u.email AS ans_email, u.surname AS ans_surname, u.firstname AS ans_firstname, u.username AS ans_username,
 uq.username AS asker_username, uq.surname AS asker_surname, uq.firstname AS asker_firstname, uq.email AS asker_email,
-q.department_id, q.title, q.url, u.avatar, u.firstname, u.surname, $cmc, $upmc, $dwnv, c.id AS parent_answer_id, c.* 
+q.department_id, q.title, q.url,  d.name AS department_name, d.url AS department_url, u.avatar, u.firstname, u.surname, $cmc, $upmc, $dwnv, c.id AS parent_answer_id, c.* , c.id AS parent_answer_id
      FROM comments c
 JOIN questions q ON q.id = c.question_id
+JOIN departments d ON q.department_id = d.id
 JOIN users u ON u.id = c.author_id
 JOIN users uq ON uq.email = q.author_id
 WHERE c.id = ?";
@@ -84,19 +100,8 @@ $sql .=  " AND q.department_id = ? ";
 $cols =["$qId","$qId","$qId","$qId","$deptId"];
 } 
 
-/*
-$asker_email = $answer['asker_email'];
-$asker_username = $answer['asker_username'];
-$asker_firstname = $answer['asker_firstname'];
-$asker_surname = $answer['asker_surname'];
-$asker_url = 'profile/'.$asker_username;
-//
-$ans_email = $answer['ans_email'];
-$ans_username = $answer['ans_username'];
-$ans_firstname = $answer['ans_firstname'];
-$ans_surname = $answer['ans_surname'];
-*/
 $qt = $dbConn->getRow($sql,$cols);
+
 
 if($qt['code'] ==200 && $qt['data'] !==false){
 $rw = $qt['data'];
@@ -105,10 +110,29 @@ $ursu = ($rw['user_type'] == 'mentor') ? 'mentor':'user';
 $rw['author_name'] = $rw['firstname'].' '.$rw['surname'];
 $rw['author_url'] = 'profile/'.$rw['username'];
 $rw['comment_id'] = (isset($rw['id']) && !empty($rw['id'])) ? $rw['id']:$qId;
+if(isset($_SESSION['senseiUser']) || isset($_SESSION['senseiMentor'])){
+$chv = $this->checkVoted($qId);
+
+
+if($chv['found']==true && $chv['upvote']==1){
+$rw['upvoted'] = true; 
+$rw['downvoted'] = false; 
+}elseif ($chv['found']==true && $chv['downvote']==1) {
+$rw['downvoted'] = true; 
+$rw['upvoted'] = false; 
+}else{
+$rw['downvoted'] = false; 
+$rw['upvoted'] = false; 
+}
+}else{
+$rw['downvoted'] = false; 
+$rw['upvoted'] = false;     
+}
 $rw['comment_list'] = array();
 $rw['is_answer'] = true;
 $rw['is_not_answer'] = false;
 $rw['fn_name'] = 'getAnswer';
+$rw['department_dir'] = 'feed/department/'.$rw['department_url'];
 }else{
 $rw = false;
 }
@@ -179,6 +203,71 @@ return $rw;
 }//getComment
 
 
+public function getTopicDetails($url,$thisuser=false){
+
+$dbConn = new DbConn();
+$genClass = new GeneralClass();
+$ucols = $genClass->users_cols;
+$sdc = $genClass->sqlPart($ucols,'u');
+
+
+$sqa =   "SELECT q.url, q.create_date, q.title, q.id as question_id, q.author_id AS question_author FROM `questions` q 
+
+WHERE q.`url` = ?";
+$qra = $dbConn->getRow($sqa,["$url"]);
+
+
+if($qra['code'] == 200 && $qra['data']!==false){
+$rtu = $qra['data'];
+$question_id = $rtu['question_id'];
+}else{
+return false;
+}
+/* 
+
+$cmc = " ( SELECT Count(*) FROM comments WHERE answer_id = 0 AND question_id = ?) 
+    as answer_num ";
+$fmc = " ( SELECT Count(*) FROM following_topic WHERE topic_id = ?) 
+    as follows ";
+$faq = " ( SELECT Count(*) FROM a2a WHERE question_id = ?) 
+    as a2as ";
+    */
+$cmc = " 
+count(DISTINCT  c.id) AS answer_num,
+count(DISTINCT  ft.id) AS follows,
+count(DISTINCT  ax.id) a2as";
+
+
+$sql =   "SELECT $cmc, q.id, q.title, q.id AS question_id, q.url
+     FROM questions q
+LEFT JOIN comments c ON q.id = c.question_id 
+LEFT JOIN following_topic ft ON q.id = ft.topic_id 
+LEFT JOIN a2a ax ON q.id = ax.question_id
+WHERE q.id = ?  AND c.answer_id = ? 
+";
+$cols =["$question_id","0"];
+
+$qt = $dbConn->getRow($sql,$cols);
+
+
+
+$arr = array();
+if($qt['code'] ==200 && $qt['data'] !==false){
+$rwi = $qt['data'];
+$rwi['question_id'] = $rtu['question_id'];
+$rwi['create_date'] = $rtu['create_date'];
+$rwi['url'] = $rtu['url'];
+$rwi['question_author'] = $rtu['question_author'];
+$rwi['title'] = $rtu['title'];
+
+}else{
+$rwi = false;
+}
+
+
+
+return $rwi;
+}//getTopicDetails
 
 
 
@@ -208,8 +297,8 @@ $upmc = " ( SELECT Count(*) FROM votes WHERE upvote = 1 AND answer_id = c.id  )
     as upvote ";
 $dwnv = " ( SELECT Count(*) FROM votes WHERE downvote = 1 AND answer_id = c.id  ) 
     as downvote ";
-    /**/
-$sql =   "SELECT c.comment, c.create_date, $sdc,
+    /*
+$sql =   "SELECT  c.id AS parent_answer_id, c.comment, c.create_date, $sdc,
 $cmc, $upmc, $dwnv
      FROM comments c
 JOIN users u ON u.id = c.author_id
@@ -231,7 +320,7 @@ $rw['question_author'] = $rtu['question_author'];
 $rw['comment_list'] = array();
 $rw['title'] = $rtu['title'];
 $rw['comment'] = stripslashes(html_entity_decode($rw['comment']));
-$rw['author_url'] = $ursu.'/profile/'.$rw['username'];
+$rw['author_url'] = 'profile/'.$rw['username'];
 $rw['comment_id'] = (isset($rw['id']) && !empty($rw['id'])) ? $rw['id']:$qId;
 $rw['is_answer'] = true;
 $rw['fn_name'] = 'getTopic';
@@ -240,10 +329,86 @@ $arr[] = $rw;
 }else{
 $arr = false;
 }
+*/
 
 
 
-return $arr;
+$qt = $dbConn->getRow("SELECT q.id, q.url, q.id AS question_id, q.title, author_id AS question_author  FROM questions  q WHERE q.url = ?", ["$url"]);
+$rw  =  $qt['data'];
+$qsid  =  $rw['id'];
+$qt2 = $dbConn->getRows("SELECT cx.*, cx.id AS answer_id,  cx.id AS parent_answer_id,
+ SUM(case when v.downvote = 1 then 1 else 0 end) as downvote,
+  SUM(case when v.upvote = 1 then 1 else 0 end) as upvote 
+, u.firstname, u.surname, u.username, u.avatar FROM comments  cx 
+LEFT JOIN  users u ON   u.id  = cx.author_id
+LEFT JOIN  votes v ON   cx.id  = v.answer_id
+WHERE cx.question_id = ? AND cx.answer_id = 0
+ GROUP by cx.id
+  order  by  cx.id  desc", ["$qsid"]);
+$rwo  =  $qt2['data'];
+$arr2 =  array();
+//do{
+foreach ($rwo as $key => $rw2) {
+$rw2['author_name'] = $rw2['firstname'].' '.$rw2['surname'];
+$rw2['question_id'] = $rw['question_id'];
+$rw2['url'] = $rw['url'];
+$rw2['question_author'] = $rw['question_author'];
+$rw2['title'] = $rw['title'];
+$rw2['question_id'] = $rw['id'];
+$upv = (!empty($rw2['upvote'])) ? json_decode($rw2['upvote']):0;
+$dvv = (!empty($rw2['downvote'])) ? json_decode($rw2['downvote']):0;
+$rw2['downvote'] =   $dvv;
+$rw2['upvote'] =   $upv;
+$rw2['is_answer'] = true;
+$rw2['author_url'] = 'profile/'.$rw2['username'];
+if(isset($_SESSION['senseiUser']) 
+    || isset($_SESSION['senseiMentor'])){
+$chv = $this->checkVoted($qsid);
+
+if($chv['found']==true && $chv['upvote']==1){
+$rw2['upvoted'] = true; 
+$rw2['downvoted'] = false; 
+}elseif ($chv['found']==true && $chv['downvote']==1) {
+$rw2['downvoted'] = true; 
+$rw2['upvoted'] = false; 
+}else{
+$rw2['downvoted'] = false; 
+$rw2['upvoted'] = false; 
+}
+}else{
+$rw2['downvoted'] = false; 
+$rw2['upvoted'] = false;     
+}//ifLogged
+$rw2['ansNum']  =  count($rwo);
+if(!empty($rw2['comment'])){
+$rw2['comment'] = stripslashes( html_entity_decode($rw2['comment']));   
+}else{
+$rw2['comment'] = '';   
+}
+
+$thisId  =  @$rw2['id'];
+$qt3 = $dbConn->getRows("SELECT c.id, c.question_id, c.comment, c.pid, c.answer_id, c.answer_id AS parent_answer_id, c.author_id, c.create_date, u.firstname, u.surname, u.username, u.avatar FROM comments  c 
+JOIN  users u ON   u.id  = c.author_id
+WHERE c.answer_id = ?  order  by  c.id  desc",["$thisId"]);
+$rww  =  $qt3["data"];
+$comTot = count($rww);
+$ar3  =  array();
+if($comTot > 0){
+//do{
+foreach ($rww as $key => $rw3) {
+$rw3['comment']   = stripslashes( html_entity_decode($rw3['comment'])); 
+$ar3[]  =  $rw3;
+}//foreach
+}
+$rw2['com_num'] = $comTot;
+$rw2['this_comms'] = $rw2['comment_list'] = $ar3;
+$arr2[] = $rw2;
+}//foreach
+
+/**/
+
+
+return $arr2;
 }//getTopic
 
 
@@ -360,9 +525,10 @@ $sdc = $genClass->sqlPart($ucols,'u');
 $cmc = " ( SELECT Count(*) FROM comments WHERE question_id = q.id ) 
     as ans_num ";
     /**/
-$sql =   "SELECT q.*, $sdc, $cmc
+$sql =   "SELECT q.url,q.title, q.id AS question_id, d.name AS department_name, d.url AS department_url,  $sdc, $cmc
      FROM questions q 
 JOIN users u ON u.email = q.author_id
+LEFT JOIN departments d  ON q.department_id =   d.id
 WHERE q.author_id = ? ORDER by q.id DESC   LIMIT ? OFFSET ?";
 $cols =["$user","$limit","$offset"];
 
@@ -375,11 +541,11 @@ if($qt['code'] ==200 && $qt['data'] !==false){
 $rws = $qt['data'];
 foreach ($rws as $key => $rw) {
 $rw['author_name'] = $rw['firstname'].' '.$rw['surname'];
-$rw['question_id'] = $rw['id'];
 $rw['author_url'] = 'profile/'.$rw['username'];
 $rw['is_question'] = true;
 $rw['answer_list'] = array();
 $rw['fn_name'] = 'getUserQuestions';
+$rw['department_dir'] = 'feed/department/'.$rw['department_url'];
 $arr[] = $rw;
 }//foreach
 }else{
@@ -391,6 +557,56 @@ $arr = false;
 
 return $arr;
 }//getUserQuestions
+
+
+public function getAdminQuestions($limit=false,$offset=false){
+
+$dbConn = new DbConn();
+$genClass = new GeneralClass();
+
+$limit = ($limit !== false) ? $limit : 20;
+$offset = ($offset !== false) ? $offset : 0;
+$ucols = $genClass->users_cols;
+$sdc = $genClass->sqlPart($ucols,'u');
+
+
+$cmc = " ( SELECT Count(*) FROM comments WHERE question_id = q.id ) 
+    as ans_num ";
+    /**/
+$sql =   "SELECT q.url,q.title, q.id AS question_id, d.name AS department_name, d.url AS department_url,  $sdc, $cmc
+     FROM questions q 
+JOIN users u ON u.email = q.author_id
+LEFT JOIN departments d  ON q.department_id =   d.id
+ORDER by q.id DESC   LIMIT ? OFFSET ?";
+$cols =["$limit","$offset"];
+
+$qt = $dbConn->getRows($sql,$cols);
+
+
+
+$arr = array();
+if($qt['code'] ==200 && $qt['data'] !==false){
+$rws = $qt['data'];
+foreach ($rws as $key => $rw) {
+$rw['author_name'] = $rw['firstname'].' '.$rw['surname'];
+$rw['author_url'] = 'profile/'.$rw['username'];
+$rw['is_question'] = true;
+$rw['answer_list'] = array();
+$rw['fn_name'] = 'getadminQuestions';
+$rw['department_dir'] = 'feed/department/'.$rw['department_url'];
+$arr[] = $rw;
+}//foreach
+}else{
+$arr = false;
+}
+
+
+
+return $arr;
+}//getAdminQuestions
+
+
+
 
 
 
@@ -416,10 +632,11 @@ $upmc = " ( SELECT Count(*) FROM votes WHERE upvote = 1 AND answer_id = c.id  )
     as upvote ";
 $dwnv = " ( SELECT Count(*) FROM votes WHERE downvote = 1 AND answer_id = c.id  ) 
     as downvote ";
-$sql =   "SELECT c.*, q.url,q.title, $sdc, $cmc, $upmc, $dwnv
+$sql =   "SELECT c.*, q.url,q.title, d.name AS department_name, d.url AS department_url,  $sdc, $cmc, $upmc, $dwnv
      FROM comments c 
 JOIN users u ON c.author_id = u.id
 JOIN questions q ON c.question_id = q.id
+LEFT JOIN departments d  ON q.department_id =   d.id
 WHERE c.author_id = ? AND c.answer_id = ? ORDER by c.id DESC  LIMIT ? OFFSET ?";
 $cols =["$uid","0","$limit","$offset"];
 
@@ -436,6 +653,7 @@ $rw['author_url'] = 'profile/'.$rw['username'];
 $rw['is_answer'] = true;
 $rw['comment_list'] = array();
 $rw['fn_name'] = 'getUserAnswers';
+$rw['department_dir'] = 'feed/department/'.$rw['department_url'];
 $arr[] = $rw;
 }//foreach
 }else{
@@ -452,56 +670,61 @@ return $arr;
 
 
 
-public function getBlog($qId,$author=false){
+
+
+
+public function getAdminAnswers($limit=false,$offset=false){
 
 $dbConn = new DbConn();
 $genClass = new GeneralClass();
-if($author !== false){
-$usr = $genClass->getUser();
-$thisuser = $usr['email'];
-}
+$limit = ($limit !== false) ? $limit : 20;
+$offset = ($offset !== false) ? $offset : 0;
 $ucols = $genClass->users_cols;
-$sdc = $genClass->sqlPart($ucols,'u'); 
-$a_comm = " ( SELECT Count(*) FROM article_comments WHERE article_id = ? ) 
+$sdc = $genClass->sqlPart($ucols,'u');
+
+
+$cmc = " ( SELECT Count(*) FROM comments WHERE answer_id = c.id ) 
     as com_num ";
-$a_likes = " ( SELECT Count(*) FROM article_likes WHERE article_id = ? ) 
-    as total_likes ";
-$a_saves = " ( SELECT Count(*) FROM article_saves WHERE article_id = ? ) 
-    as total_savings";
-$a_file = " ( SELECT Count(*) FROM article_files WHERE article_id = ? ) 
-    as total_files ";
-$a_pur = " ( SELECT Count(*) FROM article_purchases WHERE article_id = ? ) 
-    as total_purchases ";
-$a_rate_sum = " ( SELECT sum(rate) FROM article_ratings WHERE article_id = ? ) 
-    as rate_total_sum ";
-$a_rate_count = " ( SELECT Count(*) FROM article_ratings WHERE article_id = ? ) 
-    as rate_total_num ";
-$sql =   "SELECT a.*, $a_likes, $a_saves, $sdc, $a_comm, $a_file, $a_pur, $a_rate_sum, $a_rate_count
-     FROM articles a
-LEFT JOIN users u ON u.email = a.mentor_id
-WHERE a.id = ? AND a.mode = ? ";
-$cols =["$qId","$qId","$qId","$qId","$qId","$qId","$qId","$qId","blog"];
 
-$qt = $dbConn->getRow($sql,$cols);
+$upmc = " ( SELECT Count(*) FROM votes WHERE upvote = 1 AND answer_id = c.id  ) 
+    as upvote ";
+$dwnv = " ( SELECT Count(*) FROM votes WHERE downvote = 1 AND answer_id = c.id  ) 
+    as downvote ";
+$sql =   "SELECT c.*, q.url,q.title, d.name AS department_name, d.url AS department_url,  $sdc, $cmc, $upmc, $dwnv
+     FROM comments c 
+JOIN users u ON c.author_id = u.id
+JOIN questions q ON c.question_id = q.id
+LEFT JOIN departments d  ON q.department_id =   d.id
+WHERE  c.answer_id = ? ORDER by c.id DESC  LIMIT ? OFFSET ?";
+$cols =["0","$limit","$offset"];
+
+$qt = $dbConn->getRows($sql,$cols);
 
 
+$arr = array();
 if($qt['code'] ==200 && $qt['data'] !==false){
-$rw = $qt['data'];
-$rw['content'] = html_entity_decode($rw['content']);
+$rws = $qt['data'];
+foreach ($rws as $key => $rw) {
 $rw['author_name'] = $rw['firstname'].' '.$rw['surname'];
-$rw['average_rating'] = ($rw['rate_total_sum'] > 0) ? $rw['rate_total_sum']/$rw['rate_total_num'] : 0;
-$rw['author_url'] = (!empty($rw['username'])) ? 'profile/'.$rw['username'] : '';
+$rw['comment'] = stripslashes(html_entity_decode($rw['comment']));
+$rw['author_url'] = 'profile/'.$rw['username'];
+$rw['is_answer'] = true;
 $rw['comment_list'] = array();
-$rw['fn_name'] = 'getBlog';
-$rw['is_blog'] = true;
+$rw['fn_name'] = 'getAdminAnswers';
+$rw['department_dir'] = 'feed/department/'.$rw['department_url'];
+$arr[] = $rw;
+}//foreach
 }else{
-$rw = false;
+$arr = false;
 }
 
 
 
-return $rw;
-}//getBlog
+
+return $arr;
+}//getAdminAnswers
+
+
 
 
 
@@ -512,24 +735,30 @@ $genClass = new GeneralClass();
 $usr = $genClass->getUser();
 $thisuser = $usr['email'];
 $rt = $dbConn->getRows("SELECT * FROM votes WHERE voter_id = ? AND answer_id = ? LIMIT ?",["$thisuser","$comId","1"]);
+
 $arr = array();
 if($rt['code'] == 200 && $rt['data']!==false){
 if(count($rt['data']) == 1){
 $rx = $rt['data'];
-$arr['action'] = true;
+$arr['found'] = true;
 $arr['vid'] = $rx[0]['id'];
 $arr['upvote'] = $rx[0]['upvote'];
 $arr['downvote'] = $rx[0]['downvote'];
 $arr['answer_id'] = $rx[0]['answer_id'];
-$arr['type'] = ($rx[0]['upvote'] == 1) ? 'upvote':'downvote';
 }else{
-$arr['action'] = false;  
+$arr['found'] = false;  
+$arr['upvote'] = 0;  
+$arr['downvote'] = 0;  
 }
 }else{
-$arr['action'] = false;   
+$arr['found'] = false; 
+$arr['upvote'] = 0;  
+$arr['downvote'] = 0;    
 }
 return $arr;
 }//checkVoted
+
+
 
 public function reVote($comId,$type){
 $dbConn = new DbConn();
@@ -550,29 +779,58 @@ return false;
 
 }//reVote
 
+public function crossVote($comId,$type){
+$dbConn = new DbConn();
+if($type === 'upvote'){
+$alta = 'downvote';
+}elseif($type === 'downvote'){
+$alta = 'upvote';  
+}
+$rt = $dbConn->executeSql("UPDATE votes SET $type = ?, $alta = ? WHERE id = ? ",["0","1","$comId"]);
+
+#
+$arr = array();
+if($rt['code'] == 200){
+return true;
+}else{
+return false;
+}
+
+}//crossVote
+
 public function saveVote($comId,$type){
 $dbConn = new DbConn();
 $genClass = new GeneralClass();
 $usr = $genClass->getUser();
 $thisuser = $usr['email'];
-
-
+if($type === 'upvote'){
+$alta = 'downvote';
+}elseif($type === 'downvote'){
+$alta = 'upvote';  
+}
 
 $vtx = $this->checkVoted($comId);
-
-if($vtx['action'] === true){
-if($vtx['upvote']==1){
-$next_type = 'downvote';
-}elseif($vtx['downvote']==1){
-$next_type = 'upvote';
-}
-$doV = $this->reVote($comId,$next_type);
+$rv = array();
+if($vtx['found'] === true){
+if($vtx['upvote']===1 && $type==='upvote'){
+return array('state'=>'0','mess'=>'Already Upvoted this post');
+}elseif($vtx['downvote']===1 && $type==='downvote'){
+return array('state'=>'0','mess'=>'Already Downvoted this post');
+}elseif(($vtx['upvote']===1 && $type!=='upvote')||($vtx['downvote']===1 && $type!=='downvote')){
+$doVx = $this->crossVote($vtx['vid'],$alta);
+if($doVx){
+return array('mess'=>'Done!','state'=>'1','unvote'=>$alta);  
+}else{
+return array('mess'=>'Failed!','state'=>'0','unvote'=>$alta);   
+}    
+}else{
+$doV = $this->reVote($comId,$type);
 if($doV){
 return array('mess'=>'Done!','state'=>'1');  
 }else{
 return array('mess'=>'Failed!','state'=>'0');   
 }
-
+}//down voting
 }else{
 $now = time();
 $cload = array(
@@ -586,9 +844,11 @@ $arr = array();
 if($rt['code']==200){
 $arr['vid'] = $rt['lastInsertId'];
 $arr['mess'] = 'Done! Voted Newly';
+//$arr['type_done'] = $next_type;
 $arr['state'] = '1';
 }else{ 
 $arr['message'] = 'failed'; 
+//$arr['type_done'] = $next_type;
 $arr['state'] = '0';
 }
 return $arr;
@@ -597,33 +857,36 @@ return $arr;
 
 
 
-public function sendA2a($qid,$list){
+public function saveA2a($data){
 $genClass = new GeneralClass();
 $dbConn = new DbConn();
 $notifyClass = new NotificationClass();
 $usr = $genClass->getUser();
 $thisuser = $usr['email'];
-#
-$r =  $rts = array();
+$mentor = $data['mentor'];
+$qid = $data['question_id'];
 $adate =  time();
-for ($i=0; $i < count($list); $i++) { 
-$mentor = $list[$i]['mentor'];
+#
 $ch = $dbConn->getRows("SELECT * FROM a2a WHERE mentor  = ?  AND question_id  = ? AND user = ?", ["$mentor","$qid","$thisuser"]);
 $isDey = count($ch['data']);
+$r =  $rts = array();
+
+
 //
 if($isDey ==  0){
 $insLoad = array(
-	'question_id'=> $qid,
-	'mentor' => $thisuser,
-	'user' => $thisuser,
-	'adate' => $adate
+    'question_id'=> $qid,
+    'mentor' => $mentor,
+    'user' => $thisuser,
+    'adate' => $adate
 );
 $q3 = $dbConn->insertDb($insLoad,'a2a');
 $uid = $q3['lastInsertId'];
 if($q3['code'] == 200){
 $r['mess']   = $rm = 'A2A Sent!';
 $r['status']   = '1';
-$doNotify = $notifyClass->notifya2a($thisuser,$mentor,$qid);//
+$detail = '';
+$doNotify = $notifyClass->notifyUser($detail,$mentor);//
 if($doNotify == true){
 $r['notified']   = '1';  
 }else{
@@ -639,16 +902,7 @@ $r['mess']   = $rm =  'A2A already sent!';
 $r['status']   = '0';       
 }
 //
-$rts[$list[$i]['index']] = $rm;
-//
-}
-//
-$r['mlist'] = $rts;
-$r['isDone'] = true;
-
-//echo '';
-//print_r($r['mlist']);
-//exit();
+$r['index'] = $data['index'];
 
 return $r;
 }//sendA2a
@@ -656,6 +910,47 @@ return $r;
 
 
 
+public function getNavDepartments(){
+$dbConn = new DbConn();
+$tpc = " ( SELECT Count(*) FROM feed WHERE did = d.id ) 
+    as topics_num ";
+if(isset($_SESSION['senseiUser']) || isset($_SESSION['senseiMentor'])){
+$genClass = new GeneralClass();
+$usr = $genClass->getUser();
+$thisuser = $usr['email']; 
+$isLoggedUser = true;
+$sqlx = "SELECT fd.department_id AS id, d.name, d.url, $tpc FROM followed_departments fd
+JOIN departments d ON d.id = fd.department_id
+WHERE fd.user = ?
+GROUP BY fd.department_id
+";
+$var = $thisuser;   
+}else{
+$var = "";
+$isLoggedUser = false;      
+}
+
+
+$sqlz = "SELECT fd.did AS id, d.name, d.url, $tpc FROM feed fd
+JOIN departments d ON d.id = fd.did
+GROUP BY fd.did
+ORDER BY RAND()
+";
+if($isLoggedUser ===true){
+$rl = $dbConn->getRows($sqlx, ["$var"]);
+$rows = $rl['data'];
+$fnum = count($rows);
+//if($fnum === 0){
+//$rl = $dbConn->getRows($sqlz, []);
+//$rows = $rl['data'];
+//}
+}elseif ($isLoggedUser === false) {
+$rl = $dbConn->getRows($sqlz,[]);    
+$rows = $rl['data'];
+}
+
+return $rows;
+}//getNavDepartments
 
 
 public function saveQuestion($data){
@@ -667,6 +962,7 @@ $usr = $genClass->getUser();
 $thisuser = $usr['email'];
 $question = $genClass->purifyContent(strip_tags($data['question']));
 $did = $data['department_id'];
+$is_public = $data['is_public'];
 $is_directed = isset($data['is_directed']) ? $data['is_directed']:0;
 $is_directed_at = isset($data['is_directed_at']) ? $data['is_directed_at']:'';
 $uid = $usr['id'];
@@ -681,7 +977,7 @@ $ch  =  $dbConn->getRows("SELECT * FROM questions WHERE   url  = ?  AND title  =
 
 $isDey = count($ch['data']);
 if($isDey ==  0){
-$qload = array('title' =>$question, 'department_id'=>$did, 'create_date' =>$date, 'author_id' =>$thisuser, 'url' =>$url, 'updated'=>$date, 'is_directed'=>$is_directed, 'is_directed_at'=>$is_directed_at);
+$qload = array('title' =>$question, 'is_public'=>$is_public, 'department_id'=>$did, 'create_date' =>$date, 'author_id' =>$thisuser, 'url' =>$url, 'updated'=>$date, 'is_directed'=>$is_directed, 'is_directed_at'=>$is_directed_at);
 $q3 = $dbConn->insertDb($qload,"questions");
 
 $uid = $q3['lastInsertId'];
@@ -707,15 +1003,15 @@ $r['data']   = $qs;
 }else{
 $r['mess']   = 'Error Saving Question';
 $r['status']   = '0';
-$r['class']   = 'error';	
+$r['class']   = 'error';    
 $r['sent']   = false;
 }
 
 }else{
 $r['mess']   = 'Question already exists';
-$r['status']   = '0';	
+$r['status']   = '0';   
 $r['class']   = 'error';
-$r['sent']   = false;	
+$r['sent']   = false;   
 }
 
 
@@ -725,11 +1021,7 @@ return $r;
 
 
 
-
-
-
 public function saveComment($data){
-
 $genClass = new GeneralClass();
 $dbConn = new DbConn();
 $notifyClass = new NotificationClass();
@@ -771,7 +1063,7 @@ $r['mess']   = 'Comment Added';
 $r['status']   = '1';
 }else{
 $r['mess']   = 'Comment Not  Added';
-$r['status']   = '0';	
+$r['status']   = '0';   
 }
 
 
@@ -780,17 +1072,7 @@ return $r;
 }//saveComment
 
 
-
-
-
-
-
-
-
-
-
 public function saveAnswer($data){
-
 $genClass = new GeneralClass();
 $dbConn = new DbConn();
 $notifyClass = new NotificationClass();
@@ -829,6 +1111,47 @@ return $r;
 }//saveAnswer
 
 
+
+public function followTopic($qid){
+$dbConn = new DbConn();
+$genClass = new GeneralClass();
+$usr = $genClass->getUser();
+$thisuser = $usr['email'];
+$date =  time();
+$sqr = "SELECT * FROM following_topic WHERE topic_id = ? AND user = ?";
+$iqu = $dbConn->getRow($sqr,["$qid","$thisuser"]);
+$iqx = $dbConn->getRows($sqr,["$qid","$thisuser"]);
+$rw1 = $iqu['data'];
+$isVoted = count($iqx['data']);
+$r =  array();
+if($isVoted > 0){
+$r['mess']   = 'Question already followed!';
+$r['status']   = '0';
+}else{
+$isLoad = array(
+'topic_id' => $qid,
+'user' => $thisuser,
+'fdate' => $date
+);
+
+$q3 = $dbConn->insertDb($isLoad,'following_topic');
+$uidx = $q3['lastInsertId'];
+
+if($q3['code'] == 200){
+$r['mess']   = 'Followed Successfully!';
+$r['status']   = '1';
+}else{
+$r['mess']   = 'Failed!';
+$r['status']   = '0';
+}
+    
+}//isVoted
+
+
+
+return $r;
+
+}///followTopic
 
 public function editTitle($data){
 $genClass = new GeneralClass();

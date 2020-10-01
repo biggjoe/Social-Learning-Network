@@ -1,0 +1,139 @@
+<md-dialog class="responsive"> 
+
+  <md-toolbar class="responsiver" ng-hide="ngDialogData.hideTitle">
+      <div class="md-toolbar-tools" style="color: #fff !important;">
+      	<span class="fas fa-user-graduate"></span> 
+        	<span>&nbsp; Add Education</span>
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+          <md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+ <md-dialog-content>
+<form name="arForm" novalidate>
+
+
+<div class="form-group px20 py10 border-bottom">
+<select required  ng-hide="ldata.school_id=='0'" class="form-control" id="institution" ng-model="ldata.school_id">
+      <option value="">Institution</option>
+      <option ng-repeat="item in school_list" value="{{item.id}}">{{item.name}}</option>
+      <option value="0">Not  listed  here</option>
+    </select>
+
+
+<div class="input-group" ng-if="ldata.school_id=='0'">
+            <input  ng-init="ldata.school_id_alt=''"  required class="form-control" placeholder="Enter Your Institution" type="text" ng-model="ldata.school_id_alt">
+            <span class="input-group-append">
+            <button ng-click="ldata.school_id='';ldata.school_id_alt=null"  class="btn btn-primary" type="submit" title="Reset Institution"> &nbsp;  <i class="fas fa-undo"></i>  &nbsp;  </button>
+            </span> 
+
+</div>
+
+</div><!--institution-ends-->
+
+<div class="form-group px20 py10 border-bottom" layout="row" layout-align="center center">
+  <div class="" flex>
+<select required  ng-hide="ldata.faculty_id == '0'" class="form-control" id="faculty" ng-model="ldata.faculty_id">
+      <option value="">Faculty</option>
+      <option ng-repeat="item in faculty_list   | filterBy: ['school_id']: ldata.school_id" value="{{item.id}}">{{item.name}}</option>
+      <option value="0">Not  listed  here</option>
+    </select>
+
+
+<div class="input-group" ng-if="ldata.faculty_id=='0'">
+            <input  ng-init="ldata.faculty_id_alt=''"  required class="form-control" placeholder="Enter Your Faculty" type="text" ng-model="ldata.faculty_id_alt">
+            <span class="input-group-append">
+            <button ng-click="ldata.faculty_id='';ldata.faculty_id_alt=null"  class="btn btn-primary" type="submit" title="Reset  Faculty"> &nbsp;  <i class="fas fa-undo"></i>  &nbsp;  </button>
+            </span> 
+
+</div>
+
+
+</div>
+
+
+<div class="pl10" flex>   
+<select required  ng-hide="ldata.department_id=='0'" class="form-control" id="current_level" ng-model="ldata.department_id">
+      <option value="">Department/Course</option>
+      <option ng-repeat="item in department_list   | filterBy: ['faculty_id']: ldata.faculty_id" value="{{item.id}}">{{item.name}}</option>
+      <option value="0">Not  listed  here</option>
+    </select>
+
+
+<div class="input-group" ng-if="ldata.department_id=='0'">
+            <input ng-init="ldata.department_id_alt=''" required class="form-control" placeholder="Enter Your Department/Course" type="text" ng-model="ldata.department_id_alt">
+            <span class="input-group-append">
+            <button ng-click="ldata.department_id='';ldata.department_id_alt=null"  class="btn btn-primary" type="submit" title="Reset  Department/Course"> &nbsp;  <i class="fas fa-undo"></i>  &nbsp;  </button>
+            </span> 
+
+</div>
+
+
+</div>
+
+
+
+</div><!--row-->
+
+
+<div class="form-group px20 py10 border-bottom" layout="row">
+<div class="" flex>
+<input  required class="form-control input-sm" placeholder="Degree Type E.g B.Tech" type="text" ng-model="ldata.degree">
+</div>
+
+<!--
+<div class="pl10" flex>
+<input  required class="form-control input-sm" placeholder="Sensei Course Concentration" type="text" ng-model="ldata.concentration">
+</div>-->
+
+</div><!--row-->
+
+
+<div class="form-group px20 py10 border-bottom" layout="row">
+
+<div class=""  ng-init="ldata.is_graduated = 1">
+<div class="bolder">Still Studying here or graduated?</div>
+<div class="pt5"><label><input class="" ng-value="1" type="radio" ng-model="ldata.is_graduated"> Graduated</label> &nbsp; &nbsp;  <label><input class="" ng-value="0" type="radio" ng-model="ldata.is_graduated">  Still a Student</label>
+</div>
+</div>
+
+
+<div class="pl10" flex>
+<input  required class="form-control input-sm" placeholder="Start Year" type="text" ng-model="ldata.entry_year">
+</div>
+
+<div class="pl10" flex ng-if="ldata.is_graduated == 1">
+<input  required class="form-control input-sm" placeholder="Graduation Year" type="text" ng-model="ldata.graduation_year">
+</div>
+
+</div><!--row-->
+
+
+
+<div class="form-group px20 py10 border-bottom" ng-show="ldata.still_here == 1">
+    <label class="" for="current_level">Current Level</label>
+    <select class="form-control" id="current_level" ng-model="ldata.current_level">
+      <option value="">Select Level</option>
+      <option value="100">100</option>
+      <option value="200">200</option>
+      <option value="300">300</option>
+      <option value="400">400</option>
+      <option value="500">500</option>
+      <option value="600">600</option>
+      <option value="700">700</option>
+    </select>
+  </div>
+
+
+
+<div class="form-group px20 py10 " ng-init="ldata.action = 'add_education'">
+<md-button ng-disabled="arForm.$error.required" class="md-primary md-raised btn-md py5 px10 mx0" ng-click="sact(ldata)"> <i class="fas {{isLoading ? 'fa-circle-notch fa-spin':'fa-save'}}"></i> &nbsp; {{isLoading ? 'SAVING...':'SAVE'}}</md-button>
+</div>
+
+
+</form>
+
+</md-dialog-content>
+</md-dialog>

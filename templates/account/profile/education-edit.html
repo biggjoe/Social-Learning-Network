@@ -1,0 +1,44 @@
+
+
+
+<div  layout-xs="column" layout-gt-xs="row" layout-gt-md="row" layout-gt-sm="row">
+
+<div class="d100 px20 py20"  style="min-height:100px;" flex>
+
+
+
+ <div class="list-item-cover shadow-md">
+
+<md-subheader>
+	<div layout="row" layout-align="start center">
+	<span  class="boldest" flex><i class="fas fa-user-graduate"></i>&nbsp; EDUCATION</span>
+	<span class="txt-sm"> 
+		<a href class="btn btn-sm my0 btn-rounded btn-outline-primary txt-sm" ng-click="lprn('education')"> <i class="fas fa-plus"></i> ADD NEW</a> </span>
+</div>
+</md-subheader>
+
+<md-list-item class="md-2-line" ng-repeat="item in user_education">
+<span class="has-awesome md-icon-avatar"> <i class="fas fa-user-graduate"></i> </span>
+<div class="md-list-item-text" layout="column">
+<h3 class="boldest" ng-if="item.department_name">{{item.department_name}} ({{item.degree}})</h3>
+<p>{{item.school_name || '---'}}</p>
+</div>
+<span class="md-secondary txt-sm">
+{{item.entry_year}} - {{item.graduation_year}}
+</span>
+<md-divider></md-divider>
+</md-list-item>
+
+</div><!--white-bb-->
+
+
+
+</div><!--d70-->
+
+
+
+
+
+</div><!--row-->
+
+

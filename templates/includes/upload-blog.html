@@ -1,0 +1,43 @@
+<section class="shadow-darken-bold bg-white border-radius-4 mb30-mxl ">
+
+<div ng-bind-html="imessage"></div>
+
+<form name="arForm" ng-hide="hideForm">
+ 
+ <!--form-start-->
+<div class="" layout="row">
+<div class="py10" flex>
+<div class="form-group px20 pb10 border-bottom">
+<input  required class="form-control" placeholder="Blog Title" type="text" ng-model="blogData.title">
+</div>
+
+
+<div class="form-group px20 py10 border-bottom">
+<ng-wig rows="8" ng-model="blogData.content"  required ng-init="blogData.content = ''" 
+ source-mode-allowed placeholder="Blog Content"></ng-wig> 
+</div>
+
+
+<div class="form-group px20 py10 border-bottom">
+<div class="bolder">Publish This Blog Now?</div>
+<div class="py5" layout="row">
+<label><input required type="radio" ng-value="1" ng-model="blogData.is_published"> Yes</label>  &nbsp;  &nbsp;  &nbsp; 
+<label><input required type="radio" ng-value="0" ng-model="blogData.is_published"> Not Yet</label>
+</div>
+</div>
+
+
+<div class="pt10 px20">
+<button ng-disabled="arForm.$error.required" class="btn btn-md btn-primary " ng-click="sendBlog(blogData)"> <i class="fas {{isLoading ? 'fa-circle-notch fa-spin':'fa-cloud-upload-alt'}}"></i> &nbsp; {{isLoading ? 'SUBMITTING...':'SUBMIT'}}</button>
+</div>
+</div> <!--form-end-->
+<!--
+<md-divider></md-divider>
+
+<div class="py20 px20">----------------------------------------
+</div>col-->
+
+</div> <!--row-->
+</form>
+
+</section>

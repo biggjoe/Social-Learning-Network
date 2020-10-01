@@ -47,14 +47,23 @@ $stateProvider
  }
  })
 
-.state('feed.topic',{
- url: '/topic/:topicUrl',
+.state('topic',{
+ url: '/topic',
  views: {
-  'idasher':{
-    templateUrl: 'templates/feed/topic.html',
-    controller: 'topicCtrl'
+  'menuContent':{
+    templateUrl: 'templates/feed/topic.html'
   },
   params:{pageTitle:'Feed Topic'}
+ }
+ })
+.state('topic.details',{
+ url: '/:topicUrl',
+ views: {
+  'idasher':{
+    templateUrl: 'templates/feed/topic-details.html',
+    controller: 'topicCtrl'
+  },
+  params:{pageTitle:'Feed Topic Details'}
  }
  })
 

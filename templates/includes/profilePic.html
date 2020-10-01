@@ -1,0 +1,33 @@
+<div class="slide-in-up ng-leave ng-leave-active relative">
+<a class="cloxer" ng-click="closeThisDialog()" title="Close This Dialog"> <i class="fas fa-close"></i> </a>
+<div class="bolder border-bottom px20 py15"><span class="fas fa-wrench"></span> &nbsp;UPLOAD PROFILE PICTURE</div>
+
+
+
+
+<div layout="row" layout-align="center center">
+
+<div class="profiler px30 py10">
+<span class="profile-large" style="background-image: url({{avatar || modalData.avatar}});">
+</span>
+</div>
+
+<div class="pr20" flex layout="row"> 
+
+<div class="grouper" flex>
+<span class="fas fa-camera middle"></span> 
+<input title="Select Picture" type="file" class="flp" filepreview="avatar" fileinput="myFile"/>
+</div><!--grouper-->
+
+<div > 
+<button ng-disabled="avatar == ''" title="Click to Upload File" 
+class="grouper-btn" ng-click="uploadFile(myFile)"> <i class="fas {{isLoading ? 'fa-spin fa-circle-notch':'fa-send'}}"></i> </button> 
+</div>
+
+
+</div><!--col-->
+
+</div><!--row-->
+
+
+</div>

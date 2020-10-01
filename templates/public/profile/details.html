@@ -1,0 +1,75 @@
+<sticky-header icon="fa-user-circle" title="Profile Details"></sticky-header>
+
+<div class="d70 px20 py20"  style="min-height:100px;" flex>
+
+<div class="list-item-cover shadow-md">
+<md-subheader class="boldest">PERSONAL DETAILS</md-subheader>
+<md-list-item class="md-2-line">
+<span class="has-awesome md-icon-avatar"> <i class="fas fa-user"></i></span>
+<div class="md-list-item-text" layout="column">
+<p>Firstname</p>
+<h3 class="boldest">{{user_public_details.firstname || '---'}}</h3>
+</div>
+<span class="md-secondary">-</span>
+<md-divider></md-divider>
+</md-list-item>
+
+<md-list-item class="md-2-line">
+<span class="has-awesome md-icon-avatar"> <i class="fas fa-user"></i></span>
+<div class="md-list-item-text" layout="column">
+<p>Surname</p>
+<h3 class="boldest">{{user_public_details.surname || '---'}}</h3>
+</div>
+<span class="md-secondary">-</span>
+<md-divider></md-divider>
+</md-list-item>
+
+<md-list-item class="md-2-line">
+<span class="md-icon-avatar has-awesome"> <i class="fas fa-phone"></i> </span>
+
+<div class="md-list-item-text" layout="column">
+<p>Phone</p>
+<h3 class="boldest">{{user_public_details.phone || '---'}}</h3>
+</div>
+<span class="md-secondary">-</span>
+<md-divider></md-divider>
+</md-list-item>
+
+<md-list-item class="md-2-line">
+<span class="has-awesome md-icon-avatar"> <i class="fas fa-user"></i></span>
+<div class="md-list-item-text" layout="column">
+<p>Gender</p>
+<h3 class="boldest">{{user_public_details.gender || '---'}}</h3>
+</div>
+<span class="md-secondary">-</span>
+<md-divider></md-divider>
+</md-list-item>
+
+</div><!--list-item-->
+
+
+<div class="list-item-cover shadow-md">
+<md-subheader class="boldest">EDUCATION</md-subheader>
+
+
+
+<md-list-item class="md-2-line" ng-repeat="item in user_public_education">
+<span class="has-awesome md-icon-avatar"> <i class="fas fa-user-graduate"></i> </span>
+<div class="md-list-item-text" layout="column">
+<h3 class="boldest" ng-if="item.department_name">{{item.department_name}} ({{item.degree}})</h3>
+<p>{{item.school_name || '---'}}</p>
+</div>
+<span class="md-secondary txt-sm">
+{{item.entry_year}} - {{item.graduation_year}}
+</span>
+<md-divider></md-divider>
+</md-list-item>
+
+
+
+
+</div><!--white-bb-->
+
+</div><!--d70-->
+
+

@@ -31,7 +31,22 @@ $resp = $dbConn->insertDb($load,'notifications');
 return $resp;
 }
 
+public function getUserNotifications(){
+$dbConn = new DbConn();
+$genClass =new GeneralClass();
+$usr = $genClass->getUser();
+$thisuser = $usr['email'];
+$q3 = $dbConn->getRows("SELECT * FROM notifications WHERE user = ? ORDER BY id DESC",["$thisuser"]);
+$arr = array(); 
+if($q3['code'] == 200 && $q3['code']!==false){
+foreach ($q3['data'] as $key => $rw) {
+$rw['detail'] = stripslashes( html_entity_decode ($rw['detail']));
+$arr[] = $rw;
+}
 
+}
+return $arr;
+}
 
 public function feedNotification($load){
 $dbConn = new DbConn();
@@ -62,7 +77,7 @@ $asker_username = $question['username'];
 $asker_firstname = $question['firstname'];
 $asker_surname = $question['surname'];
 $asked_title = $question['title'];
-$asked_url = $question_url = 'feed/topic/'.$question['url'];
+$asked_url = $question_url = 'topic/'.$question['url'];
 $question_title = $question['title'];
 $asker_url = 'profile/'.$asker_username;
 $detail = htmlentities(addslashes(
@@ -142,7 +157,7 @@ $asker_username = $question['username'];
 $asker_firstname = $question['firstname'];
 $asker_surname = $question['surname'];
 $asked_title = $question['title'];
-$asked_url = 'feed/topic/'.$question['url'];
+$asked_url = 'topic/'.$question['url'];
 $asker_url = 'profile/'.$asker_username;
 $detail = htmlentities(addslashes(
   '<a href="'.$asker_url.'"> '.$asker_firstname.' '.$asker_surname.' </a>  asked a question: '. ' <a href="'.$asked_url.'"> '.$asked_title.' </a>'));
@@ -181,7 +196,7 @@ $ans_url = 'profile/'.$ans_username;
 //
 $question_title = $answer['title'];
 $question_did = $answer['department_id'];
-$question_url = 'feed/topic/'.$answer['url'];
+$question_url = 'topic/'.$answer['url'];
 //
 $detail = htmlentities(addslashes(
   '<a href="'.$ans_url.'">'.$ans_firstname.' '.$ans_surname.'</a>  answered the question: '.'<a href="'.$question_url.'">'.$question_title.'</a> asked by <a href="'.$asker_url.'">'.$asker_firstname.' '.$asker_surname.'</a>'));
@@ -229,7 +244,7 @@ $ans_url = 'profile/'.$ans_username;
 //
 $question_title = $comment['title'];
 $question_did = $comment['department_id'];
-$question_url = 'feed/topic/'.$comment['url'];
+$question_url = 'topic/'.$comment['url'];
 //
 $detail = htmlentities(addslashes(
   ' <a href="'.$commenter_url.'"> '.$commenter_firstname.' '.$commenter_surname.' </a>  also commented on the answer to  the question : '.' <a href="'.$question_url.'"> '.$question_title.' </a>'));

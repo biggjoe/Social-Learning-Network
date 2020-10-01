@@ -92,7 +92,7 @@ $rootScope,
 $timeout,
 $window,
 $http) {
-$rootScope.pageTitle = 'FAQ';
+$rootScope.pageTitle = 'Frequently Asked Questions';
 $http.post('modules/general/generalApp.php',
   {action:'allFaq'}).then(function(res){
 console.log(res)

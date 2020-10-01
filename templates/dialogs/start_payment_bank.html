@@ -1,0 +1,158 @@
+
+<md-dialog class="responsive dialer" aria-label="Payment Modal"> 
+<md-toolbar class="responsiver">
+<div class="md-toolbar-tools">
+<span style="color: #fff !important;">  <span class="fas fa-info-circle"></span> &nbsp;Bank Payment  </span>
+<span flex></span>
+<md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+<md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+</md-button>
+</div>
+</md-toolbar>
+<md-dialog-content>
+<div class="md-dialog-content px0 py20">
+
+
+
+<div ng-hide="isAproving ">
+
+  <form name="payForm" novalidate>
+<div class="md-padding md-content">
+
+
+<div ng-hide="hasPaid">
+
+
+
+<md-card>
+<md-list-item ng-click="showOpt(1)">
+<div class="list-item-text" layout="column" flex>
+<div class="{{opted1 ? 'py10 bolder':'py15 bolder'}}">Cash Deposit</div>
+<p class="pb5 px5 border-top boxme" ng-show="opted1">
+<strong>Make your deposit to:</strong><br>
+<strong>Bank</strong>: GTBank<br>
+<strong>Acc. Number</strong>: 1234<br>
+<strong>Acc. Name</strong>: SLN PLC<br>
+<strong>Type</strong>: Current<br>
+
+<md-button ng-click="hasPaid = true" class="mx0 md-button md-primary py5 px10 md-raised" aria-label="Move to Next"> I have already paid </md-button>
+</p>
+</div>
+<span class="md-secondary txt-right pl10">
+	<i class="fas {{opted1 ? 'fa-chevron-right':'fa-chevron-down'}}"></i>
+</span>
+</md-list-item>
+</md-card>
+
+
+
+<md-card>
+<md-list-item ng-click="showOpt(3)">
+<div class="list-item-text" layout="column" flex>
+<div class="{{opted3 ? 'py10 bolder':'py15 bolder'}}">Electronic Transfer</div>
+<p class="pb5 px5 border-top boxme" ng-show="opted3">
+<strong>Make your deposit to:</strong><br>
+<strong>Bank</strong>: GTBank<br>
+<strong>Acc. Number</strong>: 1234<br>
+<strong>Acc. Name</strong>: SLN PLC<br>
+<strong>Type</strong>: Current<br>
+ 
+
+<md-button ng-click="hasPaid = true" class="mx0 md-button md-primary py5 px10 md-raised" aria-label="Move to Next"> I have already paid </md-button>
+</p>
+</div>
+<span class="md-secondary txt-right pl10">
+	<i class="fas {{opted3 ? 'fa-chevron-right':'fa-chevron-down'}}"></i>
+</span>
+</md-list-item>
+</md-card>
+
+
+</div>
+<!--hasPaid-->
+
+<div ng-show="hasPaid" class="boxme">
+<md-progress-linear ng-show="isLoading" md-mode="indeterminate"></md-progress-linear>    
+<div ng-bind-html="imessage"></div>
+
+<div ng-hide="hideForm">
+
+<div class="form-group" ng-init="ld.bank_name = ''">
+<input type="text" class="form-control" ng-model="ld.bank_name" placeholder="Bank Name" required>
+</div>
+
+
+
+<div layout="row">
+
+<div class="form-group pr5" layout-align="start center"  flex>
+<div layout="row" class="bordered border-radius-4 mt0" style="padding-top: 4px; padding-bottom: 4px;">
+<md-datepicker style="" md-placeholder="Date of Payment" ng-model="ld.date" flex></md-datepicker>
+</div>
+</div>
+
+
+
+<div class="form-group" layout="row" ng-init="ld.depositRef = ''" flex>
+<input type="text"  class="form-control" ng-model="ld.depositRef" placeholder="Transaction Ref." required>
+</div>
+
+
+</div>
+
+
+<div layout="row">
+
+<div flex class="form-group  pr5" layout="row" ng-init="ld.depositor_phone = ''">
+<input type="text" class="form-control" ng-model="ld.depositor_phone" placeholder="Depositor Phone" required>
+</div>
+
+
+
+<div flex class="form-group" layout="row" ng-init="ld.dueAmount = payload.dueAmount">
+<input type="number" disabled class="form-control" ng-model="ld.dueAmount" placeholder="Amount Deposited">
+</div>
+
+</div>
+
+
+<input type="hidden" ng-init="ld.pay_mode = 'bank'"  ng-model="ld.pay_mode">
+
+<div class="form-group" layout="row" >
+<md-button ng-disabled="payForm.$error.required.length>0 || isLoading"
+type="submit" class="md-raised px20 py5  md-primary mx0 my0" ng-click="submitPay(ld)" ng-disabled="">
+<i class="fas fa-spin fa-circle-notch" ng-if="isLoading"></i>&nbsp;
+{{isLoading ? 'Sending...':'Submit Payment'}}</md-button>
+<span flex></span>
+<span>
+	<md-button class="mx0 md-button md-primary px5 py5" ng-click="hasPaid = false"> 
+<i class="fas fa-refresh"></i>
+	</md-button>
+</span>
+</div>
+
+</div>
+
+</div>
+
+</form>
+
+</div><!--isAproving-->
+
+
+
+
+
+
+
+
+
+</div><!--dialog-content-->
+</md-dialog-content>
+<!--
+<md-dialog-actions class="px10 border-top" layout="row" layout-align="start center">
+<span flex></span>
+ <md-button ng-click="vm.closeThisDialog()" class="md-primary md-raised py5 px10"> <i class="fas fa-thumbs-up"></i> &nbsp;OK,Got It </md-button>
+ </md-dialog-actions> 
+-->
+</md-dialog>

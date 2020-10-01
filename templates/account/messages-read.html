@@ -1,0 +1,76 @@
+<div class="sticky py10 px10 bg-white border-bottom">
+<div class="plain-bg-pattern" layout="row" layout-align="start center">
+<span class="bolder" flex><i class="fas fa-comments"></i>&nbsp; Re: {{axd[0].subject}}</span>
+
+
+<span>
+<md-button ng-click="launchNew()" class="md-primary md-raised px15 mx0 my0"> <i class="fas fa-plus"></i>&nbsp;
+      New <span class="sm-hide"> Message</span></md-button>
+</span>
+</div><!--sticky-header-->
+</div>
+
+
+
+
+<div class="border-radius bordered">
+
+<div id="chatHomer" style="height: {{winHeight()}}px;"
+ ng-init="isReading = true">
+<div class="chat-content-container">
+<ul class="chat-pop">
+<li ng-repeat="item in axd = (message_thread)"
+ng-init="isMe = (module =='admin' && item.sender == 'admin' ) ? true: (module !=='admin' && item.sender == userData.email ) ? true:false ; selected_messages = axd ; isLd[$index] = {isLoading:false}"  
+class="{{isMe ? 'me':'guest'}}">
+
+
+<div id="mess{{item.id}}"></div>
+<div class="pop-text {{isMe ? 'me':'guest'}} shadow-md faders">
+<!--<md-progress-linear  md-mode="indeterminate" ng-show="isLd[$index].isLoading"></md-progress-linear>
+-->
+<div class="no-text-align">
+<div class="inline-block clr " ng-init="pDate = '<br><span class=txt-xsm>'+(item.sdate*1000 | getTime)+'</span>'; thisName = (isMe) ? '<strong>Me</strong>'+pDate :'<strong><a href='+item.other_party_url+'>@'+item.other_party+'</a></strong>'+pDate">
+<div class="no-text-align" layout="row">
+<span   class="profile-avatar" style="background-image: url({{item.avatar}});"></span>
+<span flex  class="pl10 lh-1" ng-bind-html="(thisName)"></span>
+</div>
+</div>
+
+<div class="div-wrap" ng-bind-html="item.message | trusted"></div>
+<!--<div class=""> {{item | json}} </div>-->
+
+</div>
+
+
+</div>
+
+      </li>
+<div id="xas"></div>
+    </ul>
+</div><!--chatbox-container-->
+</div><!--400px-->
+
+
+
+<div style="background: #f3f3f3;" layout="row" layout-align="start center" class="px10 py10 border-top">
+<div class="relative block" flex>
+<div ng-model="a.message"  class="chatter-box" contenteditable="{{!isSending}}" placeholder="Write message hit 'Enter'"></div><!--press-enter="sendNew(a)"-->
+<span class="attacha">
+	<a class="abs-center inline-block fas fa-paperclip" ng-click=""></a>
+</span>
+<span class="abs-center-left">
+<button ng-disabled="!a.message || isSending" class="btn btn-sm btn-primary py10" ng-click="sendNew(a)">
+<span><i class="fas {{isSending ? ' fa-spin fa-circle-notch ':' fa-send '}}"></i><span class="sm-hide"> &nbsp;{{isSending ? 'Sending...':'SEND'}} </span>
+</span>
+</button>
+</span><!--abs-center-->
+</div>
+
+
+<!---->
+</div>
+
+
+</div>
+
+

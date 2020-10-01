@@ -1,0 +1,17 @@
+<sticky-header icon="fa-comments" title="Answers"></sticky-header>
+
+<md-list class="">
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<div class="list-item-cover shadow-md"
+             ng-repeat="item in user_public_answers"  ng-init="item.index = $index">
+<feed-item item="item" location="feed"></feed-item>
+</div><!--ng-repeat-->
+</md-list>
+        
+       
+<div class="txt-center py10"  ng-show="user_public_answers.length > 0">
+<span class="inline-block">
+<button ng-click="loadMore()" class="md-primary mx0 my0 md-button md-raised px30 py5" ng-disabled="isFetching || disable_btn">{{btn_text}} &nbsp; <i class="fas {{btn_icon}}"></i> </button>
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+</span>
+</div>

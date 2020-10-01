@@ -1,0 +1,67 @@
+<sticky-header icon="fa-cogs" title="Settings"></sticky-header>
+
+
+
+<ul class="faq bg-white curv">
+
+<li  id="{{'s'+$index}}" ng-repeat="itex in ipages" ng-init="tclass = 's'+itex.id" ng-click="dropFaq($event)">
+<a class="qdiv" layout="row">
+<span ng-bind-html="(itex.title+' Settings') | uppercase"></span> 
+<span flex> </span> 
+<span><i class="fa fa-chevron-circle-down"></i> </span> 
+</a>
+<div class="adiv ng-leave ng-enter">
+<div class="pad" ng-show="itex.url == 'site'"> 
+<md-list-item  class="md-2-line" ng-repeat="item in settings" ng-hide="item.label == 'id'">
+
+<md-icon class="md-avatar-icon has-awesome">
+            <i class="fas fa-globe"></i>
+          </md-icon>
+<div class="md-list-item-text" layout="column">
+<h3 class="boldest">{{item.label}}</h3>
+<p>{{item.value}}</p>
+</div><!--list-item-text-->
+<div class="md-secondary" ng-init="item.iname = 'Edit '+item.label">
+<a ng-click="launchPad('edit',item.value,item.label,item.iname,$index)" title="Edit {{item.label}}" class="nohide fa fa-edit"></a>
+</div>
+<md-divider></md-divider>
+</md-list-item>
+</div><!--container--><!--site-->
+
+<div class="pad" ng-show="itex.url == 'faq'"> 
+
+<md-list-item  class="md-2-line" ng-repeat="item in faq">
+
+<md-icon class="md-avatar-icon has-awesome">
+            <i class="fas fa-question-circle"></i>
+          </md-icon>
+<div class="md-list-item-text" layout="column">
+<h3 class="list-title bolder">{{item.question}}</h3>
+</div><!--list-item-text-->
+<div class="md-secondary" ng-init="item.iname = 'Edit '+item.label">
+<a ng-click="launchFaqEdit(item)" title="Edit {{item.label}}" class="nohide fa fa-edit"></a>
+</div>
+<md-divider></md-divider>
+</md-list-item>
+</div><!--container--><!--Faq-->
+
+<div class="pad" ng-show="itex.url == 'pages'"> 
+<md-list-item  class="md-2-line" ng-repeat="item in pages">
+<md-icon class="md-avatar-icon has-awesome">
+            <i class="fas fa-file"></i>
+          </md-icon>
+<div class="md-list-item-text" layout="column">
+<h3 class="list-title bolder">{{item.name}}</h3>
+</div><!--list-item-text-->
+<div class="md-secondary" ng-init="item.iname = 'Edit '+item.label">
+<a ng-click="launchPageEdit(item)" title="Edit {{item.label}}" class="nohide fa fa-edit"></a>
+</div>
+<md-divider></md-divider>
+</md-list-item>
+</div><!--container--><!--Faq-->
+
+</div>
+</li>
+
+
+</ul>

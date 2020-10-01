@@ -1,0 +1,49 @@
+<md-dialog class="responsive"> 
+
+  <md-toolbar class="responsiver" ng-hide="ngDialogData.hideTitle">
+      <div class="md-toolbar-tools" style="color: #fff !important;">
+      	<span class="fas fa-bank"></span> 
+        	<span>&nbsp; Add Departments</span>
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+          <md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+ <md-dialog-content>
+<form novalidate>
+<div class="sticky py5 px5 border-bottom bg-white">
+	<div layout="row" layout-align="start center">
+	<span class="px10 boldest" flex>Department List</span>
+<span>
+	<input type="search" ng-model="msearch" placeholder="Search departments" 
+	class="px10 py0 txt-sm">
+</span>
+</div>
+</div><!--sticky-->
+
+<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<md-list-item  class="md-1-line" ng-repeat="item  in axp = (department_list | filter:msearch)" ng-init="item.index = $index" ng-hide="item.hide">
+<span class="md-icon-avatar has-awesome"> <i class="fas fa-bank"></i> </span>
+<div  class="md-list-item-text"  layout="column"  flex>
+<strong> 
+{{item.name}} </strong>
+</div>
+<span  class="md-secondary">
+<department-follow-btn item="item"></department-follow-btn>
+</span>
+<md-divider ng-if="!$last"></md-divider>
+</md-list-item>
+
+<md-list-item  class="md-1-line" ng-if="axp.length == 0">
+<div  class="md-list-item-text"  layout="column"  flex>
+<span><i class="fas fa-exclamation-triangle red"></i>  No results </span>
+</div>
+<span  class="md-secondary"></span>
+</md-list-item>
+</form>
+
+ </form>
+</md-dialog-content>
+</md-dialog>

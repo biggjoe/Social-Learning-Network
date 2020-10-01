@@ -73,13 +73,22 @@ var stripped = String(cbody).replace(/<[^>]+>/gm, '');
 var w_counter = stripped.split(' ');
 var first_n_words = w_counter.slice(0,length).join(' ');
 var stripped_count = w_counter.length ;
-item.expand_text = (w_counter.length > length)? true:false;
+//item.expand_text = (w_counter.length > length)? true:false;
 var lesserd = first_n_words;//$filter('limitTo')($scope.stripped, 200, 0);
 var result =  (stripped_count < length) ? cbody : lesserd;
 //console.log($scope.item.init_comment)
 /**/
 var do_mark = (stripped_count < length) ? '' : '...';
 return result+' '+do_mark;
+}//return
+}]);
+
+zapp.filter('strip_tags', ['$sce', function($sce){
+return function (content) {
+
+var cbody = content;
+var stripped = String(cbody).replace(/<[^>]+>/gm, '');
+return stripped;
 }//return
 }]);
 
@@ -103,3 +112,74 @@ zapp.filter('getStatus', ['$sce', function($sce){
        }
     }
 }]);
+
+zapp.filter('showSize', function($filter) {    
+    return function(text) {
+      
+      text = parseInt(text);
+      var kb = 1024;
+      var mb = kb*1000;
+      var gb = mb*1000;
+      var roundedNormal = Math.round((text) * 100) / 100;
+      var roundedKb = Math.round((text/kb) * 100) / 100;
+      var roundedMb = Math.round((text/mb) * 100) / 100;
+      var roundedGb = Math.round((text/gb) * 100) / 100;
+      if(roundedNormal < kb){
+        return roundedNormal+'B';
+      }else if((roundedNormal >= kb) && (roundedNormal < mb)){
+       return roundedKb+'Kb';
+       }else if((roundedNormal > kb) && (roundedNormal >= mb) && (roundedNormal < gb) ){
+       return roundedMb+'Mb';
+      }else if((roundedNormal > kb) && (roundedNormal > mb) && (roundedNormal >= gb)){
+      return roundedGb+'Gb';
+     }
+    }
+}).filter('showMime', function($filter) {    
+    return function(text) {
+      if(text == 'doc' || text == 'docx'){
+        return '<i class="fas fa-file-word word" title="MS Word File"></i>';
+      }else if(text == 'pdf'){
+        return '<i class="fas fa-file-pdf pdf" title="PDF File"></i>';
+       }else if(text == 'ppt'){
+         return '<i class="fas fa-file-powerpoint powerpoint" title="MS Powerpoint File"></i>';
+      }else if(text == 'jpg' || text == 'jpeg' || text == 'pjpeg' ||
+       text == 'png' || text == 'gif'){
+      return '<i class="fas fa-file-image image" title="Image File"></i>';
+    }else if(text == 'xls' || text == 'xlsx'){
+      return '<i class="fas fa-file-excel excel" title="MS Excel File"></i>';
+     }
+     //else if(text == 'csv'){
+      //return '<i class="fas file-csv excel" title="CSV File"></i>';
+     //}
+     else{
+      if(text){ var itxt = text.toUpperCase();}else{var itxt = '';}
+      return '<i class="fas fa-file-alt" title="'+itxt+' File"></i>';
+     }
+    }
+}).filter('getMime', function($filter) {    
+    return function(string) {
+      var vrk = string.split('.');
+      var arnum = vrk.length;
+      var text = vrk[arnum-1];
+      if(text == 'doc' || text == 'docx'){
+        return '<i class="fas fa-file-word word" title="MS Word File"></i>';
+      }else if(text == 'pdf'){
+        return '<i class="fas fa-file-pdf pdf" title="PDF File"></i>';
+       }else if(text == 'ppt'){
+         return '<i class="fas fa-file-powerpoint powerpoint" title="MS Powerpoint File"></i>';
+      }else if(text == 'jpg' || text == 'jpeg' || text == 'pjpeg' ||
+       text == 'png' || text == 'gif'){
+      return '<i class="fas fa-file-image image" title="Image File"></i>';
+    }else if(text == 'xls' || text == 'xlsx'){
+      return '<i class="fas fa-file-excel excel" title="MS Excel File"></i>';
+     }
+     //else if(text == 'csv'){
+      //return '<i class="fas file-csv excel" title="CSV File"></i>';
+     //}
+
+     else{
+      if(text){ var itxt = text.toUpperCase();}else{var itxt = '';}
+      return '<i class="fas fa-file-alt" title="'+itxt+' File"></i>';
+     }
+    }
+})

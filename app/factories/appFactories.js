@@ -13,11 +13,11 @@ return self;
 zapp.service('run', ['$rootScope', '$http',
 	function ($rootScope,$http) {          
 var self = {};
-self.getUserData = function(mode) {
-var para = {action:'getUserData',mode:mode}, 
+self.getUserData = function() {
+var para = {action:'getUserData'}, 
 vLink = 'modules/account/accountApp.php';
 return $http.post(vLink,para).then(function(res) {
-console.log('getUserData : ', res)
+//console.log('getUserData : ', res)
 return res.data;
 });
 }//getUserData
@@ -41,10 +41,12 @@ $scope[skp]  = rs[skp];
 
 self.getloadMore = function(dt,$scope){
 //console.log('Fetching Feed...',dt);
+dt['loaded'] = (dt['loaded']) ? dt['loaded']:'isFetched'
 //console.log('Parent Scope...',$scope);
     $scope[dt['loading']]  = true;
     $scope[dt['btn_text']] = 'Loading More Items...';
     $scope[dt['btn_icon']] = 'fa-spin fa-circle-notch';
+    $scope[dt['loaded']]  = false;
     let appLink = dt['url'];
     let ipar = dt['params'];
     let defaults = {offset:$scope[dt['feed_offset']], 
@@ -52,12 +54,15 @@ self.getloadMore = function(dt,$scope){
     let payLoad = {...ipar,...defaults};
     $http.post(appLink,payLoad).then(function(res){
       let scope = dt['feed_scope'];
-      console.log('res :: ',res);
+   console.log('scope : ',scope, ' res :: ',res);
+
     $scope[dt['loading']]  = false;
+    $scope[dt['loaded']]  = true;
     $scope[dt['btn_text']] = 'Load More';
     $scope[dt['btn_icon']] = 'fa-chevron-down';
     $scope.isFetching  = false;
     let newFeed = res.data[dt['feed_scope']];
+    //console.log('newFeed :: ',newFeed)
     $scope[scope] = (newFeed.length > 0 ) ?
      $scope[scope].concat(newFeed) : $scope[scope];
     if(newFeed.length > 0){
@@ -331,12 +336,176 @@ return self;
 }]);//cartApp
 
 
-zapp.factory('doPay', ['$sce', '$q',
- function ($sce,  $q) {
+
+zapp.factory('doPay', ['$http', '$timeout', '$rootScope', '$window',
+  function($http, $timeout, $rootScope, $window) {
+var payLink = 'modules/payment/paymentApp.php';
 var self = {};
+
+self.sendPay = function(tx) {
+  console.log(tx)
+var adata = 
+{
+reference:tx.ref, 
+amount:tx.amount, 
+transactionName:tx.transactionName,
+article_id:tx.article_id, 
+pay_vendor:tx.pay_vendor, 
+pay_mode:tx.pay_mode,  
+action:'initiateTransaction'
+};
+return $http.post(payLink,adata).then(function(res) {
+console.log(res); 
+return res;
+
+});
+
+};
+
+self.fundWallet = function(ref) {
+var idat = {action:'fundWallet',ref:ref};
+return $http.post(payLink,idat).then(function(res){
+return res.data;
+});
+}//fundWallet
+
+
+self.setSite = function() {
+var idat = {action:'siteDetails'};
+return $http.post(payLink,idat).then(function(res){
+return res.data;
+});
+}
+
+self.setVals = function() {
+var idat = {action:'userDetail'};
+return $http.post(payLink,idat).then(function(res){
+return res.data;
+});
+},
+
+
+
+self.setScope = function(name,values,$scope){ 
+angular.forEach(values, function(value, key) {
+  $scope[name][key] = value;
+});
+
+}//
+
+self.setPlainScope = function(name,value,$scope){
+  $scope[name] = value;
+}//
+
+self.showFalseReload = function(message,scope,$scope){
+$scope[scope].isLoading = false;
+$scope[scope].message = message;   
+$scope[scope].isCollating   =  true, 
+$scope[scope].isCollated  =   false; 
+$scope[scope].isCarded = false;
+$timeout(function() {
+//$window.location.reload();  
+$scope[scope]['closeModal']();  
+}, 10000); 
+}
+
+self.endPay = function(scope,$scope){
+$timeout(function() {
+$scope[scope]['closeModal'](); 
+}, 10000); 
+}
+
+self.nullifyPay =  function(reference) {
+var ndata = {ref:reference, action:'nullifyTransaction'};
+return $http.post(payLink,ndata).then(function(res) {
+console.log(res); 
+return res.data;
+
+});
+};
+
+self.dispatchArticle = function(reference) {
+var para = {action:'dispatchArticle', reference:reference,};
+return $http.post(payLink,para).then(function(res) {
+console.log(res);
+return res.data;
+
+});
+
+}
+
+self.settleUser = function(ref) {
+var para = {action:'settleUser', reference : ref };
+return $http.post(payLink,para).then(function(res) {
+console.log(res);
+return res.data;
+
+});
+
+}
+
+
+self.payCallback = function(response, $scope){
+console.log('res:: ',response,  'Scope:: ', $scope)
+self.setScope('modalItem',
+    {message:'Processing Payment...',
+    isLoading:true,isPaying:true},$scope);
+self.verifyDirectPaystack(response.trxref).then(function(res) {
+  console.log(res)
+self.setScope('modalItem',
+    {message:res.message,isLoading:false,isPaying:true},$scope);
+if(res.status == '1'){
+self.activateSubscription(response.trxref).then(function(res2){
+console.log('activate_subscription :: ',res2)
+var tx = {status:res2.status,reference:res2.reference};
+self.markTranx(tx);
+}, function(){
+self.setScope('modalItem',{message:'Error Setting up subscription. Please Contact Admin.',isLoading:false},$scope);
+ 
+});//creditWallet
+}//status ==1 so save order
+else{
+self.setScope('modalItem',{message:res.message,isLoading:false},$scope);
+ 
+}
+
+}, function(error){
+console.log(error);
+self.setScope('modalItem',{message:'Payment Verifiation Error.<br> Please Requery this Payment Transaction',isLoading:false},$scope);
+});//verifyPaystack
+
+}//cardPayCallback
+
+
+
+
+self.verifyDirectPaystack = function(reference) {
+var bdata = {ref:reference, action:'verifyPaystackDirectTransaction'};
+return $http.post(payLink,bdata).then(function(res) {
+console.log(res);
+return res.data;
+
+});
+
+}//verifyDirectPaystack
+
+
+
+self.markTranx = function(tx) {
+var ndata = {reference:tx.reference, status:tx.status, 
+  action:'markTransaction'};
+console.log('Sending markTransaction')
+return $http.post(payLink,ndata).then(function(res) {
+  console.log(res)
+return res.data;
+
+});
+}//markTranx
+
 return self;
 
 }]);
+//doPay
 
 var tConfig = function($mdThemingProvider) {
 
@@ -347,8 +516,8 @@ var tConfig = function($mdThemingProvider) {
     '300': '4DB6AC',
     '400': '26A69A',
     //'500': '00897B',
-    '500': '#45ae73',
-    '600': '#45ae73',
+    '500': '179dd6',
+    '600': '179dd6',
     '700': '00796B',
     '800': '00695C',
     '900': '004D40',

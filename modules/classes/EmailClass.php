@@ -5,24 +5,25 @@ use PHPMailer\PHPMailer\Exception;
 require 'PHPMailer-master/src/Exception.php';
 require 'PHPMailer-master/src/PHPMailer.php';
 require 'PHPMailer-master/src/SMTP.php';
-$mail = new PHPMailer;
+
 
 
 
 class EmailClass{
-  
-public static $mail; 
-
+//public static $mail; 
 function __construct($sendgridApi=false) {
-global $mail;
-$this->sendgridApi = $sendgridApi;
-self::$mail = $mail;
+//global $mail;
+$mail = new PHPMailer;
+$genClass = new GeneralClass();
+$settings = $genClass->getSettings();
+$this->smtpUser = $settings['smtp_user'];
+$this->smtpPassword = $settings['smtp_password'];
+$this->sendgridApiKey = $settings['sendgrid_api_key'];
+$this->mail = new PHPMailer;
 }
 
-public function sendGrid($destination_email, $user_email, $subject,$message, $files){
-
-$sendgridApi = $this->sendgridApi;
-
+public function sendGridAttachment($senderemail,$sendername,$to,$subject,$message,$type='blue', $files = array()){
+$sendgridApi = $this->sendgridApiKey;
 $data  = array();
 $data['personalizations'][0]['to'][0] = array('email' => $destination_email, 'name' => '');
 $data['personalizations'][0]['subject'] = $subject;
@@ -128,27 +129,27 @@ public function sendPlain($senderemail,$sendername,$to,$subject,$message,$type='
 
 $messageHtml = $this->dressHtml($message,$subject,$type);
 
-self::$mail->IsSMTP();                           // telling the class to use SMTP
-self::$mail->SMTPAuth   = true;                  // enable SMTP authentication
-self::$mail->Host       = "mail.vinrun.com"; // set the SMTP server
-self::$mail->Port       = 25;                    // set the SMTP port
-self::$mail->Username   = "support@vinrun.com"; // SMTP account username
-self::$mail->Password   = 'TN$EB2#byam';        // SMTP account password
+$this->mail->IsSMTP();                           // telling the class to use SMTP
+$this->mail->SMTPAuth   = true;                  // enable SMTP authentication
+$this->mail->Host       = "mail.vinrun.com"; // set the SMTP server
+$this->mail->Port       = 25;                    // set the SMTP port
+$this->mail->Username   = $this->smtpUser ; // SMTP account username
+$this->mail->Password   = $this->smtpPassword ;        // SMTP account password
 /**/
-self::$mail->setFrom($senderemail, $sendername);
-self::$mail->addReplyTo($senderemail, $sendername);
+$this->mail->setFrom($senderemail, $sendername);
+$this->mail->addReplyTo($senderemail, $sendername);
 //To address and name
-self::$mail->addAddress($to, $toName);
+$this->mail->addAddress($to, $toName);
 
 //Send HTML or Plain Text email
-self::$mail->isHTML(true);
+$this->mail->isHTML(true);
 
-self::$mail->Subject = $subject;
-self::$mail->Body = $messageHtml;
+$this->mail->Subject = $subject;
+$this->mail->Body = $messageHtml;
 
-if(!self::$mail->send()) 
+if(!$this->mail->send()) 
 {
-   $status = "Mailer Error: " . self::$mail->ErrorInfo;
+   $status = "Mailer Error: " . $this->mail->ErrorInfo;
 } 
 else 
 {
@@ -248,27 +249,27 @@ public function sendTxnReceipt($data,$type='blue') {
 $messageHtml = $this->dressReceipt($data,$type);
 $to = $data['to'];
 
-self::$mail->IsSMTP();                           // telling the class to use SMTP
-self::$mail->SMTPAuth   = true;                  // enable SMTP authentication
-self::$mail->Host       = "mail.vinrun.com"; // set the SMTP server
-self::$mail->Port       = 25;                    // set the SMTP port
-self::$mail->Username   = "support@vinrun.com"; // SMTP account username
-self::$mail->Password   = 'TN$EB2#byam';        // SMTP account password
+$this->mail->IsSMTP();                           // telling the class to use SMTP
+$this->mail->SMTPAuth   = true;                  // enable SMTP authentication
+$this->mail->Host       = "mail.vinrun.com"; // set the SMTP server
+$this->mail->Port       = 25;                    // set the SMTP port
+$this->mail->Username   = $this->smtpUser ; // SMTP account username
+$this->mail->Password   = $this->smtpPassword ;        // SMTP account password
 /**/
-self::$mail->setFrom('payments@vinrun.com', 'VinRun Payments');
-self::$mail->addReplyTo('payments@vinrun.com', 'VinRun Payments');
+$this->mail->setFrom('payments@vinrun.com', 'VinRun Payments');
+$this->mail->addReplyTo('payments@vinrun.com', 'VinRun Payments');
 //To address and name
-self::$mail->addAddress($data['to'], $data['toName']);
+$this->mail->addAddress($data['to'], $data['toName']);
 
 //Send HTML or Plain Text email
-self::$mail->isHTML(true);
+$this->mail->isHTML(true);
 
-self::$mail->Subject = 'Transaction Receipt';
-self::$mail->Body = $messageHtml;
+$this->mail->Subject = 'Transaction Receipt';
+$this->mail->Body = $messageHtml;
 
-if(!self::$mail->send()) 
+if(!$this->mail->send()) 
 {
-   $status = "Mailer Error: " . self::$mail->ErrorInfo;
+   $status = "Mailer Error: " . $this->mail->ErrorInfo;
 } 
 else 
 {
@@ -431,6 +432,7 @@ exit();
 
 
  public  function dressReceipt($data, $type){
+
 $genClass = new GeneralClass();
 $settings = $genClass->getSettings();
 $tbl_attr = array();
@@ -449,23 +451,8 @@ $status_color =  ' #2574a9 ';
 }
 $logoLink =$settings['logo_url'];
 $serverLink = $settings['base_url'];
-$footer_message = 'If you have any issues with this transaction, kindly  send an email to payments@vinrun.com';
-function doStatus($status,$mode){
-if($status == '1' && $mode == 'pay'){
-$state = 'Successful';
-}elseif ($status == '-1' && $mode == 'pay') {
-$state = 'Failed';
-}elseif ($status == '-2' && $mode == 'pay') {
-$state = 'Abandoned';
-}elseif ($status == '1' && $mode == 'txn') {
-$state = 'Completed';
-}elseif ($status == '0' && $mode == 'txn') {
-$state = 'Uncompleted';
-}
-return $state;
-exit();
+$footer_message = 'If you have any issues with this transaction, kindly  send an email to payments@sensei.com';
 
-}
 $mBody = '<!DOCTYPE html>
 <html>
 <head>
@@ -579,7 +566,7 @@ $mBody = '<!DOCTYPE html>
 
 <tr>
 <td class="pd20 bold">Date</td>
-<td class="pd20 txt-right">'.date("d/m/Y",$data['date']).'</td>
+<td class="pd20 txt-right">'.date("d/m/Y",$data['tdate']).'</td>
 </tr>
 
 
@@ -610,7 +597,7 @@ $mBody = '<!DOCTYPE html>
 
 <tr>
 <td class="pd20 bold">Payment Status</td>
-<td class="pd20 txt-right">'.doStatus($data['pay_status'],'pay').'</td>
+<td class="pd20 txt-right">'.$this->doStatus($data['pay_status'],'pay').'</td>
 </tr>
 
 
@@ -669,6 +656,23 @@ exit();
 }//dressReceipt
 
     
+
+public function doStatus($status,$mode){
+if($status == '1' && $mode == 'pay'){
+$state = 'Successful';
+}elseif ($status == '-1' && $mode == 'pay') {
+$state = 'Failed';
+}elseif ($status == '-2' && $mode == 'pay') {
+$state = 'Abandoned';
+}elseif ($status == '1' && $mode == 'txn') {
+$state = 'Completed';
+}elseif ($status == '0' && $mode == 'txn') {
+$state = 'Uncompleted';
+}
+return $state;
+exit();
+
+}
 
 }//EmailClass
 
