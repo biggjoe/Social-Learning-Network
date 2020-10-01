@@ -86,15 +86,17 @@ guide you through your academic journey.
 </section>
 
 
+
+
 <div class="qa-sect">
-<div class="body-container" layout="row" layout-align="start center">
-<div flex>
+<div class="body-container row-home align-items-center">
+<div flex class="row-col-12 row-col-lg-6">
 <h1 class="mb5 pb0">What do you need to know?</h1>
 <p class="py5 my5">Whether you’re stuck on a departmental course or worried about an upcoming quiz test, there’s no question too tricky for our Mentors.</p>	
 </div>
 
 
-<div flex class="text-center">
+<div  class="text-center row-col-12 row-col-lg-6">
 <div class="intro-buttons">
 <a href="./feed" class="intro-button secondary">
  <i class="fas fa-comment"></i> &nbsp; ASK QUESTION

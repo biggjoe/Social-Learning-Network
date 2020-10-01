@@ -343,6 +343,16 @@ max-width: 100%;
     flex: 0 0 50%;
 }
 }
+@media screen and (max-width: 700px){
+.column-box {
+    width: 50% !important;
+}
+}
+@media screen and (max-width: 500px){
+.column-box {
+    width: 100% !important;
+}
+}
 
 .home-intro{
     margin-top: 0;
@@ -2199,6 +2209,30 @@ ul.naviga{
 
 .sm-hide{
 	display: none !important;
+}
+
+.row {
+    display: block !important;
+    margin-right: 0 !important;
+    flex-direction: column !important;
+    margin-left: 0 !important;
+}
+.col-3{
+	width: 100% !important;
+}
+
+.home-intro h1 {
+    font-size: 38px;
+}
+
+.booster-pane {
+    padding: 35px !important;
+    max-width: 95%;
+}
+
+.booster-pane h1 {
+    font-size: 40px;
+    line-height: 40px;
 }
 .px30-responsive{
 	padding-right: 5px;

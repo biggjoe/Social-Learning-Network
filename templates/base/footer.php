@@ -7,8 +7,8 @@
 <section  class="bg-grax py30">
 <div class="wrap">
 
-<section class="nm-h1" layout="row">
-	<div flex>
+<section class="nm-h1 row-home">
+	<div  class="row-col-12 row-col-lg-6">
 <h1>Stay updated about newly created articles, topics and answers.</h1>
 <div layout="row">
 	<md-input-container class="color-white" flex>
