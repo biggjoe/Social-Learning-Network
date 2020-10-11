@@ -1,0 +1,15 @@
+<section>
+	<load-holder toshow="isFetching" tohide="!isFetching"></load-holder>
+<div class="notice-board" ng-if="!isFetching && do_ann" ng-hide="hideAnn">
+<div class="notice-container" ng-cloak>
+<div class="poster curv public">
+<div class="marquee">
+<p ng-bind-html="current_announcement.content | trusted"></p> 
+</div>
+<a class="ico"> <i class="fa fa-bullhorn faa-flash faa-pulse animated"></i> </a>
+<a ng-click="dismissAnn()" title="Stop Showing This Message" class="ok fa fa-close"></a>
+</div>
+</div>
+</div>
+
+</section>

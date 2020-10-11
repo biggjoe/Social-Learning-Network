@@ -60,7 +60,7 @@ if($querys['code'] ==200){
 ////fire email
 $to = $email;
 //$hisName = $firstname.' '.$surname;   
-$senderemail = "support@".$_SERVER['SERVER_NAME'];
+$senderemail = "noreply@".$_SERVER['SERVER_NAME'];
 $sendername = $settings['site_short_name'];
 $subject = "Password Reset";
 $xmessage = "
@@ -82,8 +82,10 @@ $imessage = '
 <p>Click <a href="./">Here </a> Proceed to Home</p>
 </div>';
 $class = ' ';
-$_SESSION['vinUser'] = NULL;
-unset($_SESSION['vinUser']);
+$_SESSION['senseiUser'] = NULL;
+unset($_SESSION['senseiUser']);
+$_SESSION['senseiMentor'] = NULL;
+unset($_SESSION['senseiMentor']);
 $_SESSION['founduser'] = NULL;
 unset($_SESSION['founduser']);
 

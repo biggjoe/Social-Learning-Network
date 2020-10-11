@@ -12,55 +12,48 @@ $ptitle = ' User Profile ';
 $bodyClass = '';
 $show_navigation = true;
 $header_class= ' sticky-pane z-highest '; 
-$wrapperClass = 'body-normal';
+$wrapperClass = 'body-wrappers';
 include 'header.php';
 
  
  ?>
-<div class="pane-container">
-<div class="side-pane">
+<div class="home-body-class" ng-cloak>
 
-	<div class="cover-area">
-	<div class="py10 text-center"> 
+
+<div class="page-header profile-page plain-bg-pattern">
+<div class="body-container" ng-cloak layout="row" layout-align="start start">
+
+<div class=" text-center"> 
 <div class="profiler">
-	<span class="profile-large" style="background: url({{user_public_details.avatar}});"></span>
-
+<span class="profile-large" style="background: url({{user_public_details.avatar || 'images/avatar.jpg'}});"></span>
+<div class="user-bio-info pt10 bolder"><a href="profile/{{user_public_details.username}}">@{{user_public_details.username}}</a></div>
 <div class="pxy10">
 <user-follow-btn item="user_public_details"></user-follow-btn>
 </div>
-<div class="user-bio-info">@{{user_public_details.username}}</div>
+
 </div><!--profiler-->
+</div><!--col-->
+
+<div flex class="py10 px20">
+<h1 class="mb10 mt0 pt0 pb0">{{user_public_details.firstname+' '+user_public_details.surname}}</h1>
+<div ng-bind-html="user_public_details.bio"></div></div><!--co-->
+
+</div><!--wrap-->
+
+</div>
+
+
+ <div class="body-container" ui-view="menuContent" keep-scroll-pos>
 
 
 
-</div><!--row-->
-
-<div class="px20 py10" ng-bind-html="user_public_details.bio | trusted"></div>
-</div><!--cover-area-->
-
-<ul class="profile-tabs">
-	<li ng-repeat="item in public_tabs">
-		<a ng-click="setTab(item.url)" href="profile/{{username}}/{{item.url}}" ng-class=" navTab === item.url ? 'active':'' "> <i class="fas {{item.icon}}"></i>&nbsp; {{item.name}}</a>
-	</li>
-</ul>
-</div><!--side-pane-->
-
-<div style="
-border-left:1px solid #ddd;
-border-right:1px solid #ddd;" 
-class="ui-pane" ui-view="menuContent"></div>
+</div><!--wrap-->
 
 
-<div class="right-pane">
-
-<div class="absx-center">AD SPACE</div>
-
-</div><!--info-pane-->
 
 
-</div><!--pane-container-->
-
+</div>
 
 <?php 
-include 'footer-dashboard.php';
+include 'footer.php';
 ?>

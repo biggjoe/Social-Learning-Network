@@ -1,0 +1,161 @@
+<sticky-header icon="fa-people-arrows" title="Referral"></sticky-header>
+
+<section class="px20 py20">
+
+
+<div  class="shadow-md bg-white border-radius-8 mb20 px5 py5">
+
+<div class="input-group newsletter relative">
+<input readonly ng-model="reflink" class="form-control" name="newsletterEmail" id="newsletterEmail" ng-value="'https://www.sln.cyprex.com.ng/r/'+userData.username" type="text">
+
+<span class="input-group-append" title=""><md-tooltip>Copy Referral Link</md-tooltip>
+<button ng-click="copyLink('https://www.sln.cyprex.com.ng/r/'+userData.username)"  class="btn btn-secondary txt-xsm bolder" type="submit"> <i class="fas fa-copy"></i>&nbsp; COPY</em>
+</button>
+</span> 
+
+</div>
+
+</div><!--card-->
+
+
+
+<div class="txt-xsm"> &nbsp;{{isFetching ? 'Fetching Referral Summary':'Referral Summary'}}</div>
+<section  class="shadow-md bg-white border-radius-4 py5 mt5 mb20">
+<div>
+<md-card>
+<div  layout-xs="column" layout-gt-xs="row" layout-gt-md="row" layout-gt-sm="row">
+<div class="px10 py10 border-bottom" flex>
+<strong>Total Referred</strong>
+<h1 class="responsive mb0"> <span class="pb10"><i class="fas txt-xsm fa-users"></i></span>  {{referral.total_referred | number}}</h1> 
+<a ng-if="mode !== 'referral'" href="account/referral" class="view-details txt-xsm bolder">View Details &nbsp;<i class="fas fa-arrow-right"></i> </a>
+</div><!--col-->
+<md-divider class="px20"></md-divider>
+<div class="px10 py10 text-right" flex>
+  <div class="txt-h5 bolder pb10">Referral Points </div>
+<div layout="row">
+
+<div flex>
+<span>Pending</span><h3 class="responsive color-warn">{{referral.not_approved | number}}</h3>
+</div>
+<md-divider class="px20"></md-divider>
+<div class="px10" flex>  
+<span>Verified</span><h3 class="responsive color-good bold">{{referral.approved_not_redeemed | number}}</h3>
+<!--<a ng-if="mode=='referral'" href ng-click="convert2Cash()" class="btn-xxsm btn py5 px10 btn-outline-primary shadow-none txt-xxsm bold">Convert To Funds <i class="fas fa-arrow-right"></i></a>
+-->
+<convert-ref-btn data="referral"></convert-ref-btn>
+
+</div>
+
+</div><!--row-->
+</div><!--col-->
+</div><!--row-->
+
+
+<div>
+<md-divider></md-divider>
+<div class="py10 px10" layout="row">
+<span class="" flex>
+<button ng-click="launchInvite(listers)" class="btn btn-sm btn-secondary"> <i class="fas fa-user-plus"></i> &nbsp; INVITE  FRIENDS </button>
+</span><!--col-->
+<span class="text-right" flex></span><!--col-->
+</div><!--row-->  
+</div><!--ifref-->
+</div><!--md-card-->
+
+</md-card>
+</div>
+</section>
+
+
+<section  class="shadow-md bg-white border-radius-4 mb20">
+
+<div layout-xs="column" layout-gt-xs="row" layout-gt-md="row" layout-gt-sm="row">
+
+<md-card flex>
+
+<div class="table-responsive">
+<table class="table table-hover  mb0">
+  <thead class="thead-light">
+         <tr> 
+    <td colspan="2" class="txt-left align-middle bolder h6">MY REFERRALS</td>
+    <td class="text-right align-middle align-right">
+      <input type="search" class="py5 px10 txt-sm bordered" ng-model="search.ref" placeholder="Search references">
+    </td>
+    </tr>
+<tr> 
+  <th width="20">
+<span  ng-include="'templates/options/sort-options.html'"></span>
+</th>
+
+    <th class="txt-left align-middle bolder">Referred User</th>
+      <th class="text-right align-middle bolder">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr  ng-repeat="item  in alt =
+  (referral.ref_list | filterBy: ['ref_settled']: sortTab  | filter: search.ref)"> 
+  <td>
+       <span class="fas {{item.ref_settled == 1 ? 'fa-check-circle status-active ':'fa-hourglass-half status-pending'}}"></span>
+       
+  </td>
+    <td class=" align-middle">[{{sortTab}}] {{item.r_firstname+' '+item.r_surname }}
+    </td>
+      <td class="text-right align-middle">
+     <span class="fas {{item.ref_settled == 1 ? 'fa-check-circle status-active ':'fa-hourglass-half status-pending'}}"></span>
+    </td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
+
+</md-card>
+
+<md-card>
+
+
+
+
+<div class="table-responsive">
+<table class="table table-hover  mb0">
+  <thead class="thead-light">
+         <tr> 
+    <td colspan="2" class=" align-middle bolder txt-h6">LEADERBOARD</td>
+    </tr>
+
+        <tr> 
+<th colspan="2" class="align-middle text-left">User</th>
+<th class=" align-middle text-right">Ref Count</th><!---->
+    </tr>
+
+  </thead>
+  <tbody>
+    <tr  ng-repeat="item  in alt =
+  (referral.leaders)"> 
+  <td class="px10" width="10"><i class="fas fa-user-circle"></i></td>
+    <td class="align-middle text-left">{{item.firstname+' '+item.surname }}
+    </td>
+<td class=" align-middle text-right">{{item.powa_ref | number}}</td><!---->
+    </tr>
+  </tbody>
+</table>
+
+</div><!--</md-content>-->
+
+
+</md-card>
+
+
+</div>
+
+
+
+</section>
+
+
+</div>
+
+
+
+</section>

@@ -7,11 +7,28 @@ $ptitle = ' Sign up page ';
 $pgt = "'".$ptitle."'";
 $site_name = 'Registration Page';
 $bodyClass = ' ';
-$header_class= ' sticky-pane z-highest '; 
+$header_class= ' sticky-pane z-highest ';
+if(isset($_GET['ref']) && @$_GET['ref'] != ''){
+$ref = $_GET['ref'];
+$var = "'".$ref."'";
+$refSupplied = "true";
+$shouldRef = "true";
+$init = ' ng-init=" 
+ldata.ref = '.$var.' ;
+ldata.is_referred = 1 ;  
+ldata.refSupplied = '.$refSupplied.' ;  
+ldata.shouldRef = '.$shouldRef.'" ';
+//echo $run.$init; 
+}else{
+$shouldRef = "false";
+$refSupplied = "false";
+$init = ' ng-init="ldata.refSupplied = '.$refSupplied.'  ;  
+ldata.shouldRef = '.$shouldRef.'" ';
+} 
 include 'header.php';
 ?>
 
-<div class="abs-center block-responsive-only px20">
+<div class="abs-center block-responsive-only px20"  <?php echo $init; ?>>
 
 <div class="text-center"><a href="./">
 <span class="login-logo" >
@@ -25,8 +42,9 @@ include 'header.php';
 <md-progress-linear ng-show="isLoading" md-mode="indeterminate"></md-progress-linear>
 
 
+
 <div class="px30-responsive pb30">
-<form name="loginForm">
+<form name="loginForm" ng-cloak>
 <div class="up_slider" ng-show="reqDone" ng-bind-html="login_message"></div>
 <div ng-hide="hideForm">
 
@@ -93,16 +111,26 @@ Were you referred by Someone?</div>
 </div>
 </a>
 
-<div class="relative mt20 mb0 block up_slider" ng-if="ldata.is_referred && ldata.is_referred == 1">
+<div class="relative mt20 mb0 block up_slider" ng-if="ldata.is_referred && ldata.is_referred == 1" 
+ng-hide="ldata.shouldRef">
                 <input type="text" class="form-control input-block input-lg border-radius-10"  required placeholder="Referrer Username" ng-model="ldata.ref" required>
                 <span class="o-20 absolute center-v right-1 pe-none fas fa-user-plus" ></span>
               </div>
+
+
+<div class="px20 py20 bordered border-radius-4 mt20 bolder txt-md" ng-show="ldata.shouldRef"
+layout="row" layout-align="start center"
+>
+<span flex><i class=" fas fa-user-circle" ></i> &nbsp; {{ldata.ref}}</span>
+
+<span><a ng-click="ldata.shouldRef = false " class="fas fa-edit"></a></span>
+</div>
 
 </div><!--bordered-->
 
 
 
-<a class="utp color-danger" ng-click="ldata.is_referred = '0' ; ldata.ref = null">
+<a class="utp color-danger" ng-click="ldata.is_referred = '0' ; ldata.ref = null ; ldata.shouldRef = false">
 <div class="" layout="row" layout-align="start center">
 <span flex class="pr10">NO</span>
 <span> <i ng-if="ldata.is_referred && ldata.is_referred == '0'" class="fas fa-check-circle"></i> </span>

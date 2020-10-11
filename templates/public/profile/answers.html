@@ -1,7 +1,10 @@
+<!--
 <sticky-header icon="fa-comments" title="Answers"></sticky-header>
-
+-->
 <md-list class="">
-<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+
+<comment-holder></comment-holder>
+
 <div class="list-item-cover shadow-md"
              ng-repeat="item in user_public_answers"  ng-init="item.index = $index">
 <feed-item item="item" location="feed"></feed-item>

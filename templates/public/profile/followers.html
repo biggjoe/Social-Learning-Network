@@ -1,8 +1,6 @@
-<sticky-header icon="fa-user-plus" title="Followers"></sticky-header>
-
-<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>  
 
  <md-list class="">
+ 	<comment-holder></comment-holder>
 <div class="list-item-cover shadow-md">
 <md-subheader class="boldest">Followers ({{user_public_followers.length | number}})</md-subheader>
 <div ng-repeat="itz in user_public_followers"  ng-init="itz.index = $index">

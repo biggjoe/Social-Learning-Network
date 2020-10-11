@@ -1,4 +1,4 @@
-<sticky-header icon="fa-list" title="Activity Feed"></sticky-header>
+<sticky-header icon="fa-list" list="activity_feed" title="Activity Feed"></sticky-header>
 
 <!--
 <button href iclass class="btn-primary btn-sm btn-rounded" send-state="{{userData}}" send-stuff="true" actid="{{userData.uid+'-follow'}}">Send Stuff</button>
@@ -8,14 +8,26 @@
 
 
 <md-list class="">
-          <md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<!--<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>-->
+
+<comment-holder></comment-holder>
 
  
  <div class="list-item-cover shadow-md"
              ng-repeat="item in activity_feed"  ng-init="item.index = $index">
-<feed-item item="item" location="feed-home"></feed-item>
+<feed-item item="item" location="activity-feed"></feed-item>
           </div><!--ng-repeat-->
-          </md-list>
+
+<div class="list-item-cover shadow-md"  ng-if="(!activity_feed || activity_feed.length <=  0) && !isFetching">
+<md-list-item  class="md-2-line">
+    <md-icon  class="md-avatar-icon has-awesome"> <i class="fas status-cancelled fa-exclamation-triangle"></i> </md-icon>
+    <div  class="md-list-item-text"  layout="column"  flex>
+    <h3 class="boldest main-font">No Activity Yet</h3>
+    </div>
+  </md-list-item>
+</div>
+
+</md-list>
         
        
 <div class="txt-center py10"  ng-show="activity_feed.length > 0">

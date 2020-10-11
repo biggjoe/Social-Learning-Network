@@ -6,7 +6,6 @@ zapp.config( ['$stateProvider', '$locationProvider', '$urlRouterProvider',
 $locationProvider.html5Mode({ enabled: true, requireBase: false, rewriteLinks: false });
 $urlRouterProvider.when('/', '/account/feed');
 $urlRouterProvider.when('/account/messages', '/account/messages/list');
-$urlRouterProvider.when('/account/wallet', '/account/wallet/summary');
 $urlRouterProvider.when('/account/account-settings', '/account/account-settings/profile');
 $stateProvider
 .state('dash',{
@@ -137,62 +136,47 @@ $stateProvider
  url: '/account/wallet',
  views: {
   'menuContent':{
-    templateUrl: 'templates/account/wallet.html'
+    templateUrl: 'templates/account/wallet.html',
+    controller: 'walletCtrl'
   },
-  params:{pageTitle:'Wallet'}
+  params:{pageTitle:'Account Wallet'}
  }
  })
 
-.state('wallet.summary',{
- url: '/summary',
+
+
+
+.state('transactions',{
+ url: '/account/transactions',
  views: {
-  'idasher':{
-    templateUrl: 'templates/account/wallet/summary.html',
-    controller: 'walletCtrl'
+  'menuContent':{
+    templateUrl: 'templates/account/transactions.html',
+    controller: 'transactionCtrl'
   },
-  params:{pageTitle:'Summary'}
+  params:{pageTitle:'Transactions'}
  }
  })
 
-.state('wallet.referral',{
- url: '/referral',
+.state('referral',{
+ url: '/account/referral',
  views: {
-  'idasher':{
-    templateUrl: 'templates/account/wallet/referral.html',
-    controller: 'walletCtrl'
+  'menuContent':{
+    templateUrl: 'templates/account/referral.html',
+    controller: 'referralCtrl'
   },
-  params:{pageTitle:'referral'}
+  params:{pageTitle:'Referral'}
  }
  })
 
-.state('wallet.sales',{
- url: '/sales',
+
+.state('withdrawals',{
+ url: '/account/withdrawals',
  views: {
-  'idasher':{
-    templateUrl: 'templates/account/wallet/sales.html',
-    controller: 'walletCtrl'
+  'menuContent':{
+    templateUrl: 'templates/account/withdrawals.html',
+    controller: 'withdrawalCtrl'
   },
-  params:{pageTitle:'Sales'}
- }
- })
-.state('wallet.purchases',{
- url: '/purchases',
- views: {
-  'idasher':{
-    templateUrl: 'templates/account/wallet/purchases.html',
-    controller: 'walletCtrl'
-  },
-  params:{pageTitle:'Purchases'}
- }
- })
-.state('wallet.settlements',{
- url: '/settlements',
- views: {
-  'idasher':{
-    templateUrl: 'templates/account/wallet/settlements.html',
-    controller: 'walletCtrl'
-  },
-  params:{pageTitle:'Purchases'}
+  params:{pageTitle:'Withdrawals'}
  }
  })
 

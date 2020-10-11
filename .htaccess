@@ -20,10 +20,11 @@ RewriteRule ^admin/?$ templates/base/admin.php
 RewriteRule ^admin/(.*)/?$ templates/base/admin.php?page=$1
 #
 RewriteRule ^feed/?$ templates/base/feed.php 
-RewriteRule ^feed/(.*)/?$ templates/base/feed.php?page=$1
+RewriteRule ^feed/list/?$ templates/base/feed.php?url=list
+RewriteRule ^feed/department/(.*)/?$ templates/base/feed.php?page=department&url=$1
 #
 RewriteRule ^topic/?$ templates/base/topic.php 
-RewriteRule ^topic/(.*)/?$ templates/base/topic.php?page=$1
+RewriteRule ^topic/(.*)/?$ templates/base/topic.php?url=$1
 
 #article
 RewriteRule ^article/?$ templates/base/article.php 
@@ -35,9 +36,11 @@ RewriteRule ^login/?$ templates/base/login.php
 RewriteRule ^admin-login/?$ templates/base/admin-login.php 
 RewriteRule ^sign-up/?$ templates/base/register.php 
 RewriteRule ^register/?$ templates/base/register.php 
+RewriteRule ^r/(.*)/?$ templates/base/register.php?ref=$1
 RewriteRule ^forgot-password/?$ templates/base/forgot-password.php 
 RewriteRule ^get-started/?$ templates/base/login.php 
-RewriteRule ^logout/?$ templates/base/logout.php
+RewriteRule ^logout/?$ templates/base/logout.php 
+RewriteRule ^verify/?$ templates/base/verify.php
 
 
 #pages
@@ -81,14 +84,15 @@ AddType application/x-font-opentype .otf
 AddType application/x-font-woff .woff
 AddType image/svg+xml .svg
 # Compress compressible fonts
-# only uncomment if you dont have compression turned on already. Otherwise it will cause all other filestypes not to get compressed
- AddOutputFilterByType DEFLATE application/x-font-ttf application/x-font-opentype image/svg+xml
-#ExpiresActive on
+# only uncomment if you dont have compression turned on already. 
+#Otherwise it will cause all other filestypes not to get compressed
+#AddOutputFilterByType DEFLATE application/x-font-ttf application/x-font-opentype image/svg+xml
+ExpiresActive on
 </ifModule>
 
-#<filesMatch ".(css|jpg|jpeg|png|gif|js|ico|woff|ttf|svg)$">
-#Header set Cache-Control "max-age=2592000, public"
-#</filesMatch>
+<filesMatch ".(css|jpg|jpeg|png|gif|js|ico|woff|ttf|svg)$">
+Header set Cache-Control "max-age=2592000, public"
+</filesMatch>
 
 #<IfModule mod_headers.c>
 # only for Apache > 2.2.4:

@@ -1,5 +1,20 @@
 var zapp = angular.module('app.directives', [])
 
+var senData = function(data,$scope,run){
+var skope = data.scope;
+$scope[skope]['message'] = 'Working....';
+$scope[skope]['isLoading'] = true;
+if(data.callback_before){ $scope[data.callback_before](data)}
+run.sendData(data).then(function(result){
+    console.log(result)
+$scope[skope]['message'] = result.message;
+$scope[skope]['isLoading'] = result.isLoading;
+$scope[skope]['hideForm'] = result.sent;
+if(data.callback_after){ $scope[data.callback_after](result,data)}
+});
+}//
+
+
 zapp.directive('loadHolder', function () {
 return {
 restrict: 'EA',
@@ -22,6 +37,13 @@ $scope.isToHide = (value !== undefined) ? value:null;
 };
 });
 
+zapp.directive('commentHolder', function () {
+return {
+restrict: 'EA',
+templateUrl: `templates/directives/comment-holder.html`,
+};
+});
+
 zapp.directive('homeAccounts', function () {
 return {
 restrict: 'EA',
@@ -29,6 +51,52 @@ replace: true,
 templateUrl: `templates/directives/home-accounts.html`
 };
 });
+
+
+zapp.directive('quickLogin', function () {
+return {
+restrict: 'EA',
+replace: true,
+templateUrl: `templates/directives/quick-login.html`,
+controller:['$scope', '$http', 'parse', '$timeout', '$window', 
+function($scope, $http, parse, $timeout, $window){
+$scope.ldata = {};
+$scope.hideForm = $scope.isLoading = $scope.reqDone = false; 
+$scope.doLogin = function(data){
+data.action = 'userLogin';
+console.log(data)
+$scope.isLoading = true;
+$scope.reqDone = false;
+var vUrl = 'modules/account/accountApp.php';
+$http.post(vUrl,data).then(function(res) { 
+console.log(res)
+$scope.isLoading = false;
+$scope.reqDone = true;
+var rs = res.data;
+$scope.login_message = parse.dress_notice(rs);
+if(rs.status=='1' || rs.state=='1'){
+$scope.hideForm = true;
+$timeout(function() {
+let dir = $window.parent.location.href;
+$window.location.replace(dir);  
+}, 1500); 
+}//ifStatus
+
+},function(error){
+$scope.isLoading = false;
+$scope.hideForm = false;
+$scope.reqDone = true;
+var rs = {status:false,state:'0',message:`We have experienced Network Error. Please Try Again`} 
+$scope.login_message = parse.dress_notice(rs);
+ 
+});
+
+}
+}]//controller
+};
+});
+
+
 
 
 zapp.directive('itemAvatar', ["$http", function ($http) {
@@ -55,6 +123,7 @@ replace: true,
 template: `
 <div class="sticky border-bottom bg-white plain-bg-pattern">
 <div class="py10 px10 z-higher" layout="row" layout-align="start center">
+
 <a ng-if="canGoBack == true" class="stik-back-btn" ng-click="goBack()"> <i class="fas fa-arrow-left"></i> </a>
 <span class="bolder" flex><i class="fas {{page_icon}}"></i>&nbsp; {{page_title}}</span>
 
@@ -62,7 +131,9 @@ template: `
 <button ng-click="toggAdd()" 
 class="{{start_add_article ? 'md-warn':'md-primary'}} md-raised px15 mx0 my0 md-button md-ink-ripple">
 <i class="fas {{start_add_article ? 'fa-chevron-up':'fa-edit'}}"></i>&nbsp; 
-{{start_add_article ? 'CLOSE':'ASK QUESTION'}}</button>
+<span ng-if="start_add_article">CLOSE</span>
+<span ng-if="!start_add_article">ASK<span class="sm-hide"> QUESTION</span></span>
+</button>
 </span>
 </div><!--sticky-header-->
 <div class="article_pad down_slider border-top" ng-show="start_add_article">
@@ -132,12 +203,21 @@ layout-align="start center">
 </div><!--department-details-->
 
 </div><!--sticky-header-->`,
-scope:{title:'@', icon:'@', item:'=?bind', goback:'=',},
+scope:{title:'@', icon:'@', item:'=?bind', goback:'=', list:'@'},
 controller:['$scope','toast', function($scope,toast){
 $scope.item = ( angular.isDefined($scope.item) ) ? $scope.item:{department_id:0};
 $scope.q = {department_id:$scope.item.department_id,is_public:1};
 var app_url = 'modules/feed/feedApp.php';
-  var app_url2 = 'modules/general/generalApp.php';
+var app_url2 = 'modules/general/generalApp.php';
+var lister = false;
+$scope.$watch('$parent.isFetched', function(val){
+console.log('lister', lister);
+if(val === true){
+let list = $scope.list;
+lister = $scope.$parent[list];
+//console.log('lister', lister)
+}
+});
 $scope.page_icon = ($scope.icon) ? $scope.icon : 'fa-list';
 $scope.page_title = ($scope.title) ? $scope.title : '-';
 $scope.canGoBack = ($scope.goback) ? $scope.goback : false;
@@ -171,8 +251,10 @@ console.log(res);
 var rs = res.data;
 rs.message = `<div class="`+rs.class+`">`+rs.mess+`</div>`;
 $scope.isLoading = false;
-toast.show({title:'Info',message:rs.message})
+if(lister !== false){lister.unshift(rs.data)}
+toast.show({title:'Info',message:rs.message});
 })
+$scope.start_add_article = false;
 }//saveQuestion
 
 $scope.goBack = function() {
@@ -202,6 +284,7 @@ label="Buy This"></start-buy-btn> {{item.total_sales}}
 </span>
 <span>
 <div class="px10 txt-sm">
+<share-item item="item" counter="item.total_shares" showcount="true"></share-item>
   <span><span ng-if="item.mode !== 'blog'"><button ng-disabled="item.files.length === 0"
   class="btn {{item.files.length > 0 ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
   <i class="fas fa-paperclip"></i><md-tooltip>Files</md-tooltip> </button> {{item.files.length}}</span> &nbsp;</span>
@@ -296,17 +379,48 @@ $scope.action_text = (angular.isDefined($scope.mode) && $scope.mode==='following
 
 
 
+
+zapp.directive('friendSuggest', ["$http", function ($http) {
+return {
+restrict: 'EA',
+replace: true,
+templateUrl: `templates/directives/friend_suggest.html`,
+scope:{item:'=', mode:'@'},
+controller:['$scope','$rootScope', 'toast', 'run',
+function($scope, $rootScope, toast, run){
+var app_url = 'modules/general/generalApp.php';
+$scope.is_done_load = false;
+$http.post(app_url,{action:'list_friend_suggest'}).then(function(res){
+console.log(res);
+let rs = res.data;
+$scope.friend_suggest_list = [];
+angular.forEach(rs,function(obj,key){
+obj.lesser = run.strip_tags(obj.bio);
+obj.lesser = run.limit_words(obj.lesser,12);
+$scope.friend_suggest_list[key] = obj;
+$scope.is_done_load = false;
+});
+});//https
+}]//controller
+}
+}]);//friendSuggest
+
+
+
+
+
 zapp.directive('userFollowBtn', ["$http", function ($http) {
 return {
 restrict: 'EA',
 replace: true,
 template: `
 <button ng-click="sItem(item.is_followed)" 
-class="txt-sm {{item.is_followed ? 'btn-danger':'btn-primary'}} btn-raised btn-sm uppercase btn py7 px10 mx0 my0 btn">
-<i class="fas {{item.icon}}"></i>&nbsp; 
-{{item.is_followed ? 'Unfollow':'Follow'}}</button>
+class="uppercase px10 txt-xsm bold {{item.is_followed ? 'btn-danger':'btn-primary'}} btn btn-rounded  btn-sm">
+<span><i class="fas {{item.icon}}"></i><span ng-show="hidetext !== true">&nbsp;{{item.is_followed ? 'Unfollow':'Follow'}}</span></span>
+<md-tooltip>{{item.is_followed ? 'Unfollow':'Follow'}}</md-tooltip>
+</button>
 `,
-scope:{item:'=', mode:'@'},
+scope:{item:'=', mode:'@', hidetext:'='},
 controller:['$scope','$rootScope', 'toast', 
 function($scope, $rootScope, toast){
 $rootScope.$watch('userData.isLogged', function(value){
@@ -358,9 +472,9 @@ restrict: 'EA',
 replace: true,
 template: `
 <button ng-click="sItem(item.is_followed)" ng-show="item.can_follow"
-class="txt-sm {{item.is_followed ? 'btn-danger':'btn-primary'}} btn-raised btn-sm uppercase btn py7 px10 mx0 my0 btn">
-<i class="fas {{item.icon}}"></i>&nbsp; 
-{{item.is_followed ? 'Unfollow':'Follow'}}</button>
+class="uppercase px10 txt-xsm bold {{item.is_followed ? 'btn-danger':'btn-primary'}} btn btn-rounded  btn-sm">
+<span><i class="fas {{item.icon}}"></i>&nbsp; 
+{{item.is_followed ? 'Unfollow':'Follow'}}</span></button>
 `,
 scope:{item:'=', mode:'@'},
 controller:['$scope','$rootScope', 'toast', 
@@ -408,6 +522,192 @@ $scope.item.is_loading = false;
 }]//controller
 }
 }]);//departmentfollowBtn
+
+
+
+
+
+zapp.directive('shareItem', ["$http", function ($http) {
+return {
+restrict: 'EA',
+replace: true,
+template: `<span><a class=" {{iclass}}" ng-click="launchShare(item)"> 
+<i class="fas fa-share-alt"></i><span class="txt-xsm txt-gray" 
+ng-if="showcount">&nbsp;&nbsp;{{counter}}</span></a></span>`,
+scope: {item:'=',iclass:'=',counter:'=',showcount:'='},
+controllerAs:'ctrl',
+controller: function ($scope,$rootScope,fbService, modal,
+  run, $timeout) {
+//var self = this;
+$scope.closeThisDialog = function(){modal.hide();}
+$scope.isLogged = false;
+$rootScope.$watch('userData.isLogged',function(value){
+$scope.isLogged = value; 
+});
+
+var baseUrl = window.location.origin;
+var getPageUrl = (item)=>{
+if(item.share_page  == 'topic'){
+var url =  baseUrl+'/topic/'+item.url;
+}else if(item.share_page  == 'article'){
+item.share_page  == 'article'
+var url = baseUrl+'/article/'+item.url;
+}
+console.log(url)
+return url;
+}
+
+$scope.launchShare = function(item,ev){
+item.description = (item.description) ? item.description : 
+'.....';
+item.description = run.strip_tags(item.description);
+item.description = run.limit_words(item.description);
+let artUrl = getPageUrl(item);
+$scope.modalItem = $scope.modalData = {
+id:item.id,
+title:item.title, 
+share_type:item.share_page,
+description:item.description,
+contentUrl: artUrl
+};
+
+$scope.shareList = run.shareVars(artUrl, item);
+/*$mdDialog.show({
+controller: function () {return self;},
+controllerAs: 'ctrl',
+targetEvent:ev,
+templateUrl:'templates/dialog/shareArticle.html'
+})
+*/
+modal.show({
+page:'templates/dialogs/share_item.html',
+data:$scope.modalItem
+},$scope);
+
+}//launchShare
+
+
+$scope.saveShare = function(load){
+  console.log('LOAD :: ',load)
+load.action = 'saveShare', 
+load.mode = load.mode,
+load.id = load.id,
+load.description = load.description,
+load.title = load.title;
+load.appLink = 'modules/general/generalApp.php';
+load.scope_type = 'ctrl';
+load.scope_frame = $scope;
+load.callback_after = 'callback_after';
+load.callback_before = 'callback_before';
+load.scope = 'modalItem';
+senData(load,$scope,run);
+}
+
+$scope.callback_after = function(result,data){
+var rmess = (result.message) ? result.message :
+(result.mess) ? result.mess : null;
+$scope.shareList[data.index]['message'] = rmess;
+$scope.shareList[data.index]['loading'] = false;
+}
+
+$scope.callback_before = function(data){
+$scope.shareList[data.index]['message'] = 'Working...';
+$scope.shareList[data.index]['loading'] = true;
+}
+
+
+$scope.fbShare = function(data){
+  console.log(data)
+let load = {};
+load.method = 'feed',
+load.product_name = 'Sensei '+data.share_type+' share',
+load.share_url = data.url,
+load.share_image = baseUrl+'/images/logo.png',
+load.caption = data.title,
+load.description = data.description
+load.action = 'saveShare', 
+load.mode = data.mode, 
+load.id = data.id,
+load.index = data.index,
+load.title = data.title;
+load.appLink = 'modules/general/generalApp.php';
+fbService.shareCallback(load).then(function(res){
+console.log(res)
+if(res.is_resolved && 
+Array.isArray(res.response) && 
+(res.response.length == 0)){
+$scope.saveShare(load);
+}else{
+$scope.shareList[data.index]['message'] = 'Content not shared on facebook';
+$scope.shareList[data.index]['loading'] = false;  
+}
+
+})
+
+}
+
+var launchPage = function(url){
+window.location.assign(url)
+}
+
+
+window.twttr = fbService.twitterLoader();
+//Once twttr is ready, bind a callback function to the tweet event
+$scope.tweetItem = function(data){
+//console.log(data)
+launchPage(data.tweet_url);
+let load = {};
+load.action = 'saveShare', 
+load.mode = data.mode, 
+load.id = data.id,
+load.index = data.index,
+load.title = data.title;
+twttr.ready(function(twttr) {
+twttr.events.bind('tweet', function(res){
+if (res) {
+console.log("Tweet Callback :: ", res, 'Load :: ', load);
+$scope.saveShare(load);
+}  
+
+});
+
+});
+
+}//
+
+
+
+$scope.linkedinShare = function(data){
+data.action = 'saveShare';
+$http.post('modules/general/generalApp.php',data).then(function(res){
+$scope.saveShare(data.action);  
+})
+
+}
+
+
+$scope.shareToFeed = function(data){
+let load = {};
+load.action = 'saveShare', 
+load.mode = data.mode, 
+load.id = data.id,
+load.index = data.index,
+load.title = data.title;
+load.content_type = data.share_type;
+  console.log(load)
+$scope.saveShare(load);
+}//shareToFeed
+
+
+
+}//controller
+
+
+}
+
+}]);//shareItem
+
+
 
 
 
@@ -514,10 +814,9 @@ controller: function ($scope, $rootScope, $http, $window, $mdDialog,
 var self = this;
 $scope.btnClass = 
 ( angular.isDefined($scope.btn_class) && $scope.btn_class !=='') 
-? $scope.btn_class : `md-warn md-raised px20 mx0 my0 py10 md-button`;
+? $scope.btn_class : `md-warn md-raised px20 mx0 my0 py5 md-button`;
 $scope.modalItem = 
-{isLoading:false, isPaying:false,
-  callback:'payCallback'};
+{isLoading:false, isPaying:false};
 $rootScope.$watch('isFetched',function(value){
 if(value === true){
 $scope.isLoaded = true;
@@ -547,7 +846,8 @@ $scope.bticon = 'fa-exclamation-triangle status-cancelled';
 var showModal = function () {
 $scope.item.transactionName = $scope.modalItem.transactionName = 'Article Purchase ['+$scope.item.title+']';
 $scope.modalItem.article_id = $scope.item.aid;
-let paramx = {action:'getPayDetails',
+let paramx = {
+action:'getPayDetails',
 article_data:{
   article_id:$scope.item.aid,
   price:$scope.item.price,
@@ -564,6 +864,7 @@ $scope.modalItem.page_title = 'Article Purchase';
 $scope.bticon = ' fa-shopping-cart ';
 var old = $scope.modalItem, newer = res.data;
 var iLoad = {...old,...newer};
+console.log('iload ::: ',iLoad)
 $scope.modalItem = iLoad;
 modal.show({
 data:iLoad,
@@ -577,17 +878,245 @@ $scope.did_well = false;
 
 
 
-$scope.onCloseCallback = function(reference){
-dopay.nullifyPay(reference).then(function(reks){
-  console.log(reks)
-});//nulifyPay
-}//onCloseCallBack
 
 }//controller
 
 }//return
 
 });
+
+
+zapp.directive('fundBtn', function () {
+    return {
+      restrict: 'EMA',
+      template: `
+      <button ng-if="isLoaded" 
+      ng-disabled="modalItem.isLoading" class="{{btnClass}}"
+      ng-click="payNow()"><i class="fas {{bticon}}"></i>&nbsp;
+      <span ng-bind-html="btnText"></span></button>`,
+      scope: {
+        item : '=', 
+        btn_class : '@',
+        icon : '@',
+        label : '@' 
+      },
+controllerAs:'vm',
+controller: function ($scope, $rootScope, $http, $window, $mdDialog, 
+ modal, doPay, $timeout, $mdDialog) {
+var self = this;
+$scope.btnClass = 
+( angular.isDefined($scope.btn_class) && $scope.btn_class !=='') 
+? $scope.btn_class : `md-warn md-raised px20 mx0 my0 py5 md-button`;
+$scope.modalItem = 
+{isLoading:false, isPaying:false};
+$rootScope.$watch('isFetched',function(value){
+if(value === true){
+$scope.isLoaded = true;
+$scope.btnText = ($scope.label === '' || !$scope.label) ?  ' FUND WALLET ':$scope.label;
+$scope.canJoin = true;
+$scope.bticon = ($scope.icon === '' && $scope.icon !='') ?  $scope.icon: ' fa-folder-open ';
+
+;
+}  
+});//watch
+
+
+$scope.payNow = function(){
+$scope.modalItem.isLoading = true;
+$scope.modalItem.is_parsed = false;
+$scope.bticon = ' fa-spin fa-circle-notch ';  
+modal.show({
+data:{},
+page:'templates/dialogs/start_fund_page.html',
+},$scope);//$mdDialog.show
+};
+
+
+$scope.closeThisDialog = ()=>{modal.close();}
+
+$scope.parsePay = function () {
+$scope.modalItem.transactionName = 'Fund Wallet';
+let paramx = {
+action:'getFundDetails',data:$scope.modalItem};
+$http.post('modules/payment/paymentApp.php',paramx).then(function(res){
+  console.log(res.data);
+let rs = res.data;
+$scope.modalItem.isLoading = false;
+$scope.modalItem.isParsing = false;
+$scope.modalItem.page_title = 'Wallet Funding';
+$scope.bticon = ' fa-shopping-cart ';
+let old = $scope.modalItem;
+console.log('old ::: ',old)
+let newer = res.data;
+console.log('newer ::: ',newer)
+let iLoad = {...old, ...newer};
+console.log('joined ::: ',iLoad)
+$scope.modalItem = iLoad;
+
+console.log('$scope.modalItem ::: ',iLoad)
+})//showModal
+
+}//parseModal
+
+$scope.payload = {};
+$scope.start_pay = function(){
+$scope.hasPaid = true;
+$scope.modalItem.pay_mode = 'bank';
+$scope.modalItem.pay_vendor = 'bank';
+$scope.modalItem.callback = '...';
+$scope.modalItem.date = new Date();
+$scope.ld = $scope.modalItem;
+}
+
+$scope.isLoading = false;
+$scope.submitPay = function(data){
+data.action = 'submitPayment';
+data.date = (new Date(data.date).getTime())/1000;
+var iload = {...$scope.modalItem, ...data} ;
+console.log(iload);
+$scope.isLoading = true;
+$http.post('modules/payment/paymentApp.php',iload).then(function(res){
+$scope.isLoading = false;
+var rs = res.data;
+console.log(rs);
+if(rs.uid > 0){
+ $scope.imessage = `<div class="px10 py10" layout="row" layout-align="start center"> 
+ <span class="txt-lg px20"><i class="fas fa-check-circle status-active"></i></span> 
+ <span class="txt-md" flex>Your Payment notification has been received.
+  You will be notified when it is approved
+</span>
+  </div>`;
+  $scope.hideForm = true;
+}else{
+ $scope.imessage = `<div class="px10 py10" layout="row" layout-align="start center">
+ <span class="txt-lg px20"><i class="fas fa-exclamation-triangle status-cancelled"></i> </span>
+<span class="txt-md" flex>
+Your Payment notification failed to be submitted at this time.
+  Try again later</span></div>`;
+    $scope.hideForm = false;
+}  
+
+});
+}
+
+
+
+
+}//controller
+
+}//return
+
+});//
+
+
+zapp.factory('minix', ['$http', function ($http) {
+return { hey:null }
+}]);
+
+zapp.directive('walletPayment', ["minix", function(minix){
+
+return {
+restrict: 'EMA',
+template: `<a href class="btn {{payClass}}"
+ng-click="startPay()"
+ng-disabled="wallet_data.isLoading || wallet_data.isPaying">
+<i class="fas fa-credit-folder-open" ng-hide="wallet_data.isLoading || modalItem.isPaying"></i> 
+<i class="fas  faa-flash animated fa-circle" 
+ng-if="wallet_data.isLoading   || wallet_data.isPaying"></i> &nbsp;{{text || 'Pay Now'}} </a>`,
+replace: true,
+scope: {
+payload:'=',
+btnclass: '@',
+callback: '@',
+text: '@'
+},
+controller: ['$scope', '$rootScope', 'doPay', '$timeout',
+function ($scope, $rootScope, doPay, $timeout) {
+  console.log('This is wallet BTN')
+console.log('wallet Parent $scope ::', $scope.$parent.$parent);
+console.log('Payload ::',$scope.payload)
+var par_scope = $scope.$parent.$parent;
+$scope.payClass = ($scope.btnclass) ?  $scope.btnclass : 'btn btn-primary';
+
+var errorIcon = '<i class="fas fa-exclamation-triangle status-cancelled"></i>&nbsp; ';
+var goodIcon = '<i class="fas fa-check-circle status-active"></i>&nbsp; ';
+$scope.wallet_data ={};
+$scope.startPay = function(){
+$scope.wallet_data.isLoading = true;
+par_scope.modalItem.isPaying  = true;
+$scope.walletPayCallback(par_scope.modalItem,par_scope)
+}
+
+$scope.walletPayCallback = function(data,$scope){
+console.log(data)
+doPay.setScope('modalItem',
+    {message:'Processing Payment...',
+    isLoading:true,isPaying:true,hide_summary:false},$scope);
+doPay.verifyWalletPay(data).then(function(res) {
+  console.log(res)
+doPay.setScope('modalItem',{message:res.message, response_code:res.response_code, isLoading:false},$scope);
+if(res.status === '1'){
+doPay.dispatchArticle(data['reference']).then(function(res2){
+console.log('dispatchArticle ::',res2)
+var tx = {status:res2.status,reference:res2.reference};
+doPay.markTranx(res2).then(function(rw){ console.log('markTranx::', rw); });
+doPay.setScope('modalItem',{message:res2.message},$scope);
+if(res2.status == '1'){
+$timeout(function() {
+doPay.setScope('modalItem',{message:'Finalizing transaction...',isLoading:false},$scope);
+doPay.settleUser(res2.reference).then(function(res3){
+console.log('settleUser ::',res3)
+doPay.setScope('modalItem',{message:res3.message,isLoading:false},$scope);
+$timeout(function() {
+//$scope.isCollating   =  true, $scope.isCollated  =   false;
+//var winx = carData.dir+'/my-articles';
+//$window.location.replace(winx);  
+}, 4000);
+}, function(){
+doPay.setScope('modalItem',{message:'Error settling author.',isLoading:false},$scope);
+});//settleUser
+
+}, 2000);//finalizing delay
+
+
+}else{
+doPay.setScope('modalItem',{message:'Error settling author.',isLoading:false},$scope);
+ 
+}
+
+}, function(){
+doPay.setScope('modalItem',{message:'Error dispatching Article to your library.',isLoading:false},$scope);
+ 
+});//creditWallet
+
+
+}//status ==1 so dispatchOrder
+else{
+doPay.setScope('modalItem',
+  {message:res.message,isLoading:false},
+  $scope);
+}
+
+}, function(error){
+console.log(error);
+doPay.setScope('modalItem',{message:'Payment Verifiation Error.<br> Please Requery this Payment Transaction',isLoading:false},$scope);
+});//verifyPaystack
+
+}//walletPayCallback
+
+
+
+$scope.onCloseCallback = function(reference){
+dopay.nullifyPay(reference).then(function(reks){
+  console.log(reks)
+});//nulifyPay
+}//onCloseCallBack
+
+}]//controller
+
+}//return
+
+}]);
 
 zapp.directive('payBank',  [
             '$http', '$timeout',  'doPay',
@@ -696,6 +1225,268 @@ $scope.showOpt = function(num){
 
 /**/
 
+
+
+zapp.directive('walletSection',function(){
+return {
+ restrict:'EMA',
+ templateUrl:`templates/directives/wallet-section.html`,
+ replace:true,
+ scope:{data:'=',mode:'@'},//scope
+ controller: function(run, $scope, $http, $rootScope){
+$rootScope.usD = {};
+$scope.isLoaded = false;
+$rootScope.$watch('isLoaded', function(value){
+$scope.isLoaded = value;
+if(value == true){
+$scope.usD = $scope.data;
+$scope.isLoading = false;
+
+
+}//ifLoaded
+})//$watch
+
+
+ }//controller
+}//return
+});//wallet-section
+
+
+
+
+zapp.directive('referralSection',function(){
+return {
+ restrict:'EMA',
+ templateUrl:`templates/directives/referral-section.html`,
+ replace:true,
+ scope:{mode:'@'},//scope
+ controller: function(modal,
+$mdConstant,
+ngClipboard,run, 
+   $scope, $http, 
+   $rootScope){
+
+  console.log($scope.mode)
+$rootScope.usD = {};
+$scope.isLoaded = false;
+$scope.isFetching=false;
+var  appLink=  appLink2='modules/general/generalApp.php';
+
+$rootScope.ref_loaded = false;
+
+
+var apl = 'modules/general/generalApp.php';
+
+
+dt['action_name'] = '';
+dt['params'] = {action:'get_referral'};
+dt['feed_scope'] = 'referral';
+$scope[dt['feed_scope']] = [];
+dt['url'] = apl;
+dt['loading'] = 'isFetching';
+dt['disable_btn']  = 'disable_btn';
+$scope[dt['btn_text']] = '_____';
+$scope[dt['btn_icon']] = 'fa-ellipsis-v';
+$scope[dt['feed_end']] = false; 
+$scope[dt['feed_page']] = 10;
+$scope[dt['feed_offset']] = 0;
+$scope[dt['feed_rows']] = 12;
+$scope[dt['loading']] = false;
+$scope[dt['disable_btn']] = true;
+
+$scope.loadMore = function(){
+run.getloadMore(dt,$scope);
+}
+$scope.loadMore();
+
+$scope.copyLink =  ngClipboard.toClipboard;
+$scope.ldata = {};
+$scope.launchInvite = function(data){
+  console.log(data)
+var options = {};
+options.width = '';
+options.page = 'templates/dialogs/referral_invite.html';
+options.data = data;
+$scope.listers = data;
+modal.show(options,$scope); 
+};
+
+
+$scope.launchRedeem = function(ev,data){
+console.log(data)
+var options = {};
+options.width = '';
+options.page = 'templates/dialogs/referral_redeem.html';
+options.data = data;
+$scope.listers = data;
+modal.show(options,$scope);
+}
+
+$scope.listers = $scope.earn =  [];;
+
+
+$scope.addNums = function(data){ 
+console.log(data)
+data.push({number:''})
+}
+
+$scope.removeNum = function(list,obj){
+list.splice(list.indexOf(obj),1);
+}
+
+$scope.isLoading = false;
+$scope.sendInvite = function(data,mode){ 
+console.log(data,mode);
+$scope.isLoading = true;
+$http.post(appLink2,{action:'sendReferralInvite', data:data,mode:mode}).then(function(res){
+console.log(res);
+$scope.isLoading = false;
+var iclass  = (res.data.status == '1') ? 'good':'error';
+$scope.isLoading  = false;
+$scope.hideForm  = (res.data.status == '1') ? true : false;
+$scope.imessage =  '<div class="'+iclass+'">'+res.data.message+'</div>';
+if(res.data.status == '1'){
+//$timeout(function() {
+  //$state.transitionTo($state.current, $stateParams, { 
+  //reload: true, inherit: false, notify: true
+//});
+//$scope.closeThisDialog();  
+//}, 2000);
+}//if status
+});
+}
+
+$scope.closeThisDialog = function() {
+modal.close();
+
+};
+
+$scope.isEdit = false;
+$scope.separator_keys = [$mdConstant.KEY_CODE.ENTER, $mdConstant.KEY_CODE.SPACE, $mdConstant.KEY_CODE.COMMA];
+$scope.updateSubject = function($chip,mode){
+console.log($chip,mode)
+}
+$scope.referral = false;
+
+$rootScope.$watch('isLoaded', function(value){
+$scope.isLoaded = value;
+if(value == true){
+$scope.usD = $scope.data;
+$scope.isLoading = false;
+}//ifLoaded
+})//$watch
+
+
+ }//controller
+}//return
+});//referral-section
+
+
+
+
+
+zapp.directive('withdrawBtn', function () {
+return {
+restrict: 'EMA',
+replace: true,
+template:`<span>
+<span ng-if="usD.withdrawable < 100" class="px10 py5 txt-gray 
+border-radius bordered txt-xxsm"> 
+<i class="fas fa-exclamation-triangle"></i>&nbsp; INSUFFICIENT</span>
+<button   ng-if="usD.withdrawable >= 100"
+ng-click="launchWithdraw($event)" 
+class="btn btn-sm btn-primary"> 
+<i class="fas fa-credit-card"></i> &nbsp;
+WITHDRAW <span class="sm-hide">FUNDS</span> 
+</button>
+</span>`,
+      scope: {
+        data : '=', 
+        btnclass : '@',
+        text : '@' 
+      },
+controllerAs:'vm',
+controller: function ($scope, $rootScope, $http,  
+modal, toast) {
+$rootScope.usD = {};
+$scope.isLoaded = false;
+$rootScope.$watch('isLoaded', function(value){
+$scope.isLoaded = value;
+if(value == true){
+$scope.usD = $scope.data;
+$scope.isLoading = false;
+
+$scope.launchWithdraw = function(){
+var options = {data:{}};
+options.data.ctrl = 'newDrawCtrl';
+options.data.pageTitle = 'Payout Request'; 
+options.page = 'templates/dialogs/dialPage.html';
+$scope.modalData = options.data;
+modal.show(options,$scope);
+}
+}//ifLoaded
+})//$watch
+
+
+
+}//controller
+}//return
+
+});
+
+
+zapp.directive('convertRefBtn', function () {
+return {
+restrict: 'EMA',
+replace: true,
+template:`<span> 
+<span ng-if="ref.approved_not_redeemed <= 0" 
+class=""> </span> 
+
+<a href ng-if="ref.approved_not_redeemed >= 1" 
+ng-click="convert2Cash()" 
+class="btn-xxsm btn py5 px10
+ btn-outline-primary shadow-none uppercase txt-xxsm bold">
+Convert<span class="sm-hide"> To Funds</span> <i class="fas fa-arrow-right"></i>
+</a> <span>`,
+      scope: {
+        data : '=', 
+        btnclass : '@',
+        text : '@' 
+      },
+controllerAs:'vm',
+controller: function ($scope, $rootScope, $http,  
+modal, toast) {
+$rootScope.ref = {};
+$scope.isLoaded = false;
+$rootScope.$watch('ref_loaded', function(value){
+$scope.isLoaded = value;
+if(value == true){
+$scope.ref = $scope.data;
+console.log($scope.data)
+$scope.isLoading = false;
+$scope.convert2Cash = function(){
+var iln = 'modules/account/accountApp.php';
+$http.post(iln,{action:'getRefData'}).then(function(res){
+console.log(res)
+var rs = res.data;
+var options = {data:rs};
+options.data.ctrl = 'convertRefPointCtrl';
+options.data.pageTitle = 'Convert Referral Points'; 
+options.page = 'templates/dialogs/dialPage.html';
+$scope.modalData = options.data;
+modal.show(options,$scope);
+});//post
+}
+}//ifLoaded
+})//$watch
+
+
+
+}//controller
+}//return
+
+});//convertRefBtn
 
 
 zapp.directive('pressEnter', function () {

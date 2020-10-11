@@ -1,10 +1,14 @@
-<sticky-header icon="fa-folder-open" title="Wallet"></sticky-header>
+<sticky-header icon="fa-ffolder-open" title="Wallet"></sticky-header>
 
 
-<ul class="bg-white sect-nav sticky">
-	<li ng-repeat="item in wallet_tabs">
-		<a ng-click="setTab(item.url)" href="account/wallet/{{item.url}}" ng-class=" navTab === item.url ? 'active':'' "> <span><i class="fas {{item.icon}}"></i></span><span class="sm-hide">&nbsp; {{item.name}}</span></a>
-	</li>
-</ul>
 
-<div class="idasher" ui-view="idasher"></div>
+<!--ended-->
+<section class="pxy20">
+	
+<wallet-section data="userData" mode="wallet"></wallet-section>
+
+	
+</section>
+
+
+

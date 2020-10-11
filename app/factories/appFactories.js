@@ -32,12 +32,215 @@ return res.data;
 }//getUserData
 
 
+self.shareVars = function(linkurl,item,field){
+//console.log('self.getbaseUrl() :: ',self.getbaseUrl())
+//let baseUrl = self.getbaseUrl();
+let thisUrl = linkurl;
+let desc = item['description'];
+let platforms = [
+{mode:'feed', url:'', icon:'fas fa-stream'},
+{mode:'facebook', icon:'fab fa-facebook', url:'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(thisUrl)},
+{mode:'twitter', icon:'fab fa-twitter', url:'https://twitter.com/intent/tweet?text='+desc+'&url='+thisUrl+'&via=Sensei.ng'},
+{mode:'linkedin', icon:'fab fa-linkedin', url:'https://www.linkedin.com/cws/share?url='+thisUrl},
+];
+
+return platforms;
+}
+
+
+var fixLink = 'modules/general/generalApp.php';
+
+self.senData = self.sendData = function(data){
+data.isLoading = true;
+data.showMessage = 'Working...';
+console.log(data);
+var pg =(data.appLink) ? data.appLink :
+(data.page) ? data.page : '';
+return $http.post(pg,data).then(function(res) {
+console.log(res)
+return res.data;
+});
+}//senData
+
+
+self.stripList = function(list,col){
+var newList = [];
+for (var i = 0; i < list.length; i++) {
+if(list[i][col] && list[i][col]!==''){newList.push(list[i][col])};
+}
+return self.unique(newList);
+}
+
+
+Array.prototype.unique = function() {
+  return this.filter(function (value, index, self) { 
+    return self.indexOf(value) === index;
+  });
+}
+
+self.unique = function(array){
+return array.unique();
+}
+
+
+self.strip_tags = function(text) {
+    return  text ? String(text).replace(/<[^>]+>/gm, '') : ''; 
+};
+
+  
+self.limit_words = function(text,num) {
+var wordCounter = text.split(' ');
+return (wordCounter.slice(0,num).join(' '))+'...';
+
+};
+
+
+
+
+self.stripIds = function(data){
+var ids = [];
+for (var i = 0; i < data.length; i++) {
+ids.push(data[i].id);
+}
+return ids;
+}//stripIds
+
+
+self.toggleSelection = function(obj,list,selected) {
+var idx = selected.indexOf(obj);
+// Is currently selected
+if (idx > -1) {
+selected.splice(idx, 1);
+list[obj.index].selected = false;
+}
+// Is newly selected
+else {
+selected.push(obj);
+list[obj.index].selected = true;
+}
+};//
+
+
+
+self.unMarkAll = function(list){
+   angular.forEach(list,function(value,key){
+   value.selected = false;
+   });
+}//unMarkAll
+
+
+
+self.doMark = function(mode,list,selected){
+  var node = (mode =='unread') ? 0 :
+  (mode == 'read') ? 1 :
+  (mode == 'null') ? 1 : 'blank';
+   angular.forEach(list,function(value,key){
+   //console.log(value,key);
+   if(value.status == node){
+   value.selected = true;
+   self.toggleSelection(value,list,selected)
+ }else if(mode == 'all'){
+   value.selected = true;
+   self.toggleSelection(value,list,selected)
+ }
+   });
+}//
+
+
+self.setMark = function(item,list,scope){
+scope.viewState = item;
+self.doMark(item,list,scope['selected_messages'])
+scope.viewSet = true;
+}
+
+self.markSelected = function(mode,list,ids){
+  console.log('mode:: ',mode, 'list::', list, 'ids:',ids)
+ var node = (mode =='unread') ? 0 :(mode == 'read') ? 1 : true;
+for (var i = 0; i < list.length; i++) {
+for (var x = 0; x < ids.length; x++) {
+if(list[i].id == ids[x]){
+list[i].status = node;
+}
+}
+}
+//console.log(list)
+}//
+
+
+self.markNotification = function(data) {
+  console.log(data)
+var agdata = {action:'markNotification',id:data.id, mode:data.mode}
+return $http.post(fixLink,agdata).then(function(res) {
+  console.log(res)
+return res;
+
+});
+        };//markNotification
+
+self.scrollTo = function(aid){
+var dur = 300;
+var offset = 0;
+var els = document.getElementById(aid);
+var someElement = angular.element(els);
+return $document.scrollToElementAnimated(someElement, offset, dur);
+}
+
+self.prepare_content =  function(scope,obj,verb=false,num=false){
+num = (num) ? num : 50;
+verb = (verb) ? verb : 'comment';
+
+          scope[verb] = scope[obj][verb];
+          scope['stripped'] = self.strip_tags(scope[verb]);
+          var wordCounter = scope['stripped'].split(' ');
+          var firstN = wordCounter.slice(0,num).join(' ');
+          scope[obj]['county'] = wordCounter.length ;
+          scope[obj]['expand_text'] = (wordCounter.length > num)? true:false;
+          scope[obj]['lesserd'] = firstN+' ... ';//$filter('limitTo')($scope.stripped, 200, 0);
+          return  scope['thisComm'] = (scope[obj]['county'] <  num) ? scope['comment'] : scope[obj]['lesserd'];
+
+}//toggle_content
+
+self.toggle_content =  function(scope,obj){
+scope['thisComm'] = scope['comment'];
+ scope[obj]['disp'] = !scope[obj]['disp'];
+}//prepare_content
+
+
+
+
+self.reloadState = function($state){
+urs = ($state.params.url) ? $state.params.url:null;
+$timeout(function() {
+$state.transitionTo($state.current.name, {url:urs}, {reload: true})
+}, 3000);
+};
+
+
+self.getValue = function(data) {
+          var fdata = {action:'getValue',type:data.type,id:data.id}
+          return $http.post(fixLink,fdata).then(function(res) {
+return res.data;
+
+});
+};//getValue
+
+
+
+
+self.inArray = function(needle, haystack) {
+    var length = haystack.length;
+    for(var i = 0; i < length; i++) {
+        if(haystack[i] == needle) return true;
+    }
+    return false;
+}//inArray
+
 self.getList = function(dt,$scope){
-  console.log(dt)
 $scope[dt['loading']] = true;
 $scope[dt['loaded']] = false;
 let appLink = dt['url'];
 let payLoad = {action:'get_'+dt['scope']}
+  console.log(payLoad,appLink)
 $http.post(appLink,payLoad).then(function(rp) {
 console.log(rp);
 rs = rp.data;
@@ -499,6 +702,16 @@ return res.data;
 }//verifyDirectPaystack
 
 
+self.verifyWalletPay = function(data) {
+data.action = 'verifyWalletPay';
+return $http.post(payLink,data).then(function(res) {
+console.log(res);
+return res.data;
+
+});
+
+}//verifyWalletPay
+
 
 self.markTranx = function(tx) {
 var ndata = {reference:tx.reference, status:tx.status, 
@@ -515,6 +728,96 @@ return self;
 
 }]);
 //doPay
+
+
+
+zapp.factory('fbService', ['$q', '$http', '$window', function($q, $http, $window) {
+
+  var self = this;
+    
+        self.getMyLastName = function() {
+            var deferred = $q.defer();
+            FB.api('/me', {
+                fields: 'last_name'
+            }, function(response) {
+                if (!response || response.error) {
+                    deferred.reject('Error occured');
+                } else {
+                    deferred.resolve(response);
+                }
+            });
+            return deferred.promise;
+        }//getLastName
+
+
+/*
+self.shareCallback = function(data) {
+  var deferred = $q.defer();
+        FB.ui({method: data.method,//'feed'
+          name: data.product_name,
+          link: data.share_url,
+          picture: data.share_image,
+          caption: data.caption,
+          description: data.description
+        }, function(response){
+          if (response === null) {
+            deferred.reject('Error occured', response)
+          return deferred.promise;
+          }else {
+         return $http.post('modules/mainApp.php',{type:'share',uid:''}).then(function(res){
+            console.log(res);
+                   
+                });
+            }
+          }//responseEnds
+          );//FB.ui
+
+    }//shareCalback
+
+*/
+self.shareCallback = function(data) {
+  var deferred = $q.defer();
+        FB.ui({method: data.method,//'feed'
+          name: data.product_name,
+          link: data.share_url,
+          picture: data.share_image,
+          caption: data.caption,
+          description: data.description
+        }, function(response){
+
+            if (response == 'undefined') {
+                    deferred.reject({is_resolved : false,response:response});
+                } else {
+                    deferred.resolve({is_resolved: true,response:response});
+                }
+
+          }//responseEnds
+          );//FB.ui
+        return deferred.promise;
+
+    }//shareCalback
+
+
+self.twitterLoader = function(){
+var fnt = (function (d,s,id) {
+ var t, js, fjs = d.getElementsByTagName(s)[0];
+if (d.getElementById(id)) return; js=d.createElement(s); js.id=id;
+js.src="https://platform.twitter.com/widgets.js"; 
+fjs.parentNode.insertBefore(js, fjs);
+return window.twttr || (t = { _e: [], 
+  ready: function(f){
+   t._e.push(f) 
+ } });
+}(document, "script", "twitter-wjs"));
+//console.log(window)
+
+return fnt;
+
+
+}//twitterShare
+        
+    return self
+}]);
 
 var tConfig = function($mdThemingProvider) {
 

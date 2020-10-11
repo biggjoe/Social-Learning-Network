@@ -22,7 +22,7 @@ include 'header.php';
 
  
  ?>
-<div class="home-body-class">
+<div class="home-body-class" ng-cloak>
 
 
 <div class="page-header plain-bg-pattern">

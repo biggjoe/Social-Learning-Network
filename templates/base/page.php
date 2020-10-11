@@ -9,7 +9,7 @@ include 'header.php';
 ?>
 
 
-<div class="home-body-class">
+<div class="home-body-class" ng-cloak>
 
 
 <div class="page-header">
@@ -38,7 +38,6 @@ include 'header.php';
     <?php
 if($_GET['url'] == 'faq'){ ?>
 <div ng-controller="faqCtrl" class="px10 pt20 pb30">
-<div class="bolder txt-h4 mb10">Frequently Asked Questions</div>
 
 <ul class="faq bg-white curv">
 <li  id="{{'s'+$index}}" ng-repeat="item in faq" ng-init="tclass = 's'+item.id" ng-click="dropFaq($event)">
@@ -60,7 +59,6 @@ if($_GET['url'] == 'faq'){ ?>
      
 <?php if($_GET['url'] == 'terms'){ ?>
 <div ng-init="getThisPage(2)">
-<div class="bolder txt-h4 mb10"ng-bind-html="page.name"></div>
 <div class="card-body" ng-bind-html="page.content"></div>
 </div>
 <?php } ?> 
@@ -68,14 +66,12 @@ if($_GET['url'] == 'faq'){ ?>
      
 <?php if($_GET['url'] == 'how-it-works'){ ?>
 <div ng-init="getThisPage(4)">
-<div class="bolder txt-h4 mb10"ng-bind-html="page.name"></div>
 <div class="card-body" ng-bind-html="page.content"></div>
 </div>
 <?php } ?> 
      
 <?php if($_GET['url'] == 'contact-us'){ ?>
 <div ng-init="getThisPage(3)">
-<div class="bolder txt-h4 mb10"ng-bind-html="page.name"></div>
 <div class="card-body" ng-bind-html="page.content"></div>
 </div>
 <?php } ?> 
@@ -83,7 +79,6 @@ if($_GET['url'] == 'faq'){ ?>
      
 <?php if($_GET['url'] == 'about-us'){ ?>
 <div ng-init="getThisPage(1)">
-<div class="bolder txt-h4 mb10"ng-bind-html="page.name"></div>
 <div class="card-body" ng-bind-html="page.content"></div>
 </div>
 <?php } ?> 

@@ -1,0 +1,114 @@
+<md-dialog class="responsive dialer"> 
+
+  <md-toolbar  class="responsiver bg-purple">
+      <div class="md-toolbar-tools txt txt-sm" style="color: #fff !important;">
+      	<span class="fas fa-user-plus"></span> 
+          <span>&nbsp; Invite Friends</span>
+
+
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+          <md-icon> <span class="fas fa-close fa-1-and-half"></span></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+ <md-dialog-content>
+<div ng-cloak  class="md-dialog-content px0 py0"   ng-init="ld.mode = 'wallet'"> 
+
+<form name="authForm">
+
+<md-tabs md-border-bottom md-dynamic-height class="md-default">
+<md-tab md-on-select="notify = ''">
+<md-tab-label>
+<span><i class="fab fa-whatsapp"></i> &nbsp; BY WHATSAPP </span>
+</md-tab-label>
+<md-tab-body>
+
+
+<div class="md-padding md-content">
+<md-progress-linear ng-show="isLoading" md-mode="indeterminate"></md-progress-linear>  
+
+<div ng-bind-html="imessage"></div>
+<div ng-hide="hideForm">
+<div class="py5" layout="{{listers.length > 0 ? 'row':'column'}}"> 
+<span flex></span>
+<button class="btn  btn-primary {{listers.length > 0 ? 'btn-xsm':'btn-sm'}}" ng-click="addNums(listers)"><i class="fas fa-plus"></i> &nbsp;ADD {{listers.length > 0 ? 'MORE':'PHONE NUMBERS'}} </button>   
+</div>
+
+
+
+<div class="form-group input-group relative" ng-repeat="item in listers">
+<input style="padding-left: 55px; padding-right: 55px;"
+ type="text" class="form-control" placeholder="Enter Phone Number" name="Phone"   ng-model="item.number">
+
+<span class="input-group-prepend">
+<button class="btn input-group-text"><i class="fas fa-phone"></i></button> 
+</span>
+
+<span class="input-group-append"> 
+<button  ng-click="removeNum(listers,item)" class="btn btn-danger bolder"><i class="fas fa-trash"></i></button>
+</span>
+</div><!--relative-->
+
+
+<div class="form-group" ng-show="listers.length > 0">
+<button type="submit" ng-disabled="listers.length < 1 || listers[0].number =='' || isLoading" class="btn btn-sm btn-primary" ng-click="sendInvite(listers,'phone')">  <i class="fas fa-spin fa-circle-notch" ng-if="isLoading"></i>
+&nbsp;Send Invite
+</button>
+</div>
+
+
+</div>
+
+</div><!--</md-content>-->
+
+</md-tab-body>
+</md-tab>
+
+
+<md-tab md-on-select="notify = ''">
+<md-tab-label>
+<span><i class="fas fa-envelope"></i> &nbsp; EMAIL  </span>
+</md-tab-label>
+<md-tab-body>
+
+
+<div class="md-padding md-content">
+<md-progress-linear ng-show="isLoading" md-mode="indeterminate"></md-progress-linear>    
+
+
+<div ng-bind-html="imessage"></div>
+
+<div ng-hide="hideForm">
+<div class="form-group relative"> 
+<textarea class="form-control" placeholder="Enter Email Addresses; Separate with comma..." ng-model="ld.invite_mail" ng-init="ld.invite_mail = ''"></textarea>
+</div>
+
+
+<div class="form-group">
+<button type="submit" ng-disabled="ld.invite_mail.length == ''" class="btn btn-sm btn-primary" ng-click="sendInvite(ld,'email')">  <i class="fas fa-spin fa-circle-notch" ng-show="isLoading"></i>
+&nbsp;Send Invite</button>
+</div>
+
+
+</div>
+</div><!--md-content-->
+
+</md-tab-body>
+</md-tab>
+
+
+</md-tabs>
+
+
+
+
+</div>
+
+</md-dialog-content>
+
+</md-dialog>
+
+
+

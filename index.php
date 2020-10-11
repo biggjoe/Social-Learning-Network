@@ -9,10 +9,6 @@ $pageNavClass = ' sticky-there ';
 $doAngular = 'homeAngular';
 $angularApp = ' ng-app="home.controller" ng-controller="homeCtrl" ';
 $fnx = '<script type="text/javascript">
-function navFn() {
-var element = document.getElementById("navDiv");
-element.classList.toggle("force-show");
-}//myFunction
 // When the user scrolls the page, execute myFunction
 window.onscroll = function() {scrFun()};
 // Get the header
@@ -34,7 +30,7 @@ function scrFun() {
 include 'templates/base/header.php';
 ?>
 
-<div class=" home-wrap-class ">
+<div class=" home-wrap-class " ng-cloak>
 <div id="dheader" class=" py30  ">
 	<div class="body-container">
 <?php include 'templates/base/top-nav.php'; ?>
@@ -188,7 +184,7 @@ layout-align="start center">
 
 <div class="pos-top-marg row-home align-items-center">
 <div class="row-col-12 row-col-lg-6 home-intro "> 
-<h1 class="color-white">You can also take Sensei.ng wherever you go</h1>
+<h1 class="color-white">You can also take SLN.ng wherever you go</h1>
 <h4 class="color-white"><strong><u>Social Learning Network</u></strong> is also available on mobile. Our sleek and user friendly interface makes it super easy to use on smaller screens.</h4>
 
 
@@ -233,11 +229,11 @@ Get unlimited and fast-tracked answers
 <div class="row-col-12 row-col-lg-6"> 
 
 <ul>
-	<li>Get boosted activity feed</li>
-	<li>Get boosted activity feed</li>
-	<li>Get boosted activity feed</li>
-	<li>Get boosted activity feed</li>
-	<li>Get boosted activity feed</li>
+	<li>Get boosted activity feed on your dashboard</li>
+	<li>Get your questions forwarded to our most active mentors</li>
+	<li>Get realtime notifications of connections' activities</li>
+	<li>Get to see many restricted activities and sections</li>
+	<li>Buy premium articles at discounted price</li>
 </ul>
 </div><!--intro-->
 

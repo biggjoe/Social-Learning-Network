@@ -1,0 +1,18 @@
+<md-menu md-position-mode="target-left target" >
+<button class="px0 py0 md-primary  no-style"  ng-click="$mdOpenMenu()"><i class="fas fa-square"></i> &nbsp; Mark As<span class="sm-hide"></span> <i class="fas fa-chevron-down"></i></button>
+<md-menu-content class="flat" width="2">
+<md-subheader class="bolder"><i class="fas fa-square"></i> Mark As </md-subheader>
+<md-menu-item class="flat" layout="column">
+<a href class="py5 px20" ng-click="exeMark('unread',allMessages)">
+<i class="fas fa-envelope"></i> &nbsp; Unread </a>
+<md-menu-divider></md-menu-divider> 
+</md-menu-item>
+<md-menu-item class="flat" layout="column">
+<a href class="py5 px20" ng-click="exeMark('read',allMessages)">
+<i class="fas fa-envelope-open"></i> &nbsp; Read </a>
+<md-menu-divider></md-menu-divider> 
+</md-menu-item>
+
+</md-menu-content>
+</md-menu-bar>
+        

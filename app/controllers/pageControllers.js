@@ -25,7 +25,6 @@ $rootScope.thisPage  ='tp';
 //toState.params
 //$rootScope.rootTopic = toState.views.params.pageTitle;
 $rootScope.dashCats  =  [
-{title:'Report Samples', url:'sample', icon:' fa-file-pdf '},
 {title:'FAQ', url:'faq', icon:' fa-question-circle '},
 {title:'Contact Us', url:'contact-us', icon:' fa-phone '},
 {title:'How it Works', url:'how-it-works', icon:' fa-book '},

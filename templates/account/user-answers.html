@@ -4,13 +4,25 @@
 
 
 <md-list class="">
-<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<comment-holder></comment-holder>
+
 <div class="list-item-cover shadow-md"
              ng-repeat="item in user_answers"  ng-init="item.index = $index">
 <feed-item item="item" location="user-answers"></feed-item>
 </div><!--ng-repeat-->
 </md-list>
         
+
+
+<div class="list-item-cover shadow-md"  ng-if="(!user_answers || user_answers.length <=  0) && !isFetching">
+<md-list-item  class="md-2-line">
+    <md-icon  class="md-avatar-icon has-awesome"> <i class="fas status-cancelled fa-exclamation-triangle"></i> </md-icon>
+    <div  class="md-list-item-text"  layout="column"  flex>
+    <h3 class="boldest main-font">No Articles Yet</h3>
+    </div>
+  </md-list-item>
+</div>
+
        
 <div class="txt-center py10"  ng-show="user_answers.length > 0">
 <span class="inline-block">

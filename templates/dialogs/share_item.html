@@ -1,0 +1,80 @@
+<md-dialog class="responsive" aria-label ="List Depts"> 
+
+  <md-toolbar class="responsiver">
+      <div class="md-toolbar-tools">
+        <span style="color: #fff !important;">  <span class="fas fa-share-alt"></span> &nbsp;Share {{ modalItem.share_type}} </span>
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click=" closeThisDialog()">
+<md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+</md-button>
+      </div>
+    </md-toolbar>
+<md-dialog-content>
+
+
+
+<div class="md-dialog-content px20 pt20">
+<div class="pb10 boldest txt-md">{{ modalItem.title | trusted}}</div>
+
+<div class="pb10 bold">SHARE ON:</div>
+
+
+<section class="shadow-md bg-white border-radius-8">
+<div ng-repeat="item in  shareList">
+  
+<md-list-item ng-show="item.mode == 'feed' &&  isLogged"
+ng-click=" modalItem.mode = 'activity_feed' ;   modalItem.index = $index ;  shareToFeed( modalItem)">
+<md-icon  class="md-avatar-icon has-awesome"> <i class="{{item.icon}}"></i> </md-icon>
+<md-truncate flex>My Activity Feed  </md-truncate>
+<span class="secondary txt-xsm" ng-bind-html="item.message"></span>
+<span class="secondary" ng-show="item.loading"><i class="fa-circle-notch fa-spin fas"></i></span> 
+<md-divider></md-divider>
+</md-list-item>
+
+
+<md-list-item ng-show="item.mode == 'facebook'"
+ng-click=" modalItem.shareUrl = item.url ;  modalItem.index = $index ;  modalItem.mode = 'facebook' ;  fbShare( modalItem)">
+<md-icon  class="md-avatar-icon has-awesome"> <i class="{{item.icon}}"></i> </md-icon>
+<md-truncate flex>Facebook  </md-truncate>
+<span class="secondary txt-xsm" ng-bind-html="item.message"></span>
+<span class="secondary" ng-show="item.loading"><i class="fa-circle-notch fa-spin fas"></i></span> 
+<md-divider></md-divider>
+</md-list-item>
+
+
+
+<md-list-item  ng-show="item.mode == 'twitter'"
+ ng-click=" 
+ modalItem.mode = 'twitter' ; 
+ modalItem.tweet_url = item.url ;  
+ modalItem.index = $index ;  tweetItem( modalItem)">
+<md-icon  class="md-avatar-icon has-awesome"> <i class="{{item.icon}}"></i> </md-icon>
+<md-truncate flex>Twitter </md-truncate>
+<span class="secondary txt-xsm" ng-bind-html="item.message"></span>
+<span class="secondary" ng-show="item.loading"><i class="fa-circle-notch fa-spin fas"></i></span> 
+<md-divider ng-if="!$last"></md-divider>
+</md-list-item>
+
+<!--
+
+<md-list-item  ng-show="item.mode == 'linkedin'"
+ ng-click=" modalItem.mode = 'linkedin' ;  modalItem.index = $index ;  linkedinShare( modalItem)">
+<md-icon  class="md-avatar-icon has-awesome"> <i class="{{item.icon}}"></i> </md-icon>
+<md-truncate flex>LinkedIn </md-truncate>
+<span class="secondary txt-xsm" ng-bind-html="item.message"></span>
+<span class="secondary" ng-show="item.loading"><i class="fa-circle-notch fa-spin fas"></i></span> 
+<md-divider></md-divider>
+</md-list-item>
+-->
+
+
+</div><!--ng-repeat-->
+
+
+
+</section>
+
+
+</div>
+</md-dialog-content>
+</md-dialog>

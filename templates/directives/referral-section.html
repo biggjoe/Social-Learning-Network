@@ -1,0 +1,49 @@
+<section>
+	isFetching :: {{isFetching}}
+<load-holder toshow="isFetching" tohide="!isFetching"></load-holder>
+referral::{{referral.ref_list}}
+<div ng-if="referral">
+<div ng-if="mode !== 'referral'" class="txt-xxsm"> &nbsp;{{isFetching ? 'Fetching Referral Summary':'Referral Summary'}}</div>
+<div  class="shadow-md bg-white border-radius mb20">
+<div  layout-xs="column" layout-gt-xs="row" layout-gt-md="row" layout-gt-sm="row">
+<div class="px10 py10 border-bottom" flex>
+<strong>Total Referred</strong>
+<h1 class="responsive mb0"> <span class="pb10"><i class="fas txt-xsm fa-users"></i></span>  {{referral.total_referred | number}}</h1> 
+<a ng-if="mode !== 'referral'" href="account/referral" class="view-details txt-xsm bolder">View Details &nbsp;<i class="fas fa-arrow-right"></i> </a>
+</div><!--col-->
+<md-divider class="px20"></md-divider>
+<div class="px10 py10 text-right" flex>
+  <div class="txt-h5 bolder pb10">Referral Points </div>
+<div layout="row">
+
+<div flex>
+<span>Pending</span><h3 class="responsive color-warn">{{referral.not_approved | number}}</h3>
+</div>
+<md-divider class="px20"></md-divider>
+<div class="px10" flex>  
+<span>Verified</span><h3 class="responsive color-good bold">{{referral.approved_not_redeemed | number}}</h3>
+<!--<a ng-if="mode=='referral'" href ng-click="convert2Cash()" class="btn-xxsm btn py5 px10 btn-outline-primary shadow-none txt-xxsm bold">Convert To Funds <i class="fas fa-arrow-right"></i></a>
+-->
+<convert-ref-btn data="referral"></convert-ref-btn>
+
+</div>
+
+</div><!--row-->
+</div><!--col-->
+</div><!--row-->
+
+
+<div ng-if="mode=='referral'">
+<md-divider></md-divider>
+<div class="py10 px10" layout="row">
+<span class="" flex>
+<button ng-click="launchInvite(listers)" class="btn btn-sm btn-secondary"> <i class="fas fa-user-plus"></i> &nbsp; INVITE  FRIENDS </button>
+</span><!--col-->
+<span class="text-right" flex></span><!--col-->
+</div><!--row-->	
+</div><!--ifref-->
+</div><!--md-card-->
+
+
+</div>
+</section>

@@ -476,7 +476,7 @@ $uhost = $_SERVER['HTTP_HOST'];
 $params = explode('.', $uhost);
 $pr = (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') ? 
 'http://':'https://';
-return $pr.$server.'/quora/';
+return $pr.$server.'/';
 }//getBaseUrl()
 
 

@@ -2,31 +2,92 @@
 
 
 
-
-
 <md-list class="border-top">
-<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<comment-holder></comment-holder>
 
- <div class="list-item-cover shadow-md">
-
+ <div class="list-item-cover shadow-md relative">
+<!--
  	<md-subheader>
 	<div layout="row" layout-align="start center">
 	<span  class="boldest" flex><i class="fas fa-bell"></i>&nbsp;{{userData.notifNum}} Unread </span>
 	<span class="txt-sm"></span>
 </div>
 </md-subheader>
+-->
+<div class="subheader">
+ <div class="border-bottom sticky" ng-hide="viewSet">
 
+<ul class="list-all" layout="row">
+<li class="fth">
+<button class="btn-clear" title="Select Messages"  ng-click="viewSet = !viewSet"><i class="fas fa-square"></i></button>
+</li>
+<li class="bold pl10 txt-md" flex>
+Notifications
+</li>
+<li class="l-spacer"></li>
+<li class="text-right px20">
+<span><i class="fas fa-bell"></i>&nbsp;{{userData.notifNum}}<span class="sm-hide"> Unread</span></span>
+</li>
+
+</ul><!--list-all-->
+
+ </div>
+
+
+<div class="border-bottom boxme" ng-show="viewSet"> 
+<ul class="list-all" layout="row">
+<li class="text-center fth">
+<button class="btn-clear " title="Undo"  ng-click="viewSet = !viewSet ; unMarkAll(notifications)"><i class="fas fa-arrow-left"></i></button>
+</li>
+
+
+  <li class="">
+    <button class="btn-clear" ng-disabled="selected_messages.length <= 0" title="Delete Messages"  ng-click="exeMark('delete',notifications)">
+      <span><i class="fas fa-trash"></i><span class="sm-hide"> &nbsp; Delete</span></span></button>
+  </li><!--fth-->
+  
+
+
+  <li class="">
+    <button class="btn-clear" ng-disabled="selected_messages.length <= 0" title="Mark Messages as"><span ng-include="'templates/dialogs/notifications-mark-options.html'"></span>
+    </button>
+  </li>
+
+  <li ng-if="selected_messages.length > 0"> <a><strong>({{selected_messages.length}})</strong></a>
+  </li>
+<li class="l-spacer"></li>
+</ul><!--list-all-->
+    </div>
+  </div><!--md-subheader-->
+<div class="block"></div>
  <div ng-repeat="item in notifications | filter: search.notifications"  ng-init="item.index = $index" class="{{last ? '':'border-bottom'}}">
 <md-list-item class="md-2-line" ng-click="launchPreview(item)">
-<span class="md-icon-avatar has-awesome"><i class="fas {{item.status == 1 ? 'fa-bell-slash':'fa-bell'}}"></i>  </span>
+<span  ng-hide="viewSet" class="md-icon-avatar has-awesome"><i class="fas {{item.status == 1 ? 'fa-bell-slash':'fa-bell'}}"></i>  </span>
+
+<md-checkbox class="md-primary" ng-show="viewSet" 
+ng-model="item.selected"
+ng-click="toggleSelection(item)"
+aria-label="Select Message"
+name="selectedOptions[{{$index}}]"
+ng-checked="selected_messages.indexOf(item) > -1"></md-checkbox>
 
 <div class="md-list-item-text">
-<h3 class="{{item.status == 1 ? 'bold':'boldest'}} main-font" ng-bind-html="((item.detail | trusted) | limitTo:'10')"></h3>
+<h3 class="{{item.status == 1 ? 'bold':'boldest'}} main-font">{{limitWords(strip_tags(item.detail),7)}}</h3>
 <p><span>{{item.ndate*1000 |  getTime}}</span></p>
 </div>
 
+
 </md-list-item>
 </div>
+
+
+<md-list-item  class="md-2-line"  ng-if="(!notifications || notifications.length <=  0) && !isFetching">
+    <md-icon  class="md-avatar-icon has-awesome"> <i class="fas status-cancelled fa-exclamation-triangle"></i> </md-icon>
+    <div  class="md-list-item-text"  layout="column"  flex>
+    <h3 class="boldest main-font">No Notifications Yet</h3>
+    </div>
+  </md-list-item>
+
 </div>
 </md-list>
         

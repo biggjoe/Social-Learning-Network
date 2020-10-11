@@ -1,9 +1,9 @@
 
-<!--</div> body-wrapper Ends-->
+ <!--</div>body-wrapper Ends-->
 
 
 <!-- Footer-->
-<footer id="footer">
+<footer id="footer" ng-cloak>
 <section  class="bg-grax py30">
 <div class="wrap">
 
@@ -67,6 +67,6 @@
 
 </section>
 </footer><!-- Footer end -->
-  
+<?php echo $libraries; ?>
 </body>
 </html>

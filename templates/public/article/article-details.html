@@ -55,27 +55,12 @@
 
 
 <form name="com_form">
-<div class="pxy20 mb10 bordered border-radius-16 color-danger">
+<div ng-if="article_details.guest_commenter" class="pxy20 mb10 bordered border-radius-16 color-danger">
  <i class="fas fa-exclamation-triangle"></i>&nbsp;	You need to be logged in to 
  your account to submit comments
 </div>
 <div ng-if="article_details.guest_commenter">
-<div class="mb10">
-<input class="form-control input-sm" required type="text" ng-model="a.email" placeholder="Enter Email">
-</div>
-
-<div class="mb10">
-<input class="form-control input-sm" required type="password" ng-model="a.password" placeholder="Enter your password">
-</div>
-
-<div class="mb10">
-<button  ng-disabled="com_form.$error.required"
-ng-click="loginC(a)" class="md-primary md-raised px15 mx0 my0 md-button">
-	<i class="fas fa-sign-in-alt"></i>&nbsp; Login </button>
-</div>
-<div class="txt-sm">
-	Not yet registered?<a href="./register"> Sign Up here</a>
-</div>
+<quick-login></quick-login>
 </div><!--if_guest-->
 
 
@@ -97,7 +82,8 @@ ng-click="saveComm(article_details)" class="md-primary md-raised px15 mx0 my0 md
 </div><!--comment-form-->
 
 
-<div class="border-bottom py10 mb10" ng-repeat="item in article_details.all_comments">
+<div ng-repeat="item in article_details.all_comments" class="{{!$last ? 'border-bottom':''}} py10 mb10 faders boxme txt-gray txt-sm" 
+ng-show="true">
 
 <div layout="row">
 <div class="profiler">

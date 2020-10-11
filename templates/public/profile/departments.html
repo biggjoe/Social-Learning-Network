@@ -1,9 +1,9 @@
-<sticky-header icon="fa-bank" title="Departments"></sticky-header>
-
-<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>  
 
  <md-list class="px10 py10">
+<comment-holder></comment-holder>
+
 <div class="bordered border-radius-8 shadow-md">
+<md-subheader class="boldest">Interested Departments({{user_public_departments.length | number}})</md-subheader>
 <div ng-repeat="item in user_public_departments"  ng-init="item.index = $index">
 <department-item item="item" mode="followers"></department-item>
 </div><!--ng-repeat-->

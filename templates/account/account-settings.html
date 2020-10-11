@@ -3,7 +3,7 @@
 
 <ul class="bg-white sect-nav sticky">
 	<li ng-repeat="item in profile_tabs">
-		<a ng-click="setTab(item.url)" href="account/account-settings/{{item.url}}" ng-class=" navTab === item.url ? 'active':'' "> <span><i class="fas {{item.icon}}"></i></span><span class="sm-hide">&nbsp; {{item.name}}</span></a>
+		<a ng-click="setTab(item.url)" href="account/account-settings/{{item.url}}" ng-class=" navTab === item.url ? 'active':'' "> <span><i class="fas {{item.icon}}"></i><span class="sm-hide">&nbsp; {{item.name}}</span></a>
 	</li>
 </ul>
 

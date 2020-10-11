@@ -201,6 +201,17 @@ doPay.setScope('modalItem',{message:'Payment Verifiation Error.<br> Please Reque
 }//cardPayCallback
 
 
+
+
+
+
+$scope.onCloseCallback = function(reference){
+dopay.nullifyPay(reference).then(function(reks){
+  console.log(reks)
+});//nulifyPay
+}//onCloseCallBack
+
+
 var initPay = function(){
 $scope.pstk_data.isLoading = true;
 par_scope.modalItem.isPaying  = true;

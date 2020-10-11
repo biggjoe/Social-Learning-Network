@@ -21,14 +21,14 @@ include 'header.php';
 
  
  ?>
-<div class="pane-container">
+<div class="pane-container" ng-cloak>
 
 <div class="side-pane">
 
   <ul class="naviga">
   <div class="px10 py10 mb10 border-bottom" layout="row" layout-align="start center">
 <div class="profiler relative">
-  <span class="profile-small" style="background: url({{userData.avatar}});">
+  <span class="profile-avatar" style="background: url({{userData.avatar}});">
     <a href ng-click="launchPic()" class="fas fa-camera abs-center txt-md"></a>
   </span>
 </div>
@@ -67,6 +67,15 @@ include 'header.php';
     </li><li>
       <a href="account/wallet">
         <i class="fas fa-folder-open"></i>&nbsp; Wallet<md-tooltip></md-tooltip></a>
+    </li><li>
+      <a href="account/referral">
+        <i class="fas fa-people-arrows"></i>&nbsp; Referral<md-tooltip></md-tooltip></a>
+    </li><li>
+      <a href="account/withdrawals">
+        <i class="fas fa-money"></i>&nbsp; Withdrawals<md-tooltip></md-tooltip></a>
+    </li><li>
+      <a href="account/transactions">
+        <i class="fas fa-list"></i>&nbsp; Transactions<md-tooltip></md-tooltip></a>
     </li><li>
       <a href="account/account-settings">
         <i class="fas fa-cogs"></i>&nbsp; Account

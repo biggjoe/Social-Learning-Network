@@ -1,0 +1,32 @@
+<md-dialog class="responsive dialer"> 
+
+  <md-toolbar  class="responsiver bg-purple">
+      <div class="md-toolbar-tools txt txt-sm" style="color: #fff !important;">
+      	<span class="fas {{modalData.pageIcon || 'fa-columns'}}"></span> 
+        	<span>&nbsp; {{modalData.pageTitle || 'Dialog'}}</span>
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+          <md-icon> <span class="fas fa-close fa-1-and-half"></span></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+ <md-dialog-content>
+<div ng-cloak  class="md-dialog-content"> 
+<show-tranx ng-if="modalData.ctrl == 'transactionsCtrl'" modaldata="modalData"></show-tranx>
+<show-draw ng-if="modalData.ctrl == 'withdrawalCtrl'" modaldata="modalData"></show-draw> 
+<new-draw ng-if="modalData.ctrl == 'newDrawCtrl'" modaldata="modalData"></new-draw> 
+<convert-campaign-fund ng-if="modalData.ctrl == 'convertCampaignCtrl'" modaldata="modalData"></convert-campaign-fund>
+<convert-ref-point ng-if="modalData.ctrl == 'convertRefPointCtrl'" modaldata="modalData"></convert-ref-point>
+
+<show-notif ng-if="modalData.ctrl == 'notificationsCtrl'" modaldata="modalData"></show-notif> 
+
+<show-ann ng-if="modalData.ctrl == 'announcementCtrl'" modaldata="modalData"></show-ann>
+<show-settle ng-if="modalData.ctrl == 'settleCtrl'" modaldata="modalData"></show-settle>
+
+
+</div>
+</md-dialog-content>
+
+
+</md-dialog>

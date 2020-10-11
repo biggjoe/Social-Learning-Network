@@ -1,0 +1,13 @@
+<md-menu md-position-mode="target-left target" >
+<span class="inline-block"> <a class=""  ng-click="$mdOpenMenu()"><i class="fas fa-chevron-down"></i></a></span>
+<md-menu-content class="flat" width="2">
+<md-subheader class="bolder"><i class="fas fa-square"></i> Select </md-subheader>
+<md-menu-item class="flat" ng-repeat="item in selectOpts" layout="column">
+<a href class="py5 px20" ng-click="setMark(item.value,allMessages)">
+<i class="fas {{item.icon}}"></i> &nbsp; {{item.title}} </a>
+<md-menu-divider></md-menu-divider> 
+</md-menu-item>
+
+</md-menu-content>
+</md-menu-bar>
+        

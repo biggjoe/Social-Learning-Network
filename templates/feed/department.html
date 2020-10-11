@@ -4,12 +4,36 @@
 icon="fa-stream" 
 title="{{department_details.name}}"
 item="department_details"
+list="department_feed"
 >
 </sticky-header>
 
 
+<div class="py10 bg-white sticky px10 border-bottom article-meta txt-gray" layout="row" 
+layout-align="start center">
+<span flex>
+  <button class=" md-raised btn btn-clear px10"> 
+  <span class="bolder"><i class="fas fa-question-circle"></i><span class="sm-hide">&nbsp;Topics</span></span>&nbsp;{{department_details.topics_num | number}}</button>
+  <button class=" md-raised btn btn-clear px10"> 
+  <span class="bolder"><i class="fas fa-edit"></i><span class="sm-hide">&nbsp;Answers</span></span>&nbsp;{{department_details.answer_num | number}}</button>
+
+
+</span>
+
+<div class="">
+ <button ng-click="sItem('follow_topic')" 
+  class=" md-raised btn btn-clear px10">
+  <span class="bolder"><i class="fas fa-rss"></i><span class="sm-hide">&nbsp;Follow </span></span>&nbsp;{{department_details.department_follows | number}} </button> 
+</div>
+</div>
+
+
+
 <md-list class="">
-<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<!--<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>-->
+
+<comment-holder></comment-holder>
+
 <div class="list-item-cover shadow-md"
              ng-repeat="item in department_feed"  ng-init="item.index = $index">
 <feed-item item="item" location="department-feed"></feed-item>

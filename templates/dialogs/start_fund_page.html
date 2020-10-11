@@ -1,0 +1,225 @@
+<md-dialog class="responsive"> 
+
+  <md-toolbar class="responsiver" ng-hide="ngDialogData.hideTitle">
+      <div class="md-toolbar-tools" style="color: #fff !important;">
+      	<span class="fas fa-bank"></span> 
+        	<span>&nbsp; SUBMIT PAYMENT</span>
+        <span flex></span>
+        <md-button aria-label="Close This" class="md-icon-button" ng-click="closeThisDialog()">
+          <md-icon> <span class="fas fa-times fa-1-and-half"></span></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+ <md-dialog-content>
+<div class="px20 py20" ng-show="!modalItem.is_parsed">
+
+<div flex class="form-group" layout="row">
+  <div class="" flex>Amount to Fund</div>
+  <div>
+<input type="number" class="form-control" ng-model="modalItem.service_cost" placeholder="Amount to fund">
+</div>
+</div>
+
+<div layout="row">
+  <span flex></span>
+<span>
+<md-button class="md-primary md-raised px20 mx0 my0 md-button py7 btn-block" 
+ng-click="parsePay(modalItem)"> 
+<i class="fas fa-send"></i> Continue &nbsp;<i class="fas fa-arrow-right"></i>
+  </md-button>
+</span>
+</div>
+</div>
+
+
+<div class="boxme" ng-hide="modalItem.isPaying || !modalItem.is_parsed || modalItem.is_pay_bank" ng-show=" modalItem.is_parsed">
+
+
+<md-list-item class="md-1-line">
+<div class="list-item-text txt-md bolder py10">{{modalItem.transactionName}}</div>
+<md-divider></md-divider>
+</md-list-item>
+
+
+<md-list-item class="md-1-line">
+<div class="list-item-text bolder" layout="column">Cost</div>
+<span class="md-secondary">{{modalItem.service_cost | currency:'₦'}}</span>
+<md-divider></md-divider>
+</md-list-item>
+
+<md-list-item class="md-1-line" ng-show="modalItem.service_charge > 0">
+<div class="md-list-item-text bolder" layout="column">Service Charge</div>
+<span class="md-secondary">{{modalItem.service_charge | currency:'₦'}}</span>
+<md-divider></md-divider>
+</md-list-item>
+
+
+
+<md-list-item class="md-1-line" ng-show="modalItem.service_discount > 0">
+<div class="md-list-item-text bolder" layout="column">Discount</div>
+<span class="md-secondary">{{modalItem.service_discount+'%'}}</span>
+<md-divider></md-divider>
+</md-list-item>
+
+
+<md-list-item class="md-1-line">
+<div class="md-list-item-text bolder" layout="column">Amount Payable</div>
+<span class="md-secondary">{{modalItem.dueAmount | currency:'₦'}}</span>
+<md-divider></md-divider>
+</md-list-item>
+
+
+
+<md-list-item class="md-1-line">
+<div class="md-list-item-text bolder" layout="column">Txn Ref.:</div>
+<div class="md-secondary">
+<span ng-if="!isGenning">{{modalItem.reference}}</span>
+<span ng-if="isGenning">
+<i class="fas fa-circle-notch fa-spin  fas-spin"></i> Loading Txn. Reference</span>
+</div>
+<md-divider></md-divider>
+</md-list-item>
+
+
+<!--pay-buttons-->
+<div class="txt-em px20 py10">Complete Payment with: </div>
+<div class="px10 pb10">
+ <div class=" grp-btn-flex text-center" >
+<button 
+class="md-primary md-raised px20 mx0 my0 md-button py7 btn-block"
+ng-click="modalItem.is_pay_bank = true"
+>
+  VIA BANK DEPOSIT
+</button>
+
+
+
+
+
+<paystack-pay-button
+payload="modalItem"
+callback="payCallback"
+btnclass="md-warn md-raised px20 mx0 my0 md-button py7 btn-block "
+text="DEBIT CARD "
+></paystack-pay-button> 
+</div>
+ 
+</div><!--pay-buttons-->
+
+
+</div><!--!hide_summary-->
+
+
+
+<div ng-cloak class="boxme px0 py10 md-dialog-content" ng-if="modalItem.is_pay_bank"> 
+
+<md-progress-linear ng-show="isLoading" md-mode="indeterminate"></md-progress-linear>
+
+
+<div class="px20 pb20"  ng-hide="hasPaid">
+<div class="txt-md pb10" ng-show="!is_sent">
+<p>
+  Please make sure you have deposited funds in our bank account with details below, then come back here to submit details of that payment.
+</p>
+<div class="py10 px5 border-top boxme">
+<strong>Make your deposit to:</strong><br>
+<strong>Bank</strong>: ===<br>
+<strong>Acc. Number</strong>: ====<br>
+<strong>Acc. Name</strong>: ====<br>
+<strong>Type</strong>: Current<br>
+
+</div>
+
+</div>
+<md-divider></md-divider>
+<div class="text-center" ng-show="is_sent" ng-bind-html="join_message"></div>
+<div class="px10 pt10" layout="row" layout-align="start center">
+<span flex><button ng-disabled="isLoading" ng-click="start_pay()" class="btn btn-primary btn-bordered btn-md btn-block">
+<i class="fas {{isLoading ? 'fa-circle-notch fa-spin':'fa-check'"></i>
+&nbsp;I have paid, Continue </button>
+</span>
+
+
+<span>
+  <button ng-disabled="isLoading" ng-click="closeThisDialog()" class="btn btn-warning btn-bordered btn-md shadow-none">
+<i class="fas fa-thumbs-up"></i>
+&nbsp;Ok, Got it </button>
+</span>
+</div>
+
+</div><!--!is_not_served-->
+
+
+
+
+<div ng-show="hasPaid" class="boxme px20 py20">
+<md-progress-linear ng-show="isLoading" md-mode="indeterminate"></md-progress-linear>    
+<div ng-bind-html="imessage"></div>
+
+<div ng-hide="hideForm">
+
+<div class="form-group" ng-init="ld.bank_name = ''">
+<input type="text" class="form-control" ng-model="ld.bank_name" placeholder="Bank Name" required>
+</div>
+
+
+
+<div layout="row">
+
+<div class="form-group pr5" layout-align="start center"  flex>
+<div layout="row" class="bordered border-radius-4 mt0" style="padding-top: 4px; padding-bottom: 4px;">
+<md-datepicker style="" md-placeholder="Date of Payment" ng-model="ld.date" flex></md-datepicker>
+</div>
+</div>
+
+
+
+<div class="form-group" layout="row" ng-init="ld.depositRef = ''" flex>
+<input type="text"  class="form-control" ng-model="ld.depositRef" placeholder="Transaction Ref." required>
+</div>
+
+
+</div>
+
+
+<div layout="row">
+
+<div flex class="form-group  pr5" layout="row" ng-init="ld.depositor_phone = ''">
+<input type="text" class="form-control" ng-model="ld.depositor_phone" placeholder="Depositor Phone" required>
+</div>
+
+
+
+<div flex class="form-group" layout="row" ng-init="ld.dueAmount = modalItem.dueAmount">
+<input type="number" disabled class="form-control" ng-model="ld.dueAmount" placeholder="Amount Deposited">
+</div>
+
+</div>
+
+
+<input type="hidden" ng-init="ld.pay_mode = 'bank'"  ng-model="ld.pay_mode">
+
+<div class="form-group" layout="row" >
+<md-button ng-disabled="payForm.$error.required.length>0 || isLoading"
+type="submit" class="md-raised px20 py5  md-primary mx0 my0" ng-click="submitPay(ld)" ng-disabled="">
+<i class="fas fa-spin fa-circle-notch" ng-if="isLoading"></i>&nbsp;
+{{isLoading ? 'Sending...':'Submit Payment'}}</md-button>
+<span flex></span>
+<span>
+  <md-button class="mx0 md-button md-primary px5 py5" ng-click="hasPaid = false"> 
+<i class="fas fa-refresh"></i>
+  </md-button>
+</span>
+</div>
+
+</div><!--hasPaid-->
+
+
+
+
+
+</div><!--dialog-content-->
+
+</md-dialog-content>
+</md-dialog>

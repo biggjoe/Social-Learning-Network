@@ -98,8 +98,9 @@
 <p>Bio</p>
 <h3 class="boldest" ng-hide="hide_bio">{{userData.bio || '---'}}</h3>
 <div class="pr20 pb20">
-<textarea class="form-control input-sm" ng-model="userData.bio" ng-show="hide_bio">
-</textarea>
+
+<ng-wig  ng-model="userData.bio" ng-show="hide_bio"  placeholder="Edit Bio here..."></ng-wig>
+
 </div>
 </div>
 <span class="md-secondary">

@@ -66,11 +66,19 @@
 <div class="txt-em px20 py10">Complete Payment with: </div>
 <div class="px10 pb10">
  <div class=" grp-btn-flex text-center" >
-<pay-bank 
+<wallet-payment
+payload="modalItem"
+callback="walletCallback"
+btnclass="md-primary md-raised px20 mx0 my0 md-button py7 btn-block "
+text="WALLET ">
+</wallet-payment>
+
+<!--<pay-bank 
 payload="modalItem"
 btn_class="md-primary md-raised px20 mx0 my0 md-button py7 btn-block "
 callback="payBankFn"
 ></pay-bank>
+-->
 
 
 
@@ -89,14 +97,20 @@ text="DEBIT CARD "
 
 
 
-<div layout="row" layout-align="start center" ng-show="modalItem.isPaying && !modalItem.hide_summary" class="bordered border-radius-16 boxme px20 py20 my20 mx10">
-
+<div ng-show="modalItem.isPaying && !modalItem.hide_summary" class="bordered border-radius-16 boxme px20 py20 my20 mx10">
+<div layout="row" layout-align="start center">
 <div class="text-center txt-h5" flex class="padding md-body-2"
 ng-bind-html="modalItem.message"></div>
 
 <div class="text-center my20" ng-if="modalItem.shouldClose">
 <button class=" btn btn-sm btn-bordered btn-danger shadow-none" 
   ng-click="closeThisDialog()"> <i class="fas fa-close"></i> &nbsp; CLOSE  &nbsp; </button>
+</div>
+</div>
+
+<div class="text-center my20" 
+ng-if="modalItem.response_code === 400">
+<fund-btn></fund-btn>
 </div>
 
 

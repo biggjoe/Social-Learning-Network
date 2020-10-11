@@ -181,24 +181,35 @@ $cols = $lds['columns'];
 $joiner = $lds['joiner'];
 $bind = $lds['bind'];
 $sql = " SELECT 1 FROM $tbl WHERE $joiner  LIMIT 1 ";
+/*
+$stmt = self::$pdo->prepare($sql);
+$stmt->execute($vals); 
+$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$data = true;
+$data = $results;
+*/
 try {
 $stmt = self::$pdo->prepare($sql);
 $stmt->execute($bind);
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$rsp = count($results) > 0 ? true:false;
 $response = array(
-  'data' => $row, 
+  'response' => $rsp,
+  'data' => $results, 
   'code' => 200,
   'stmt' => $stmt, 
   'message' => 'success'
 );
 } catch (PDOException $e) {
 $response = array(
+  'response' => false,
   'data' => false,
   'code' => $e->getCode(), 
   'message' => $e->getMessage()
 );
 } catch (Exception $e) {
 $response = array(
+  'response' => false,
   'data' => false,
   'code' => $e->getCode(), 
   'message' => $e->getMessage()

@@ -1,0 +1,28 @@
+
+<div class="slide-in-up ng-leave ng-leave-active relative">
+<a class="cloxer" ng-click="closeThisDialog()" title="Close This Dialog"> <i class="fas fa-close"></i> </a>
+<div class="bolder px20 py10"><span class="fas fa-lock"></span>&nbsp; Account Authentication</div>
+
+<div class="border-top px20 pt10 pb0"  ng-init="authData = modalData.nextLoad">
+
+
+<form name="authForm">
+<div ng-bind-html="notify_message"></div>
+
+<div layout="row">
+	<div class="form-group" flex>
+<input type="password" class="form-control input-sm" placeholder="Enter Password" name="password"  ng-init="pass = ''" ng-model="pass">	
+</div>
+
+</div>
+
+<div class="form-group pb0">
+<button ng-disabled="pass.length < 3" class="btn btn-sm btn-secondary btn-block" ng-click="playAuth(authData,pass,editField)">Confirm</button>
+</div>
+
+</form>
+
+
+</div>
+
+</div>

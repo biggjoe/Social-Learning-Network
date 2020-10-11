@@ -22,7 +22,7 @@ include 'header.php';
 
  
  ?>
-<div class="pane-container">
+<div class="pane-container" ng-cloak>
 
 
 
@@ -50,8 +50,18 @@ include 'header.php';
 
 
 <div class="info-pane">
+
+<friend-suggest></friend-suggest>
+
+<div class="py10 px20 bolder" layout="row" layout-align="start center">
+<span flex>
+<i class="fas fa-bank"></i>&nbsp; Suggested Departments</span>
+<span class="pl10"><a ng-click="lSet()"> <i class="fas fa-cog"></i> </a> </span>
+</div>
+
+
   
-<div class="abs-center">ADVERT SPACE</div>
+<!--<div class="abssss-center">ADVERT SPACE</div>-->
   
 </div><!--info-pane-->
 

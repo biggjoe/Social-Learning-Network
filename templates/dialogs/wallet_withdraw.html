@@ -1,0 +1,60 @@
+
+<form name="authForm">
+
+
+<div class="">
+<md-progress-linear ng-show="isLoading" md-mode="indeterminate"></md-progress-linear>    
+<div ng-bind-html="modamodaldataata.imessage"></div>
+
+<div ng-hide="hideForm">
+
+<div class="form-group" layout="row" ng-init="modaldata.amount = ''" >
+<input placeholder="Amount to Withdraw E.g 2000" class="form-control" type="number"  ng-model="modaldata.amount">
+</div>
+
+
+<div layout="row" layout-align="center center">
+
+<div flex class="form-group pr5" layout="row" ng-init="modaldata.account_number = ''">
+<input type="text" class="form-control" ng-model="modaldata.account_number" placeholder="Account Number" required>
+</div>
+
+<div class="form-group" layout="row" flex ng-init="modaldata.account_name = ''">
+<input type="text" class="form-control" ng-model="modaldata.account_name" placeholder="Account Name" required>
+</div>
+
+
+</div>
+
+
+<div layout="row" layout-align="center center">
+
+<div flex class="form-group pr5" layout="row" ng-init="modaldata.bank_name = ''">
+<input type="text" class="form-control" ng-model="modaldata.bank_name" placeholder="Bank Name" required>
+</div>
+
+
+<div class="form-group" flex layout="row" ng-init="modaldata.account_type = ''">
+<select class="form-control" ng-model="modaldata.account_type"  required>
+	<option value="">Account Type</option>
+	<option value="savings">Savings</option>
+	<option value="current">Current</option>
+</select>
+</div>
+
+</div>
+
+<div ng-bind-html="imessage"></div>
+<div class="form-group">
+<button ng-disabled="authForm.$error.required.length>0 || modaldata.isLoading" type="submit" class="btn btn-sm btn-primary" ng-click="withdrawEarn(modaldata)">
+  <i class="fas fa-spin fa-circle-notch" ng-show="modaldata.isLoading"></i>
+&nbsp;Withdraw Earning
+</button>
+</div>
+
+</div>
+
+</div>
+
+</form>
+

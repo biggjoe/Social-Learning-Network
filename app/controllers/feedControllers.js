@@ -42,6 +42,16 @@ zapp.run([
   run,
   cartApp,
   modal){
+    $window.fbAsyncInit = function() {
+    FB.init({ 
+      appId: '375040369837254',
+      status: true, 
+      cookie: true, 
+      xfbml: true,
+      version: 'v2.4'
+    });
+};
+
 $rootScope.goBack = function() {
   window.history.back();
 }
@@ -151,6 +161,8 @@ let parax = {action:'get_topic_details',url:url};
 $http.post(app_url,parax).then(function(res){
   console.log(res)
 $scope['topic_details'] = res.data.topic_details;
+$scope['topic_details']['description'] = res.data.topic_details.title;
+$scope['topic_details']['share_page'] = 'topic';
 });
 
 //

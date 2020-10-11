@@ -7,27 +7,39 @@ return {
 restrict: 'EA',
 replace: true,
 template: `
-<div class="faders" ng-show="true"><!--
-is_answer:; {{item.is_answer}}<br>
-is_question:; {{item.is_question}}<br>
-is_comment:; {{item.is_comment}}<br>
-{{item | json}}-->
+<div class="faders" ng-show="true">
+<!--<div>location:; {{location}}</div>-->
+<div ng-if="!item.is_comment">
 <post-header></post-header>
 <post-body></post-body>
 <question-reaction-pane item="item" ng-if="item.is_question" type="topic"></question-reaction-pane>
 <answer-reaction-pane item="item"  ng-if="item.is_answer" type="topic"></answer-reaction-pane>
-<comment-reaction-pane item="item"  ng-if="item.is_comment" type="topic"></comment-reaction-pane>
 <article-reaction-pane item="item" 
-ng-if="item.is_blog || item.is_journal ||  item.is_academic">
+ng-if="item.is_blog || 
+item.is_journal ||  
+item.is_academic || 
+item.is_shared_blog || 
+item.is_shared_journal ||  
+item.is_shared_academic">
 </article-reaction-pane>
+</div><!--if_!comment-->
+<div ng-if="item.is_comment">
+<comment-item></comment-item>
+</div>
 </div>`,
-scope:{item:'=', location:'@?'},
-controller:['$scope','$rootScope', '$filter', 
-function($scope, $rootScope, $filter){
+scope:{item:'=', location:'@'},
+controller:['$scope','$rootScope', '$filter', '$timeout', 'run', 
+function($scope, $rootScope, $filter, $timeout, run){
 //console.log($scope)
-$scope.item.location = (angular.isDefined($scope.location)) ? $scope.location:false;
+$scope.strip_tags = function(text) {return run.strip_tags(text);}; 
+$scope.limitWords = function(text,num) {return run.limit_words(text,num)};         
 
 $scope.isLoaded = false;
+$scope.$watch('item', function(value){
+if(value){
+//console.log(value);
+  $scope.isLoaded = true;
+$scope.item.location = (angular.isDefined($scope.location)) ? $scope.location:false;
 $scope.item.new_comment =  $scope.item.new_answer = '';
 $scope.item.isLoading = $scope.item.is_fetching_more = false;
 $scope.qAns = $scope.cCom = false;
@@ -43,6 +55,9 @@ $scope.item.init_comment = $scope.item.comment;
 $scope.item.expand_text = false;
 $scope.item.show_expand_text = false;
 }//
+}
+
+});//watch
 
 var react_arrays = [
 {name:'answer',func:'listAnswer'},
@@ -170,7 +185,14 @@ $http.post(app_url,$scope.item).then((res)=>{
 console.log(res);
 var rs = res.data;
 $scope.item.is_loading = false;
-$scope.item.comment_list.push(rs.data);
+$timeout(function() {
+if(rs.status == '1'){
+$scope.item.new_comment = '';
+$scope.item.comment_list.unshift(rs.data);
+$scope.item.com_num = $scope.item.com_num+1;
+if($scope.cCom){$scope.cCom = false;}
+}
+}, 100);
 });
 }
 
@@ -186,18 +208,26 @@ restrict: 'EA',
 replace: true,
 template: `
 <div>
-
+<div class="py10 bg-grayed border-bottom txt-sm px20" 
+ng-if="
+item.is_shared_blog || 
+item.is_shared_academic ||
+item.is_shared_journal
+"> <i class="fas fa-share-alt"></i>&nbsp; <a class="bolder" href="{{item.sharer_url}}">{{item.sharer_name}}</a>
+ shared {{item.mode === 'blog' ? ' a blog ':' an article '}} </div>
+<div class="py10 bg-grayed border-bottom txt-sm px20" 
+ng-if="item.is_shared_topic"> 
+<i class="fas fa-share-alt"></i>&nbsp; <a class="bolder" href="{{item.sharer_url}}">{{item.sharer_name}}</a>
+ shared a topic </div>
 <md-list-item  class="md-1-line align-start">
 
 <span class="md-avatar no-topper" style="background: url({{item.avatar}});"></span>
 <div class="md-list-item-text pt5 pb10 my0">
 <div style="margin: 0; line-height: 1.2;" class="">
-<span ng-if="item.is_blog"><a class="bolder" href="{{item.author_url}}">{{item.author_name}}</a> created a blog article
+<span ng-if="item.is_blog || item.is_shared_blog"><a class="bolder" href="{{item.author_url}}">{{item.author_name}}</a> created a blog article
 </span>
-<span ng-if="item.is_academic"><a class="bolder" href="{{item.author_url}}">{{item.author_name}}</a> created an article
+<span ng-if="item.is_academic || item.is_shared_academic"><a class="bolder" href="{{item.author_url}}">{{item.author_name}}</a> created an article
 </span>
-<!--<span ng-if="item.is_comment"><a class="bolder" href="{{item.author_url}}">{{item.author_name}}</a> commented
-</span>-->
 <span ng-if="item.is_question"><a class="bolder" href="{{item.author_url}}">{{item.author_name}}</a> asked a question</span>
 <span ng-if="item.is_answer"><a class="bolder" href="{{item.author_url}}">{{item.author_name}}</a> answered {{item.location !== 'topic' ? 'a question':''}}</span>
 </div><!--title-->
@@ -229,65 +259,43 @@ template: `
 <div class="py0 px0">
 <div ng-if="item.is_answer || item.is_question" class="pt5 px20 txt-sm" 
 flex><i class="fas fa-bank"></i>&nbsp;<a href="{{item.department_dir}}">{{item.department_name}}</a></div>
-<div class="pt5 px20" ng-if="(item.is_answer ||  item.is_question) && item.location !== 'topic'">
+<div class="pt5 px20" 
+ng-if="(item.is_answer ||  item.is_question) && location !== 'topic-feed'">
  <a ng-href="topic/{{item.url}}"> 
 <h3 style="margin: 0 0 10px 0; line-height: 1.2;" 
 class="bolder main-font">{{item.title | trusted}}</h3></a>
 </div><!--post-title-->
 
-<div class="pt10 px20" ng-if="item.is_blog || item.is_journal ||  item.is_academic">
+<div class="pt10 px20" ng-if="
+item.is_blog || 
+item.is_journal || 
+item.is_academic || 
+item.is_shared_journal ||  
+item.is_shared_blog ||  
+item.is_shared_academic">
  <a ng-href="article/{{item.url}}"> 
 <h3 style="margin: 0 0 10px 0; line-height: 1.2;" 
 class="bolder main-font">{{item.title | trusted}}</h3></a>
 </div><!--article-title-->
 
-<div class="py10 px20" ng-if="item.is_answer || item.is_comment">
+<div class="py10 px20" ng-if="item.is_answer">
 <div ng-bind-html="item.init_comment"></div>
 <a ng-if="item.show_expand_text" ng-click="togShow()"> Show All&nbsp;<i class="fas fa-chevron-down"></i> </a>
 </div><!--post-comment-->
 
-<div class="py10 px20" ng-if="item.is_blog|| item.is_journal ||  item.is_academic"  
+<div class="py10 px20" 
+ng-if="item.is_blog 
+|| item.is_journal ||  
+item.is_academic || 
+item.is_shared_journal || 
+item.is_shared_blog ||  
+item.is_shared_academic
+"  
 ng-bind-html="(item.content  | trimWords:'50':'...') | trusted">
 </div><!--article-comment-->
 
 
-<div ng-if="item.is_comment" class="inner_answer">
-<a class="block " href="topic/{{item.parent_url}}">
 
-<div layout="row" layout-align="start center">
-<span class="mr10 profile-avatar-sm" 
-style="background: url({{item.parent_avatar}})"></span>
-<div>
-<span class="">
-<span class="bolder">{{item.parent_author_name}}</span> answered
-</span>
-<div class=" txt-sm"><i class="fas fa-clock"></i>&nbsp;{{item.parent_create_date*1000 |  getTime}}</div>
-</div>
-</div><!--header-->
-
-<div class="block txt-black" href="topic/{{item.parent_url}}" 
-ng-bind-html="(item.parent_comment  | trimWords:'50':'...') | trusted"></div>
-</a>
-</div><!--inner-answer-->
-
-
-
-<div ng-if="item.is_inner_comment" class="inner_answer">
-
-<div class="" layout="row" layout-align="start center">
-<span class="mr10 profile-avatar-sm" 
-style="background: url({{item.avatar}})"></span>
-<div>
-<span><span class="bolder">{{item.author_name}}</span> commented</span>
-<div class=" txt-sm"><i class="fa fa-clock"></i>&nbsp;{{item.create_date*1000 |  getTime}}
-</div>
-</div>
-</div><!--header-->
-
-<div class="block txt-black" 
-ng-bind-html="(item.comment  | trimWords:'50':'...') | trusted"></div>
-
-</div><!--inner-comment-->
 
 </div><!--post-body-->`
 
@@ -310,10 +318,10 @@ template: `
 <div class="pb20 px20 article-meta txt-gray" layout="row" 
 layout-align="start center">
 <div flex>
-<span class="txt-sm">
-{{item.ans_num > 0 ? item.ans_num:''}} {{item.ans_num > 0 ? 'persons':'No one'}}  answered
+<span class="txt-sm"> <i class="fas fa-edit"></i>&nbsp;
+{{item.ans_num}}<span class="sm-hide"> answer{{item.ans_num > 1 ? 's':''}}</span></span>
 </span> &nbsp;|&nbsp; 
-<span class="txt-sm bolder"><a ng-click="">Answer</a> </span>
+<span ng-if="location !== 'topic-feed'" class="txt-sm bolder"><a href="topic/{{item.url}}">Answer</a> </span>
 </div>
 <span>
 <div class="px10">
@@ -324,6 +332,8 @@ iclass="btn-rounded btn btn-sm btn-outline-primary"></a2a-btn>
   <span><button ng-click="sItem('follow_topic')" 
   class="btn {{item.follows > 0 ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
   <i class="fas fa-rss"></i><md-tooltip>Topic Follows</md-tooltip> </button> {{item.follows}}</span>
+  &nbsp; <share-item item="item" counter="item.total_shares" showcount="true"></share-item>
+ 
 </div>
 </span>
 
@@ -341,16 +351,14 @@ restrict: 'EA',
 replace: true,
 template: `
 <div>
-<div class="inner_comment" ng-repeat="itc in item.comment_list">
-<feed-item item="itc"></feed-item>
-</div>
+<answer-comment-pane></answer-comment-pane>
 
 <div class="pb20 px20 article-meta" layout="row" 
 layout-align="start center">
 
 <div flex>
-<span class="txt-sm">
-{{item.com_num > 0 ? item.com_num:''}} {{item.com_num > 0 ? 'persons':'No one has'}}  commented
+<span class="txt-sm"> <i class="fas fa-comments"></i>&nbsp;
+{{item.com_num}}<span class="sm-hide"> comment{{item.com_num > 1 ? 's':''}}</span></span>
 </span> &nbsp;|&nbsp;
 <span class="txt-sm bolder"> <a ng-click="togView('comment')">Comment</a> </span>
 </div>
@@ -362,11 +370,19 @@ layout-align="start center">
   <i class="fas fa-heart"></i><md-tooltip>Likes</md-tooltip> </button>  {{item.upvote}}</span> &nbsp;
   <span><button ng-click="sItem('downvote')" ng-disabled="item.downvoted" 
   class="btn status-cancelled {{item.downvote > 0 ? 'btn-danger':'btn-clear'}} btn-square-sm radius-50">
-  <i class="fas fa-thumbs-down"></i><md-tooltip>Downvotes</md-tooltip> </button> {{item.downvote}}</span>
+  <i class="fas fa-thumbs-down"></i><md-tooltip>Downvotes</md-tooltip> </button> {{item.downvote}}</span> 
 </div>
 
 </div>
-<answer-comment-pane></answer-comment-pane>
+
+
+<div class="inner_comment"  ng-if="location == 'topic-feed'" 
+ng-repeat="itc in item.comment_list track by $index">
+<feed-item item="itc" location="topic-feed"></feed-item>
+</div>
+
+
+
 
 </div>
 `
@@ -380,9 +396,9 @@ restrict: 'EA',
 replace: true,
 template: `
 
-<div class="pb20 px20 article-meta" layout="row">
+<div class="pb0 px0 article-meta" layout="row" layout-align="start center">
 
-<span flex></span>
+<span class="txt-sm  txt-gray" flex> <i class="fa fa-clock"></i>&nbsp;{{item.create_date*1000 |  getTime}}</span>
 
 <div class="px10">
   <span><button ng-click="sItem('upvote')" ng-disabled="item.downvoted"
@@ -391,7 +407,7 @@ template: `
   <span><button ng-click="sItem('downvote')" ng-disabled="item.upvoted" 
   class="btn status-cancelled {{item.downvote > 0 ? 'btn-danger':'btn-clear'}} btn-square-sm radius-50">
   <md-tooltip>Downvotes</md-tooltip><i class="fas fa-arrow-down"></i> </button> {{item.downvote}}</span>
-</div>
+ </div>
 </div><!--meta-div-->
 `
 };
@@ -414,6 +430,7 @@ layout-align="start center">
 </span>
 <span>
 <div class="px10 txt-sm">
+<share-item item="item" counter="item.total_shares" showcount="true"></share-item>
   <span><span ng-if="item.mode !== 'blog'"><button ng-disabled="item.files.length === 0"
   class="btn {{item.files.length > 0 ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
   <i class="fas fa-paperclip"></i><md-tooltip>Files</md-tooltip> </button> {{item.files.length}}</span> &nbsp;</span>
@@ -429,6 +446,7 @@ layout-align="start center">
   <span ng-if="item.mode !== 'blog'"><button ng-click="sItem('purchase_article')" ng-disabled="item.purchased" 
   class="btn {{item.total_purchases > 0 ? 'btn-primary':'btn-clear'}} btn-square-sm radius-50">
   <i class="fas fa-shopping-cart"></i> <md-tooltip>Sales</md-tooltip></button> {{item.total_sales}}</span>
+
 </div>
 </span>
 
@@ -475,17 +493,94 @@ replace: true,
 template: `
 <div class="px20 py20 bg-grayed down_slider relative" ng-show="cCom">
 <div class="relative">
-<div contenteditable="{{true}}" ng-model="item.new_comment" class="quick-comment"></div>
+<div contenteditable="{{true || !item.is_loading}}" ng-model="item.new_comment" class="quick-comment"></div>
 
 <button class="btn btn-quick-com btn-primary"
 ng-disabled="item.new_comment =='' || item.isLoding"
-ng-click="sItem('comment')"> <i class="fas fa-comment"></i> Save</button>
+ng-click="sItem('comment')"> 
+<i class="fas {{item.is_loading ? 'fa-spin fa-cog':'fa-comment'}}"></i> 
+{{item.is_loading ? 'Saving...':'Save'}}</button>
 </div>
 </div><!--cCom-->
 `
 };
 
 }]);//answerCommentPane
+
+
+
+
+zapp.directive('commentItem', ['$http', function ($http) {
+return {
+restrict: 'EA',
+replace: true,
+template: `
+<div class="px0">
+
+<div ng-click="drop_text === true ? null : drop_text = true" 
+class="{{drop_text ? '' : 'cursored'}} px10 pt10 pb5" layout="row" 
+layout-align="start {{drop_text ? 'start':'center'}}">
+<span class="profiler">
+<span class="profile-avatar" 
+style="background: url({{item.avatar}});"></span>
+</span>
+
+<div flex class="pl10">
+<a class="bolder relative" href="{{item.author_url}}">
+{{item.author_name}}</a>
+</span>
+<span ng-if="!drop_text" class="txt-sm  txt-gray" flex> commented at <i class="fa fa-clock"></i>&nbsp;{{item.create_date*1000 |  getTime}}</span>
+
+<div ng-show="drop_text">
+<div class="pt5 mb0">
+<div class="inline-block" ng-bind-html="item.init_comment"></div>
+<a ng-if="item.show_expand_text" ng-click="togShow()"> Show All&nbsp;<i class="fas fa-chevron-down"></i> </a>
+</div>
+<comment-reaction-pane></comment-reaction-pane>
+
+
+<div class="pb10 px20" ng-if="item.location !== 'topic-feed'">
+<div class="inner_comment px10 py10">
+<a class="block" href="topic/{{item.parent_url}}#ms{{item.parent_answer_id}}">
+<div layout="row" layout-align="start start">
+<span class="profile-avatar" 
+style="background: url({{item.parent_avatar || 'images/avatar.jpg'}});"></span>
+</span>
+<div class="pl10" flex>
+<span class="boldest" ng-bind-html="item.parent_author_name"></span>
+<span class="txt-sm  txt-gray" flex> answered at <i class="fa fa-clock"></i>&nbsp;{{item.parent_create_date*1000 |  getTime}}</span>
+
+<div class="pt5 mb0">
+<span class="txt-nm bolder pb10" ng-bind-html="item.title"></span>
+<div>{{(limitWords(strip_tags(item.parent_comment | trusted),30))}}</div>
+</div>
+</div><!--col-->
+</div>
+</a>
+</div>
+
+</div><!--if_not_topic_page-->
+
+
+
+</div>
+</div><!--col-->
+
+<span class="px20" ng-hide="drop_text"><a ng-click="drop_text = true"><i class="fas fa-chevron-down"></i></a></span>
+
+</div><!--row-->
+
+
+ </div>`,
+controller:['$scope','$rootScope', function($scope,$rootScope){
+
+}]//controller
+};
+
+}]);
+
+
+
 
 zapp.directive('postPane', ['$http', function ($http) {
 return {
@@ -533,9 +628,9 @@ replace: true,
 template: `
 <span>
 <a href ng-click="lpn()" class="{{btnClass}}"> 
-<i class="fas fa-question-circle"></i>&nbsp; A2A<md-tooltip>Ask to Answer</md-tooltip></a>
+<i class="fas fa-question-circle"></i><span class="sm-hide">&nbsp; A2A</span>&nbsp;{{count}}<md-tooltip>Ask to Answer</md-tooltip></a>
 </div><!--a2a-->`,
-scope:{qid:'=', iclass:'@'},
+scope:{qid:'=', iclass:'@',count:'@'},
 controller:['$scope','toast', 'modal', function($scope,toast, modal){
   var app_url = 'modules/feed/feedApp.php';
   var app_url2 = 'modules/general/generalApp.php';

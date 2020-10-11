@@ -85,7 +85,8 @@ ng-click="sendAction(a)">
 
 
 <md-list class="border-top">
-<md-progress-linear  md-mode="indeterminate" ng-show="isFetching"></md-progress-linear>
+<comment-holder></comment-holder>
+
  <div class="list-item-cover shadow-md">
  <div ng-repeat="item in messages | filter: search.messages"  ng-init="item.index = $index" class="{{last ? '':'border-bottom'}}">
 <md-list-item class="md-2-line" ng-href="{{module}}/messages/read/{{item.chat_dir}}">
@@ -98,6 +99,14 @@ ng-click="sendAction(a)">
 <span class="md-secondary px10 txt-sm"> <i class="fas fa-clock"></i> {{item.sdate*1000 |  getTime}}</span>
 </md-list-item>
 </div>
+
+<md-list-item  class="md-2-line"  ng-if="(!messages || messages.length <=  0) && !isFetching">
+    <md-icon  class="md-avatar-icon has-awesome"> <i class="fas status-cancelled fa-exclamation-triangle"></i> </md-icon>
+    <div  class="md-list-item-text"  layout="column"  flex>
+    <h3 class="boldest main-font">No Messages Yet</h3>
+    </div>
+  </md-list-item>
+
 </div>
 </md-list>
         

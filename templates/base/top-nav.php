@@ -18,7 +18,7 @@ element.classList.toggle("force-show");
 <nav class="header-column">
 <a class="mobile-nav sm-show fas fa-bars"  onclick="navFn()"></a>
 <ul id="navDiv" class="top-nav">
-	<?php if(!isset($_SESSION['senseiUser']) && !isset($_SESSION['senseiMentor']) && !isset($_SESSION['senseiAdmin'])){ ?>
+<?php if(!isset($_SESSION['senseiUser']) && !isset($_SESSION['senseiMentor']) && !isset($_SESSION['senseiAdmin'])){ ?>
 <li class=""><a class="" href="./">Home</a></li> 
 <?php }else { ?>
 <li class=""><a class="" href="./account/feed">Home</a></li> 
@@ -49,8 +49,3 @@ element.classList.toggle("force-show");
 </div><!--header-row-->
 
 </div>
-<script type="text/javascript">
-function myFunc() { 
-var para = document.getElementById("p"); 
-para.classList.toggle("paragraphClass"); 
-} </script>

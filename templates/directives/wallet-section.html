@@ -1,0 +1,49 @@
+<section>
+<!--<load-holder toshow="!isLoaded" tohide="isLoaded"></load-holder-->
+<div ng-if="isLoaded">
+<div ng-if="mode !== 'wallet'" class="txt-xxsm"> &nbsp;{{!isLoaded ? 'Fetching Wallet Summary':'Wallet Summary'}}</div>
+<div  class="shadow-md bg-white border-radius-8 mb20 ">
+<div layout-xs="column" layout-gt-xs="row" layout-gt-md="row" layout-gt-sm="row">
+<div class="px10 py10 border-bottom" 
+ flex-xs="50" flex-sm="50" flex-gt-sm="30">
+<strong>Ledger <span class="sm-hide"> Balance</span></strong>
+<h2 class="responsive txt-gray"> <span class="pb10">  {{usD.ledger | currency:'₦'}}</span></h2><!--
+<a href ng-click="convert2Cash()" class="btn-xxsm btn py5 px10 btn-outline-primary shadow-none txt-xxsm bold">Convert To Cash <i class="fas fa-arrow-right"></i></a>
+-->
+</div><!--col-->
+<md-divider class="px20"></md-divider>
+
+<div class="px10 py10 border-bottom"   flex-xs="50" flex-sm="50" flex-gt-sm="30">
+<strong>Campaign <span class="sm-hide"> Balance</span></strong>
+<h2 class="responsive color-warn"> <span class="pb10">{{usD.campaign_balance | currency:'₦'}}</span></h2> 
+<convert-campaign-btn data="usD"></convert-campaign-btn>
+</div><!--col-->
+
+<md-divider class="px20"></md-divider>
+<div class="px10 py10 text-right" flex>
+	<strong>Withdrawable </strong>
+<h2 class="responsive color-good bolder">{{usD.withdrawable | currency:'₦'}}</h2>
+<withdraw-btn data="usD"></withdraw-btn>
+</div><!--col-->
+
+
+</div><!--row-->
+<div ng-if=" mode == 'wallet' ">
+<md-divider></md-divider>
+
+<div class="py10 px10" layout="row">
+<span class="" flex></span><!--col-->
+<span class="text-right">
+<fund-btn
+fdata="{}"
+text="FUND WALLET"  
+btnclass="btn shadow-none btn-sm boldest  btn-warning"></fund-btn> 
+</span><!--col-->
+</div><!--row--> 
+</div><!--if-wallet-->
+</div><!--card-->
+
+
+</div>
+
+</section>

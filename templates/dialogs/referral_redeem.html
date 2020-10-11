@@ -1,0 +1,99 @@
+<md-dialog class="responsive">
+<div class="slide-in-up ng-leave ng-leave-active relative border-radius-8 bg-white"  style=" ">
+<a class="cloxer" ng-click="closeThisDialog()" title="Close This Dialog"> <i class="fas fa-close"></i> </a>
+<div class="bolder px15 py15"><span class="fas fa-credit-card"></span> &nbsp; Redeem Earnings</div>
+
+<div class="border-top py0 responsive-modal" ng-init="ld.mode = 'wallet'">
+
+
+<form name="authForm">
+
+<md-tabs md-border-bottom md-dynamic-height class="md-default">
+<md-tab md-on-select="ld.mode = 'wallet'">
+<md-tab-label>
+<span><i class="fas fa-folder-open"></i> &nbsp; TO WALLET </span>
+</md-tab-label>
+<md-tab-body>
+
+<div class="md-padding md-content">
+
+<md-progress-linear ng-show="isLoading" md-mode="indeterminate"></md-progress-linear>    
+<div ng-bind-html="imessage">{{imessage}}</div>
+<div ng-hide="hideForm">
+<div class="px10 py10 text-left" flex><strong>Total Earned </strong>
+<h1>{{earn.revenue | currency:'₦'}}</h1>
+</div><!--col-->
+<input type="hidden" ng-init="ld.mode = 'wallet'"  ng-model="ld.mode">
+<input type="hidden" ng-init="ld.amount = earn.revenue"  ng-model="ld.amount">
+<div class="py5" layout="row"> 
+<button class="btn btn-block btn-secondary btn-md" 
+ng-click="redeemEarn(ld)"><i class="fas fa-folder-open"></i> &nbsp; REDEEM TO WALLET </button>   
+</div>
+
+</div>
+
+</div><!--</md-content>-->
+
+</md-tab-body>
+</md-tab>
+
+<md-tab md-on-select="ld.mode = 'bank'">
+<md-tab-label>
+<span><i class="fas fa-bank"></i> &nbsp; TO BANK ACCOUNT </span>
+</md-tab-label>
+<md-tab-body>
+
+
+<div class="md-padding md-content">
+<md-progress-linear ng-show="isLoading" md-mode="indeterminate"></md-progress-linear>    
+<div ng-bind-html="imessage"></div>
+
+
+<input type="hidden" ng-init="ld.amount = earn.revenue"  ng-model="ld.amount">
+<div class="form-group" layout="row" ng-init="ld.bank_name = ''">
+<input type="text" class="form-control" ng-model="ld.bank_name" placeholder="Bank Name">
+</div>
+
+
+
+<div class="form-group" layout="row" ng-init="ld.bank_account_number = ''">
+<input type="text" class="form-control" ng-model="ld.bank_account_number" placeholder="Account Number">
+</div>
+
+
+
+<div class="form-group" layout="row" ng-init="ld.bank_account_name = ''">
+<input type="text" class="form-control" ng-model="ld.bank_account_name" placeholder="Account Name">
+</div>
+
+
+<div class="form-group" layout="row" flex layout="row" ng-init="ld.bank_account_type = ''">
+<select class="form-control" ng-model="ld.bank_account_type"  required>
+	<option value="">Account Type</option>
+	<option value="savings">Savings</option>
+	<option value="current">Current</option>
+</select>
+</div>
+
+<input type="hidden" ng-init="ld.mode = 'bank'"  ng-model="ld.mode">
+
+<div class="form-group" ng-show="ld.invite_mail !== '' && ld.subject !== ''">
+<button type="submit" class="btn btn-sm btn-primary" ng-click="redeemEarn(ld)">Redeem Earning</button>
+</div>
+
+
+</div><!--md-content-->
+
+</md-tab-body>
+</md-tab>
+</md-tabs>
+
+
+
+</form>
+
+
+</div>
+
+</div>
+</md-dialog>

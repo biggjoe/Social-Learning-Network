@@ -1,0 +1,74 @@
+
+
+<sticky-header icon="fa-credit-card" title="Withdrawal Requests"></sticky-header>
+
+
+
+<section class="shadow-darken-bold bg-white border-radius mb30-mxl ">
+
+
+
+
+<md-list class="border-top">
+<comment-holder></comment-holder>
+
+<div class="list-item-cover shadow-md">
+<div class="border-bottom py5 pl20 pr10" layout="row" layout-align="start center">
+<span class="text-center"> 
+<md-icon  class="md-avatar-icon has-awesome"> <span ng-include="'templates/options/sort-options.html'"></span> </md-icon>
+    </span>  
+<span class="pl20 text-left boldest" flex> Request  </span>
+<div class="text-center boldest px10 py7"> 
+
+<span class="bordered mr10 py7 border-radius-4" ng-show="togSearch">
+<input type="text" class="input-sm py7 px10" ng-model="search.payouts" placeholder="Search Withdrawals">
+</span>
+<span>
+<a href ng-click="sortTab = ''; search.payouts = '';
+togSearch = !togSearch"><i class="fas {{togSearch ? 'fa-times':'fa-search'}}"></i></a> 
+</span>
+<span class="bordered ml10 py7 border-radius-4" ng-show="!togSearch">
+<md-input-container class="py0" style="margin:0 !important;">
+<md-select class="no_border" aria-label="Sort" ng-model="sortTab" md-placeholder="Sort By">
+<md-option ng-value="''" ng-selected="true">&nbsp; <i class="fas fa-sort"></i>&nbsp; Sort By</md-option>
+<md-option value="0">&nbsp; <i class="fas fa-hourglass-half"></i>&nbsp; Pending</md-option>
+<md-option ng-value="1">&nbsp; <i class="fas fa-check-circle"></i>&nbsp; Approved</md-option>
+<md-option ng-value="-1">&nbsp; <i class="fas fa-exclamation-triangle"></i>&nbsp; Cancelled</md-option>
+  </md-select> 
+ 
+</md-input-container>
+</span>
+
+</div><!--col-->
+</div>
+ 
+
+
+ <div ng-repeat="item  in alt = (payouts  | filterBy: ['status']: sortTab | filter: search.payouts)"  ng-init="item.index = $index" class="{{last ? '':'border-bottom'}}">
+<md-list-item class="md-2-line" ng-click="item.ctrl = 'newDrawCtrl' ; launchPreview(item)">
+<md-icon  class="md-avatar-icon has-awesome"> <i class="fas {{item.status == 1 ? ' fa-check-circle status-active ' : ' fa-hourglass-half '}}"></i> </md-icon>
+
+<div class="md-list-item-text">
+<h3 class="boldest main-font">{{item.amount | currency:'₦'}}</span></h3>
+<p><span><span class="txt-xsm bolder"> via: </span>   {{item.bank_name}}</span></p>
+</div>
+<span class="md-secondary px10 txt-sm"> <i class="fas fa-clock"></i> {{item.wdate*1000 |  getTime}}</span>
+</md-list-item>
+</div>
+
+
+
+
+<md-list-item  class="md-2-line"  ng-if="(!alt || alt.length <=  0) && !isFetching">
+    <md-icon  class="md-avatar-icon has-awesome"> <i class="fas status-cancelled fa-exclamation-triangle"></i> </md-icon>
+    <div  class="md-list-item-text"  layout="column"  flex>
+    <h3 class="boldest main-font">No Withdrawal Request Yet</h3>
+    </div>
+  </md-list-item>
+
+</div>
+
+</md-list>
+
+</section>
+

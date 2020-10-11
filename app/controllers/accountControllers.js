@@ -13,6 +13,7 @@ var zapp = angular.module('account.controller', [
 ,'feed.directives'
 ,'app.filters'
 ,'ngWig'
+,'ngClipboard'
 ,'general.controller'
 ]);
 var dt = {btn:{}}
@@ -25,6 +26,8 @@ dt.feed_offset = 'feed_offset';
 dt.feed_rows = 'feed_rows';
 dt.loading = 'isLoading';
 dt.action_name = 'action_name';
+
+
 
 zapp.run([
   '$rootScope',
@@ -42,18 +45,28 @@ zapp.run([
   run,
   modal,
   fileUpload){
-
+$window.fbAsyncInit = function() {
+    FB.init({ 
+      appId: '375040369837254',
+      status: true, 
+      cookie: true, 
+      xfbml: true,
+      version: 'v2.4'
+    });
+};
 $rootScope.$on('$stateChangeSuccess',
   function (event, toState, toParams, fromState, fromParams) {
 //console.log(toState,fromState)
 });
 $rootScope.module = 'account';
 /**/
+$rootScope.isLoaded = false;
 $rootScope.userData = {isLogged:false,isLoaded:false,notifs:0,messages:0};
 run.getUserData().then(function(res){
   console.log(res)
 $rootScope.userData = {...$rootScope.userData,...res};
 $rootScope.userData.isLoaded = true;
+$rootScope.isLoaded = true;
 //console.log('acc_controx ::: ',$rootScope.userData)
 })
 
@@ -317,33 +330,140 @@ $rootScope.userData.notifNum = $rootScope.userData.notifNum - 1;
 }
 }
 
+
+$scope.viewSet = false;
+$scope.modalData = {};
+$scope.strip_tags = function(text) {return run.strip_tags(text);}; 
+$scope.limitWords = function(text,num) {return run.limit_words(text,num)};         
+
+$scope.exeMark = function(item,list){
+var ids = run.stripIds($scope.selected_messages);
+$scope.doMark(item,list);
+var data = {};
+data.action = 'setNotification';
+data.setmode = item;
+data.scope = 'modalData';
+data.appLink = 'modules/general/generalApp.php';
+data.data = run.stripIds($scope.selected_messages);
+data.callback_after = 'callback_after';
+data.callback_before = 'callback_before';
+//data.state = $state;
+$scope.callback_before = function(){
+$scope.lockbtns = true;
+}
+$scope.callback_after = function(res){
+toast.show({message:res.mess,delay:3000});
+$rootScope.userNotif =  (item =='unread') ? 
+($rootScope.userNotif + ids.length)
+: (item == 'read') ? ($rootScope.userNotif - ids.length) : $rootScope.userNotif;
+$scope.markSelected(item,$scope.notifications,ids);
+$scope.lockbtns = false;
+}
+//data.reloadState = true;
+senData(data,$scope,run);
+}
+
+$scope.selected_messages = [];
+
+$scope.setMark = function(item,list){
+run.setMark(item,list,$scope);
+}
+
+$scope.doMark = function(mode,list){
+run.doMark(mode,list,$scope.selected_messages);
+}//
+
+$scope.markSelected = function(mode,list,ids){
+run.markSelected(mode,list,ids);
+}//
+
+$scope.unMarkAll = function(list){
+run.unMarkAll(list);
+}//
+
+$scope.toggleSelection = function(obj) {
+run.toggleSelection(obj,$scope.notifications,$scope.selected_messages)
+};
+
+//
+$scope.markNot =   function(data){
+run.markNotification(data).then( function(rt){
+$scope.notifications[data.index].status =
+ data.mode;
+$rootScope.userNotif = (data.curStatus == 0)  
+? $rootScope.userNotif-1:$rootScope.userNotif;
+})
+}
+
 }]);//notificationsCtrlCtrl
+
 
 
 zapp.controller("walletCtrl", 
 [
-  '$scope',
-  '$rootScope',
-  '$timeout',
-  '$http',
-  '$window',
-  'run',
-  'modal',
-  function( 
-  $scope,
-  $rootScope,
-  $timeout,
-  $http,
-  $window,
-  run,
-  modal){
-var app_url = 'modules/general/generalApp.php';
+'$scope',
+'$rootScope', 
+'$mdDialog',
+'$timeout',
+'$window',
+'$http',
+'$state',
+'$stateParams',
+'doPay',
+'run',
+'modal',
+function(
+$scope,
+$rootScope, 
+$mdDialog,
+$timeout,
+$window,
+$http,
+$state,
+$stateParams,
+doPay,
+run,
+modal) {
 
 
-//run.getList(glk,$scope);   
+var apl = 'modules/general/generalApp.php';
 
 
-dt['url'] = app_url;
+}]);
+
+
+
+zapp.controller("withdrawalCtrl", 
+[
+'$scope',
+'$rootScope', 
+'$mdDialog',
+'$timeout',
+'$window',
+'$http',
+'$state',
+'modal',
+'run',
+'ngClipboard',
+function(
+$scope,
+$rootScope, 
+$mdDialog,
+$timeout,
+$window,
+$http,
+$state,
+modal,
+run,
+ngClipboard) {
+
+
+var  appLink='modules/general/generalApp.php';
+dt['action_name'] = '';
+dt['params'] = {action:'get_payouts'};
+dt['feed_scope'] = 'payouts';
+$scope[dt['feed_scope']] = [];
+dt['url'] = appLink;
 dt['loading'] = 'isFetching';
 dt['disable_btn']  = 'disable_btn';
 $scope[dt['btn_text']] = '_____';
@@ -355,89 +475,233 @@ $scope[dt['feed_rows']] = 12;
 $scope[dt['loading']] = false;
 $scope[dt['disable_btn']] = true;
 
-
-
-$scope.$on('$stateChangeSuccess',
-  function (event, toState, toParams, fromState, fromParams) {
-const ru = toState.name.split('.');
-let navTab = ru[1];
-$rootScope.navTab = navTab;
-let actb = 'get_user_wallet_'+navTab;
-let scp = 'user_wallet_'+navTab;
-
-dt['params'] = {action:actb};
-dt['feed_scope'] = scp;
-$scope[dt['feed_scope']] = [];
 $scope.loadMore = function(){
 run.getloadMore(dt,$scope);
 }
 $scope.loadMore();
-/*
-let params = {action:actb};
-console.log(params)
-$http.post(app_url,params).then(function(res){
-  console.log(res)
-$scope[scp] = res.data[scp];
-})
-*/
-});
-$rootScope.wallet_tabs = [
-{name:'Summary',url:'summary',icon:'fa-stream'},
-{name:'Sales',url:'sales',icon:'fa-money'},
-{name:'Purchases',url:'purchases',icon:'fa-shopping-cart'},
-{name:' Referral ',url:'referral',icon:'fa-users'},
-{name:'Settlements',url:'settlements',icon:'fa-gift'}
-];
 
 
-$scope.modalData = {};
+$scope.copyLink =  ngClipboard.toClipboard;
+
+
+$scope.launchPreview = function(data){
+//data.ctrl = 'withdrawalCtrl'; 
+data.pageTitle = 'Payout Request'; 
 var options = {};
-$scope.launchView = function(item){
-  console.log('-',item)
-options.page = 'templates/directives/dial_page.html';
-var data = {ctrl:'paymentCtrl',pageTitle:'Payment Details'};
-options.data = {...item,...data};
+options.page = 'templates/dialogs/dialPage.html';
+//options.ctrl = withdrawalCtrl;
+options.data = data;
 $scope.modalData = options.data;
-modal.show(options,$scope)
-}
-
-$scope.submitPay = ()=>{
-var options = {data:{}}
-options.page = 'templates/dialogs/submit_pay.html';
 modal.show(options,$scope);
 }
 
 
-$scope.sendPayment = function(data){
-data.action = 'submitPayment';
-data.date = (new Date(data.date).getTime())/1000;
-data.amount = data.dueAmount*100;
-data.transactionName = 'Wallet Funding';
-console.log(data);
-$http.post('modules/payApp.php',data).then(function(res){
-var rs = res.data;
-console.log(rs);
-if(rs.uid > 0){
-$scope.payments.unshift(rs.pay_data);
- $scope.imessage = `<div class="good px10 py10"> <i class="fas fa-check-circle status-active"></i> &nbsp;Your Payment notification has been received.
-  You will be notified when it is approved</div>`;
-  $scope.hideForm = true;
-}else{
- $scope.imessage = `<div class="error px10 py10"><i class="fas fa-exclamation-triangle status-cancelled"></i> &nbsp;Your Payment notification failed to be submitted at this time.
-  Try again later</div>`;
-    $scope.hideForm = false;
-}  
+}]);
 
+
+
+
+
+zapp.controller("referralCtrl", 
+[
+'$scope',
+'$rootScope',
+'$timeout',
+'$window',
+'$http',
+'$state',
+'$stateParams',
+'run',
+'modal',
+'$mdDialog',
+'$mdConstant',
+'ngClipboard',
+function(
+$scope,
+$rootScope,
+$timeout,
+$window,
+$http,
+$state,
+$stateParams,
+run,
+modal,
+$mdDialog,
+$mdConstant,
+ngClipboard) {
+
+
+$rootScope.usD = {};
+$scope.isLoaded = false;
+$scope.isFetching=false;
+var  appLink=  appLink2='modules/general/generalApp.php';
+
+$rootScope.ref_loaded = false;
+
+
+var apl = 'modules/general/generalApp.php';
+$scope.ref_loaded = false;
+$http.post(apl,{action:'get_referral'}).then(function(res){
+console.log(res);
+$scope.referral = res.data.referral;
+$scope.ref_loaded = true;
+});
+
+$scope.copyLink =  ngClipboard.toClipboard;
+$scope.ldata = {};
+$scope.launchInvite = function(data){
+  console.log(data)
+var options = {};
+options.width = '';
+options.page = 'templates/dialogs/referral_invite.html';
+options.data = data;
+$scope.listers = data;
+modal.show(options,$scope); 
+};
+
+
+$scope.launchRedeem = function(ev,data){
+console.log(data)
+var options = {};
+options.width = '';
+options.page = 'templates/dialogs/referral_redeem.html';
+options.data = data;
+$scope.listers = data;
+modal.show(options,$scope);
+}
+
+$scope.listers = $scope.earn =  [];;
+
+
+$scope.addNums = function(data){ 
+console.log(data)
+data.push({number:''})
+}
+
+$scope.removeNum = function(list,obj){
+list.splice(list.indexOf(obj),1);
+}
+
+$scope.isLoading = false;
+$scope.sendInvite = function(data,mode){ 
+console.log(data,mode);
+$scope.isLoading = true;
+$http.post(appLink2,{action:'sendReferralInvite', data:data,mode:mode}).then(function(res){
+console.log(res);
+$scope.isLoading = false;
+var iclass  = (res.data.status == '1') ? 'good':'error';
+$scope.isLoading  = false;
+$scope.hideForm  = (res.data.status == '1') ? true : false;
+$scope.imessage =  '<div class="'+iclass+'">'+res.data.message+'</div>';
+if(res.data.status == '1'){
+//$timeout(function() {
+  //$state.transitionTo($state.current, $stateParams, { 
+  //reload: true, inherit: false, notify: true
+//});
+//$scope.closeThisDialog();  
+//}, 2000);
+}//if status
 });
 }
 
+$scope.closeThisDialog = function() {
+modal.close();
 
-$scope.modalData = [];
-$scope.launchQuery = function(){
-modal.show({page:'templates/dialogs/quick_query_search.html',data:$scope.modalData},$scope)
+};
+
+$scope.isEdit = false;
+$scope.separator_keys = [$mdConstant.KEY_CODE.ENTER, $mdConstant.KEY_CODE.SPACE, $mdConstant.KEY_CODE.COMMA];
+$scope.updateSubject = function($chip,mode){
+console.log($chip,mode)
+}
+$scope.referral = false;
+
+$rootScope.$watch('isLoaded', function(value){
+$scope.isLoaded = value;
+if(value == true){
+$scope.usD = $scope.data;
+$scope.isLoading = false;
+}//ifLoaded
+})//$watch
+
+
+
+$scope.copyLink =  ngClipboard.toClipboard;
+
+
+}]); 
+
+
+
+
+
+
+
+zapp.controller("transactionCtrl", 
+[
+'$scope',
+'$rootScope', 
+'$mdDialog',
+'$timeout',
+'$window',
+'$http',
+'$state',
+'$stateParams',
+'modal',
+'run',
+function(
+$scope,
+$rootScope, 
+$mdDialog,
+$timeout,
+$window,
+$http,
+$state,
+$stateParams,
+modal,
+run) {
+var  appLink='modules/general/generalApp.php';
+dt['action_name'] = '';
+dt['params'] = {action:'get_transactions'};
+dt['feed_scope'] = 'transactions';
+$scope[dt['feed_scope']] = [];
+dt['url'] = appLink;
+dt['loading'] = 'isFetching';
+dt['disable_btn']  = 'disable_btn';
+$scope[dt['btn_text']] = '_____';
+$scope[dt['btn_icon']] = 'fa-ellipsis-v';
+$scope[dt['feed_end']] = false; 
+$scope[dt['feed_page']] = 10;
+$scope[dt['feed_offset']] = 0;
+$scope[dt['feed_rows']] = 12;
+$scope[dt['loading']] = false;
+$scope[dt['disable_btn']] = true;
+
+$scope.loadMore = function(){
+run.getloadMore(dt,$scope);
+}
+$scope.loadMore();
+
+$scope.launchPreview = function(data){
+console.log(data)
+var options = {};
+options.page = 'templates/dialogs/dialPage.html';
+//options.ctrl = transactionsCtrl;
+data.ctrl = 'transactionsCtrl';
+data.amount = data.cost; 
+data.pdate = data.tdate; 
+data.pageTitle = 'Transaction Detail';
+options.data = data;
+$scope.modalData = data;
+modal.show(options,$scope);
+}
+var transactionsCtrl = ($scope,data) =>{
+$scope.modalData = data.data;
+$scope.closeThisDialog = ()=>{$mdDialog.hide();}
 }
 
-}]);//payCtrl
+}]);
+
 
 zapp.controller("accountCtrl", 
 [

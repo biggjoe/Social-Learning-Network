@@ -41,7 +41,15 @@ zapp.run([
   run,
   $document,
   modal){
-
+$window.fbAsyncInit = function() {
+    FB.init({ 
+      appId: '375040369837254',
+      status: true, 
+      cookie: true, 
+      xfbml: true,
+      version: 'v2.4'
+    });
+};
 
 $rootScope.goBack = function() {
   window.history.back();
@@ -63,6 +71,8 @@ $http.post(app_url,params).then(function(res){
 $rootScope.article_details = res.data.article_details;
 $rootScope.article_details.guest_commenter = 
 ($rootScope.userData.isLogged) ? false:true;
+$rootScope.article_details.share_page = 'article';
+$rootScope.article_details.description = res.data.content;
 })
 $rootScope.details_page = true;
 }//if articles.details
@@ -113,9 +123,19 @@ zapp.controller("articleDetailsCtrl",
   $filter,
   toast){
 
-
+var app_url = 'modules/general/generalApp.php';
 $scope.saveComm = function(data){
-console.log(data)
+console.log(data.newComment);
+data.action = 'save_artilce_comment';
+$http.post(app_url,data).then(function(res){
+console.log(res);
+let rs = res.data;
+if(rs.status === '1'){
+data.newComment = '';
+$scope.do_comm = false;
+$scope.article_details.all_comments.unshift(rs.last_comment);
+}
+})
  }
 $scope.lf = function(data){
 let fsz = $filter('showSize')(data.size);  

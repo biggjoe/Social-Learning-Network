@@ -22,7 +22,7 @@ include 'header.php';
 
  
  ?>
-<div class="pane-container">
+<div class="pane-container" ng-cloak>
 
 
 

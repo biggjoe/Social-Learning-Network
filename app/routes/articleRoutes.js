@@ -10,7 +10,7 @@ zapp.config( ['$stateProvider',
 //$locationProvider.html5Mode(true);
 $locationProvider.html5Mode({ enabled: true, requireBase: false, rewriteLinks: false });
 //$urlRouterProvider.when('/', '/profile/details');
-$urlRouterProvider.when('/article', '/article/list');
+$urlRouterProvider.when('/article', '/articles');
 $stateProvider
 .state('article',{
  url: '/article',

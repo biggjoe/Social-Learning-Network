@@ -1,0 +1,21 @@
+<section ng-show="friend_suggest_list.length > 1">
+	<div class="py10 px20 bolder" layout="row" layout-align="start center">
+<span flex>
+<i class="fas fa-user-tie"></i>&nbsp; Suggested Mentors</span>
+<span class="pl10"><a ng-click="lSet()"> <i class="fas fa-cog"></i> </a> </span>
+</div>
+<ul class="friend-suggester">
+	<li ng-repeat="item in friend_suggest_list">
+		<span class="profiler"> <span class="profile-avatar" style="background: url({{item.avatar}});"></span> </span>
+		<div class="user-meta">
+			<h4><a href="profile/{{item.username}}">{{item.name}}</a></h4>
+			<div class="act-meta">
+			<div class="txt-xsm bio-span" ng-bind-html="item.lesser">
+			
+			</div><!--col--> 
+			<span> <user-follow-btn item="item" hidetext="true"></user-follow-btn> </span><!--col-->   
+			</div>
+		</div><!--col-->
+	</li>
+</ul>
+</section>
