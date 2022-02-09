@@ -11,11 +11,7 @@
 class DbConn
 {
   
-  /*   
-  protected $db = 'cyprexco_sensei';
-  protected $user = 'cyprexco_user1';
-  protected $pass = '0364Martin@';
-    */
+
  
   protected $db = 'quora';
   protected $user = 'root';
